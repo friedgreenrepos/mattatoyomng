@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item
+		android:id="@+id/eventsItem"
+		android:title="Events"/>
+	<item
+		android:id="@+id/searchItem"
+		android:title="Search"/>
+	<item
+		android:id="@+id/todoItem"
+		android:title="Todo"/>
+	<item
+		android:id="@+id/profileItem"
+		android:title="Profile"/>
+	
+</menu>
