@@ -3,4 +3,6 @@
     <string name="delete">Delete</string>
     <string name="save">Save</string>
     <string name="activity_title_view">Calendar View Sample</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
 </resources>
