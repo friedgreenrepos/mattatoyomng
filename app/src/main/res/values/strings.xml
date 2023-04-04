@@ -5,6 +5,30 @@
 	<string name="activity_title_view">Calendar View Sample</string>
 	<string name="open">Open</string>
 	<string name="close">Close</string>
-	<!-- TODO: Remove or change this placeholder text -->
+
 	<string name="hello_blank_fragment">Hello blank fragment</string>
+	<string name="dialog_delete_confirmation">Delete this event?</string>
+	<string name="email_address">Email address</string>
+	<string name="password">Password</string>
+	<string name="login">Login</string>
+	<string name="forgot_password">Forgot Password?</string>
+	<string name="register">Register</string>
+	<string name="email">Email</string>
+	<string name="already_registered">Already registered?</string>
+	<string name="logo">LOGO</string>
+	<string name="login_here">Login here</string>
+	<string name="title_activity_login">LoginActivity</string>
+	<string name="prompt_email">Email</string>
+	<string name="prompt_password">Password</string>
+	<string name="action_sign_in">Sign in or register</string>
+	<string name="action_sign_in_short">Sign in</string>
+	<string name="welcome">"Welcome !"</string>
+	<string name="invalid_username">Not a valid username</string>
+	<string name="invalid_password">Password must be >5 characters</string>
+	<string name="login_failed">"Login failed"</string>
+	<string name="not_registered">Not registered?</string>
+	<string name="register_here">Register here</string>
+	<string name="credentials_empty">Email and password fields cannot be empty</string>
+	<string name="auth_failed">Authentication failed</string>
+
 </resources>

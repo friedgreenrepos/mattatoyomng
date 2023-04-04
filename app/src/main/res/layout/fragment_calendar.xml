@@ -8,6 +8,20 @@
 	android:focusable="true"
 	tools:context=".CalendarFragment">
 
+	<com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/activityToolbar"
+            android:layout_width="match_parent"
+            app:title="@string/app_name"
+            android:layout_height="?attr/actionBarSize"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
 	<androidx.core.widget.NestedScrollView
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
@@ -41,7 +55,7 @@
 				tools:text="7 Jan, 2019" />
 
 			<androidx.recyclerview.widget.RecyclerView
-				android:id="@+id/exThreeRv"
+				android:id="@+id/calendarRV"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:nestedScrollingEnabled="false" />
@@ -57,7 +71,7 @@
 		android:layout_gravity="end|bottom"
 		android:layout_margin="20dp"
 		app:tint="@color/white"
-		app:backgroundTint="@color/colorAccent"
+		app:backgroundTint="@color/colorPrimary"
 		app:srcCompat="@drawable/ic_add"
 		android:contentDescription="ADD" />
 </FrameLayout>
