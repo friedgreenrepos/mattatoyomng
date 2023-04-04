@@ -34,8 +34,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onStart()
         // Check if user is signed in (non-null) and update UI accordingly.
         val currentUser = auth.currentUser
-        Log.d(TAG, "this is onStart()")
-        Log.d(TAG, "current user = $currentUser")
         if (currentUser == null) {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
@@ -63,9 +61,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val navView = binding.navView
         navView.setNavigationItemSelectedListener(this)
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, CalendarFragment()).commit()
-            navView.setCheckedItem((R.id.calendarItem))
+            // TODO: swap string 'Events' for item title
+            // TODO: find out how to access title from item id
+            replaceFragment(EventsFragment(), "Events")
+            navView.setCheckedItem((R.id.eventsItem))
         }
     }
 
@@ -88,8 +87,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         item.isChecked = true
         when (item.itemId) {
-            R.id.calendarItem -> {
-                replaceFragment(CalendarFragment(), item.title.toString())
+            R.id.eventsItem -> {
+                replaceFragment(EventsFragment(), item.title.toString())
             }
             R.id.searchItem -> {
                 Toast.makeText(this@MainActivity, "search Item Clicked", Toast.LENGTH_SHORT)
