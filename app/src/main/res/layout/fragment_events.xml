@@ -33,4 +33,15 @@
 			app:layout_constraintTop_toTopOf="parent" />
 	</androidx.constraintlayout.widget.ConstraintLayout>
 
+	<com.google.android.material.floatingactionbutton.FloatingActionButton
+		android:id="@+id/addEventBTN"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="end|bottom"
+		android:layout_margin="20dp"
+		app:tint="@color/white"
+		app:backgroundTint="@color/colorPrimary"
+		app:srcCompat="@drawable/ic_add"
+		android:contentDescription="ADD" />
+
 </FrameLayout>

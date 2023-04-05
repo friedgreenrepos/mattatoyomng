@@ -11,7 +11,8 @@ import android.app.Application
 class User : Application(){
     val name: String? = null
     val surname: String? = null
-    val username: String? = null
+    val email: String? = null
+    val userid: String? = null
     val admin: Boolean = false
 
     companion object {

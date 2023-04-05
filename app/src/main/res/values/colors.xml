@@ -17,6 +17,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="matta_blue">#3F51B5</color>
     <color name="matta_red">#D30D3C</color>
+    <color name="red_grey">#A77B86</color>
 
     <color name="colorPrimary">@color/matta_red</color>
     <color name="colorSecondary">#cddc39</color>

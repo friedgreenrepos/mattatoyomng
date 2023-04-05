@@ -30,5 +30,13 @@
 	<string name="register_here">Register here</string>
 	<string name="credentials_empty">Email and password fields cannot be empty</string>
 	<string name="auth_failed">Authentication failed</string>
+	<string name="title">Title</string>
+	<string name="description">Description</string>
+	<string name="add_event_image">Add event image</string>
+	<string name="date_placeholder">January 1, 1970</string>
+	<string name="time_placeholder">00:00</string>
+	<string name="add_reminder">Add reminder</string>
+	<string name="add_tag">Add tag</string>
+	<string name="add_people">Add people</string>
 
 </resources>

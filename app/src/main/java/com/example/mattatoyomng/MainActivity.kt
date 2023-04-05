@@ -15,6 +15,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
+private const val TAG: String = "MainActivity"
+
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var binding: ActivityMainBinding
@@ -27,8 +29,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     // firebase auth
     private lateinit var auth: FirebaseAuth
-
-    private var TAG: String = "MainActivity"
 
     public override fun onStart() {
         super.onStart()
@@ -61,8 +61,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val navView = binding.navView
         navView.setNavigationItemSelectedListener(this)
         if (savedInstanceState == null) {
-            // TODO: swap string 'Events' for item title
-            // TODO: find out how to access title from item id
+            // TODO: swap string 'Events' for menu item title. How to access title from item?
             replaceFragment(EventsFragment(), "Events")
             navView.setCheckedItem((R.id.eventsItem))
         }

@@ -20,6 +20,8 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
 
+private const val TAG: String = "EventsFragment"
+
 class EventsFragment : Fragment() {
 
     private lateinit var binding: FragmentEventsBinding
@@ -30,8 +32,6 @@ class EventsFragment : Fragment() {
     // Firebase references
     private var db = FirebaseFirestore.getInstance()
     private var storageReference = FirebaseStorage.getInstance().reference
-
-    private var TAG: String = "EventsFragment"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
