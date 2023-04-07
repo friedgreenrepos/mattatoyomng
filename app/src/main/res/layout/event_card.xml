@@ -4,7 +4,6 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<data>
-
 		<variable
 			name="event"
 			type="com.example.mattatoyomng.models.Event" />

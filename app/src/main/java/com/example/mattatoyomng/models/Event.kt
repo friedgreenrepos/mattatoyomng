@@ -17,7 +17,7 @@ data class Event(
     companion object {
         @BindingAdapter("eventImgURL")
         @JvmStatic
-        fun setImageByRes(imageView: ImageView, imgUrl: String){
+        fun loadImage(imageView: ImageView, imgUrl: String) {
             Glide.with(imageView.context)
                 .load(imgUrl)
                 .into(imageView)
