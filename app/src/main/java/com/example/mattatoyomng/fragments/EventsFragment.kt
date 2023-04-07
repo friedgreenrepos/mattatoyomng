@@ -49,18 +49,6 @@ class EventsFragment : Fragment() {
             startActivity(intent)
         }
 
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        eventRecyclerView.setHasFixedSize(true)
-        eventRecyclerView.layoutManager = LinearLayoutManager(activity)
-    }
-
-    override fun onStart() {
-        super.onStart()
-
         db.collection("events")
             .get()
             .addOnSuccessListener { it ->
@@ -83,5 +71,14 @@ class EventsFragment : Fragment() {
                 Log.e(TAG, "ERROR: ${it.message}")
                 Toast.makeText(this.context, it.toString(), Toast.LENGTH_SHORT).show()
             }
+
+        return binding.root
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        eventRecyclerView.setHasFixedSize(true)
+        eventRecyclerView.layoutManager = LinearLayoutManager(activity)
+    }
+
 }
