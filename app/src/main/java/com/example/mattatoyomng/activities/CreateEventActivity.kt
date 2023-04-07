@@ -166,9 +166,6 @@ class CreateEventActivity : AppCompatActivity() {
     }
 
     private fun saveEvent() {
-        // make progress bar visible
-        binding.createEventPB.visibility = View.VISIBLE
-
         // get event info
         val title: String = binding.eventTitleET.text.toString()
         val description: String = binding.eventDescriptionET.text.toString()
@@ -180,6 +177,9 @@ class CreateEventActivity : AppCompatActivity() {
 
         // title must not be empty to create event
         if (!TextUtils.isEmpty(title)) {
+            // make progress bar visible
+            binding.createEventPB.visibility = View.VISIBLE
+
             // save image to Firebase Storage "events_images" folder
             val filePath: StorageReference = storageReference
                 .child("events_images")
