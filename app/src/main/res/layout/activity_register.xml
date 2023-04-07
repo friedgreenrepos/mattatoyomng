@@ -6,7 +6,7 @@
 	android:layout_height="match_parent"
 	android:orientation="vertical"
 	android:padding="24dp"
-	tools:context=".RegisterActivity">
+	tools:context=".activities.RegisterActivity">
 
 	<ImageView
 		android:id="@+id/imageView"
@@ -22,6 +22,22 @@
 		android:orientation="vertical"
 		android:layout_gravity="center"
 		android:layout_marginTop="10dp">
+
+		<EditText
+			android:id="@+id/regNameET"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:hint="@string/name"
+			android:inputType="textCapSentences"
+			android:autofillHints="Jane" />
+
+		<EditText
+			android:id="@+id/regSurnameET"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:hint="@string/surname"
+			android:inputType="textCapSentences"
+			android:autofillHints="Jane" />
 
 		<EditText
 			android:id="@+id/regEmailET"

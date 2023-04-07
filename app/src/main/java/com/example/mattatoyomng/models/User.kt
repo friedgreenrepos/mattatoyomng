@@ -1,4 +1,4 @@
-package com.example.mattatoyomng
+package com.example.mattatoyomng.models
 
 import android.app.Application
 
@@ -9,10 +9,10 @@ import android.app.Application
 //    val profilePic: Int,
 //    val admin: Boolean)
 class User : Application(){
+    val userid: String? = null
     val name: String? = null
     val surname: String? = null
     val email: String? = null
-    val userid: String? = null
     val admin: Boolean = false
 
     companion object {

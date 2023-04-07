@@ -1,10 +1,10 @@
 package com.example.mattatoyomng
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mattatoyomng.databinding.EventCardBinding
+import com.example.mattatoyomng.models.Event
 
 class EventRecyclerAdapter(private val eventList: ArrayList<Event>) :
     RecyclerView.Adapter<EventRecyclerAdapter.EventViewHolder>() {

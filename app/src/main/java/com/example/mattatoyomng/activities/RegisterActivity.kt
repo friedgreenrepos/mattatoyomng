@@ -1,13 +1,13 @@
-package com.example.mattatoyomng
+package com.example.mattatoyomng.activities
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import com.example.mattatoyomng.R
 import com.example.mattatoyomng.databinding.ActivityRegisterBinding
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
@@ -23,7 +23,6 @@ class RegisterActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        binding = DataBindingUtil.setContentView(this, R.layout.activity_register)
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -31,6 +30,8 @@ class RegisterActivity : AppCompatActivity() {
         auth = Firebase.auth
 
         binding.registerBTN.setOnClickListener {
+            val name: String = binding.regNameET.text.toString()
+            val surname: String = binding.regSurnameET.toString()
             val email: String = binding.regEmailET.text.toString()
             val password: String = binding.regPasswordET.text.toString()
             createUser(email, password)

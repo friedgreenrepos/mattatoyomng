@@ -6,7 +6,7 @@
 	android:layout_height="match_parent"
 	android:clickable="true"
 	android:focusable="true"
-	tools:context=".CalendarFragment">
+	tools:context=".fragments.CalendarFragment">
 
 	<com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"

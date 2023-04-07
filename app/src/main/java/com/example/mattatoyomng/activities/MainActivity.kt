@@ -1,23 +1,25 @@
-package com.example.mattatoyomng
+package com.example.mattatoyomng.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import com.example.mattatoyomng.R
 import com.example.mattatoyomng.databinding.ActivityMainBinding
+import com.example.mattatoyomng.fragments.EventsFragment
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
-private const val TAG: String = "MainActivity"
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+
+    private val TAG: String = "MainActivity"
 
     private lateinit var binding: ActivityMainBinding
 
@@ -32,7 +34,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     public override fun onStart() {
         super.onStart()
-        // Check if user is signed in (non-null) and update UI accordingly.
+        // if user is not signed-in -> go to Login page
         val currentUser = auth.currentUser
         if (currentUser == null) {
             val intent = Intent(this, LoginActivity::class.java)
@@ -60,6 +62,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         val navView = binding.navView
         navView.setNavigationItemSelectedListener(this)
+
+        // set default fragment
         if (savedInstanceState == null) {
             // TODO: swap string 'Events' for menu item title. How to access title from item?
             replaceFragment(EventsFragment(), "Events")

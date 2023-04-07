@@ -4,9 +4,10 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<data>
+
 		<variable
 			name="event"
-			type="com.example.mattatoyomng.Event" />
+			type="com.example.mattatoyomng.models.Event" />
 	</data>
 
 	<androidx.constraintlayout.widget.ConstraintLayout
@@ -29,17 +30,16 @@
 				android:layout_height="match_parent"
 				android:padding="5dp">
 
-<!--					android:background="@{event.imgUrl}"-->
 				<ImageView
-					android:background="@drawable/event"
-					android:id="@+id/eventImgIV"
+					android:id="@+id/eventImageIV"
+					app:eventImgURL="@{event.eventImgURL}"
 					android:layout_width="100dp"
 					android:layout_height="100dp"
 					app:layout_constraintTop_toTopOf="parent"
 					app:layout_constraintStart_toStartOf="parent"
 					app:layout_constraintBottom_toBottomOf="parent"
 					android:layout_margin="10dp"
-					android:contentDescription="Event image" />
+					android:contentDescription="@string/event_image" />
 
 				<TextView
 					android:id="@+id/eventTitleTV"
@@ -50,7 +50,7 @@
 					android:textColor="@android:color/black"
 					android:textSize="18sp"
 					app:layout_constraintEnd_toEndOf="parent"
-					app:layout_constraintStart_toEndOf="@+id/eventImgIV"
+					app:layout_constraintStart_toEndOf="@+id/eventImageIV"
 					app:layout_constraintTop_toTopOf="parent"
 					android:layout_marginTop="16dp" />
 
@@ -66,14 +66,14 @@
 					android:layout_marginBottom="8dp"
 					android:layout_marginTop="8dp"
 					app:layout_constraintEnd_toEndOf="parent"
-					app:layout_constraintStart_toEndOf="@+id/eventImgIV"
+					app:layout_constraintStart_toEndOf="@+id/eventImageIV"
 					app:layout_constraintTop_toBottomOf="@+id/eventTitleTV" />
 
 				<TextView
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:text="@{event.date.toString()}"
-					app:layout_constraintStart_toEndOf="@+id/eventImgIV"
+					app:layout_constraintStart_toEndOf="@+id/eventImageIV"
 					app:layout_constraintTop_toBottomOf="@+id/eventDescriptionTV"
 					android:layout_marginTop="20dp"
 					android:layout_marginStart="16dp" />

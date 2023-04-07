@@ -1,4 +1,4 @@
-package com.example.mattatoyomng
+package com.example.mattatoyomng.models
 
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
@@ -8,19 +8,19 @@ import com.google.firebase.Timestamp
 data class Event(
     val title: String? = null,
     val description: String? = null,
+    val owner: String? = null,
     val date: Timestamp? = null,
-    val imgUrl: String? = null){
+    val eventImgURL: String? = null
+) {
 
-    // Binding Adapter
-    // images to display into imageviews in custom views
-    object DataBindingAdapter{
-        @BindingAdapter("imgUrl")
+    // Binding Adapter - images to display into imageviews in custom views
+    companion object {
+        @BindingAdapter("eventImgURL")
         @JvmStatic
         fun setImageByRes(imageView: ImageView, imgUrl: String){
             Glide.with(imageView.context)
                 .load(imgUrl)
                 .into(imageView)
-
         }
     }
 }
