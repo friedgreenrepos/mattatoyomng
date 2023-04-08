@@ -4,7 +4,9 @@ import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.TextUtils
 import android.util.Log
+import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.Toast
@@ -15,16 +17,17 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : BaseActivity() {
     // binding
     private lateinit var binding: ActivityLoginBinding
 
     // firebase auth
     private lateinit var auth: FirebaseAuth
-    private var TAG: String = "LoginActivity"
 
     // toolbar
     private lateinit var toolbarLoginActivity: Toolbar
+
+    private var TAG: String = "LoginActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,9 +54,7 @@ class LoginActivity : AppCompatActivity() {
 
         binding.apply {
             loginBTN.setOnClickListener() {
-                val email: String = binding.loginEmailET.text.toString()
-                val password: String = binding.loginPasswordET.text.toString()
-                loginUser(email, password)
+                loginUser()
             }
 
             registerHereTV.setOnClickListener() {
@@ -76,32 +77,57 @@ class LoginActivity : AppCompatActivity() {
         toolbarLoginActivity.setNavigationOnClickListener { onBackPressed() }
     }
 
-    private fun loginUser(email: String, password: String) {
-        if (email.isNotEmpty() && password.isNotEmpty()) {
+    // Function to sign-in a registered user using email and password
+    private fun loginUser() {
+        val email: String = binding.loginEmailET.text.toString()
+        val password: String = binding.loginPasswordET.text.toString()
+
+        if (validateUserForm(email, password)) {
+            // show progress bar
+            binding.loginPB.visibility = View.VISIBLE
+
+            // sign-in user with Firebase Auth
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
                         // Sign in success, update UI with the signed-in user's information
                         Log.d(TAG, "signInWithEmail:success")
-                        val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                        startActivity(intent)
-                        finish()
+                        userLoginSuccess()
                     } else {
                         // If sign in fails, display a message to the user.
                         Log.w(TAG, "signInWithEmail:failure", task.exception)
-                        Toast.makeText(
-                            baseContext,
-                            R.string.auth_failed,
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        showErrorSnackBar(
+                            "${resources.getString(R.string.auth_failed)}: " +
+                                    "${task.exception!!.message}"
+                        )
                     }
                 }
-        } else {
-            Toast.makeText(
-                baseContext,
-                R.string.credentials_empty,
-                Toast.LENGTH_LONG
-            ).show()
         }
+    }
+
+    // Function to validate user input
+    private fun validateUserForm(email: String, password: String): Boolean {
+        return when {
+            TextUtils.isEmpty(email) -> {
+                showErrorSnackBar("Please enter email.")
+                false
+            }
+            TextUtils.isEmpty(password) -> {
+                showErrorSnackBar("Please enter password.")
+                false
+            }
+            else -> {
+                true
+            }
+        }
+    }
+
+    private fun userLoginSuccess() {
+        // hide progress bar
+        binding.loginPB.visibility = View.INVISIBLE
+        showInfoSnackBar(resources.getString(R.string.login_successfully))
+        val intent = Intent(this@LoginActivity, MainActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 }
