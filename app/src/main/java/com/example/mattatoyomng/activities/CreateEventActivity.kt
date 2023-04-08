@@ -9,6 +9,7 @@ import android.provider.MediaStore
 import android.text.TextUtils
 import android.util.Log
 import android.view.View
+import android.webkit.MimeTypeMap
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -53,7 +54,11 @@ class CreateEventActivity : AppCompatActivity() {
     private var db = FirebaseFirestore.getInstance()
     private var collectionReference: CollectionReference = db.collection("events")
 
-    private lateinit var eventImageUri: Uri
+    // Global variable for URI of a selected image from phone storage.
+    private var eventImageUri: Uri? = null
+
+    // Global variable for a event image URL
+    private var eventImageUrl: String = ""
 
     // ActivityResultLauncher to open gallery
     private val openGalleryLauncher: ActivityResultLauncher<Intent> =
@@ -165,6 +170,51 @@ class CreateEventActivity : AppCompatActivity() {
         }
     }
 
+    // Method to get the extension of selected image.
+    private fun getFileExtension(uri: Uri?): String? {
+        return MimeTypeMap.getSingleton().getExtensionFromMimeType(contentResolver.getType(uri!!))
+    }
+
+    // Method to upload event image to firebase storage. Also sets image URI global var
+    private fun uploadEventImage() {
+        val imageFilename =
+            "event_" + System.currentTimeMillis() + "." + getFileExtension(eventImageUri)
+
+        if (eventImageUri != null) {
+            // save image to Firebase Storage "events_images" folder
+            val sRef: StorageReference = storageReference
+                .child("events_images")
+                .child(imageFilename)
+            sRef.putFile(eventImageUri!!)
+                .addOnSuccessListener { taskSnapshot ->
+                    Log.i(
+                        TAG,
+                        "Event image URL = ${taskSnapshot.metadata!!.reference!!.downloadUrl}"
+                    )
+                    // Get the downloadable url from the task snapshot
+                    // assign value to image URL global variable
+                    taskSnapshot.metadata!!.reference!!.downloadUrl
+                        .addOnSuccessListener { uri ->
+                            Log.i("Downloadable Image URL", uri.toString())
+                            eventImageUrl = uri.toString()
+                        }
+                }
+                .addOnFailureListener { exception ->
+                    // if operation fails show toast with error
+                    Log.e(TAG, "ERROR: ${exception.message}")
+                    Toast.makeText(
+                        this@CreateEventActivity,
+                        exception.message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+        }
+    }
+
+    // Method to save event:
+    // 1. upload event image to Storage
+    // 2. create Event object
+    // 3. add new event to Firestore collection
     private fun saveEvent() {
         // get event info
         val title: String = binding.eventTitleET.text.toString()
@@ -172,50 +222,35 @@ class CreateEventActivity : AppCompatActivity() {
         val owner: String = currentUserName
         val date = Timestamp(Date())
 
-        var imageFilename: String = title + "_" + Timestamp.now().seconds
-        imageFilename = stripSpaces(imageFilename)
+        // first upload image to firebase storage
+        uploadEventImage()
 
         // title must not be empty to create event
         if (!TextUtils.isEmpty(title)) {
             // make progress bar visible
             binding.createEventPB.visibility = View.VISIBLE
 
-            // save image to Firebase Storage "events_images" folder
-            val filePath: StorageReference = storageReference
-                .child("events_images")
-                .child(imageFilename)
-
-            filePath.putFile(eventImageUri).addOnSuccessListener {
-                filePath.downloadUrl.addOnSuccessListener {
-                    val newEvent = Event(
-                        title,
-                        description,
-                        owner,
-                        date,
-                        eventImageUri.toString()
-                    )
-                    collectionReference.add(newEvent)
-                        .addOnSuccessListener {
-                            // hide progress bar
-                            binding.createEventPB.visibility = View.INVISIBLE
-
-                            // if operation successful go back to main activity
-                            val intent = Intent(this, MainActivity::class.java)
-                            startActivity(intent)
-                        }
-                }
-                    .addOnFailureListener() {
-                        binding.createEventPB.visibility = View.INVISIBLE
-                        Log.e(TAG, "ERROR: ${it.message.toString()}")
-                        Toast.makeText(
-                            this,
-                            "ERROR: ${it.message.toString()}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-            }
-                .addOnFailureListener() {
+            val newEvent = Event(
+                title,
+                description,
+                owner,
+                date,
+                eventImageUri.toString()
+            )
+            collectionReference.add(newEvent)
+                .addOnSuccessListener {
+                    // if operation successful:
+                    // 1. hide progress bar
                     binding.createEventPB.visibility = View.INVISIBLE
+                    // 2. go back to main activity
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+                }
+                .addOnFailureListener {
+                    // if operation fails:
+                    // 1. hide progress bar
+                    binding.createEventPB.visibility = View.INVISIBLE
+                    // 2. show Toast with error
                     Log.e(TAG, "ERROR: ${it.message.toString()}")
                     Toast.makeText(
                         this,

@@ -1,6 +1,8 @@
 package com.example.mattatoyomng
 
+import android.net.Uri
 import android.view.View
+import android.webkit.MimeTypeMap
 import com.google.android.material.snackbar.Snackbar
 
 fun View.showSnackbar(
@@ -21,5 +23,5 @@ fun View.showSnackbar(
 }
 
 fun stripSpaces(s: String): String {
-     return s.replace(" ", "")
+    return s.replace(" ", "")
 }

@@ -13,7 +13,7 @@ data class Event(
     val eventImgURL: String? = null
 ) {
 
-    // Binding Adapter - images to display into imageviews in custom views
+    // Binding Adapter to display event image in custom views
     companion object {
         @BindingAdapter("eventImgURL")
         @JvmStatic
