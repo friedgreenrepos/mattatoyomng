@@ -147,7 +147,7 @@ class RegisterActivity : BaseActivity() {
     }
 
     // Function for when user signs up successfully:
-    private fun userRegisterSuccess() {
+    fun userRegisterSuccess() {
         // hide progress bar
         binding.registerPB.visibility = View.INVISIBLE
         showInfoSnackBar(resources.getString(R.string.register_successfully))
