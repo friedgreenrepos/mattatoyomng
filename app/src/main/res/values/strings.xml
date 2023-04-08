@@ -6,6 +6,7 @@
 	<string name="open">Open</string>
 	<string name="close">Close</string>
 	<string name="ok">OK</string>
+	<string name="sign_up">Sign up</string>
 
 	<string name="hello_blank_fragment">Hello blank fragment</string>
 	<string name="dialog_delete_confirmation">Delete this event?</string>
@@ -48,6 +49,11 @@
 	<string name="permission_granted">Storage permission granted.</string>
 	<string name="owner_name">Owner name</string>
 	<string name="owner">Owner</string>
+	<string name="username">Username</string>
+	<string name="matta_info">Manage events, todos and keep track of important information regarding your organization.
+		Working out the volunteers shifts, paying SIAE permits, remembering suppliers\' deliveries will never be a problem again!</string>
+	<string name="app_subtitle">Circolo Mattatoyo management app</string>
+	<string name="lets_get_started">Let\'s get started!</string>
 
 
 </resources>

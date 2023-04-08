@@ -21,6 +21,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private val TAG: String = "MainActivity"
 
+    // view binding
     private lateinit var binding: ActivityMainBinding
 
     // navigation bar toggle
@@ -32,15 +33,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     // firebase auth
     private lateinit var auth: FirebaseAuth
 
-    public override fun onStart() {
-        super.onStart()
-        // if user is not signed-in -> go to Login page
-        val currentUser = auth.currentUser
-        if (currentUser == null) {
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

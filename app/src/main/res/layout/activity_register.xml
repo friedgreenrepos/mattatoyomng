@@ -2,11 +2,16 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:orientation="vertical"
-	android:padding="24dp"
 	tools:context=".activities.RegisterActivity">
+
+	<androidx.appcompat.widget.Toolbar
+		android:id="@+id/toolbarRegisterActivity"
+		android:layout_width="match_parent"
+		android:layout_height="?attr/actionBarSize"/>
 
 	<ImageView
 		android:id="@+id/imageView"
@@ -21,73 +26,113 @@
 		android:layout_height="match_parent"
 		android:orientation="vertical"
 		android:layout_gravity="center"
-		android:layout_marginTop="10dp">
+		android:padding="20dp">
 
-		<EditText
-			android:id="@+id/regNameET"
+		<androidx.cardview.widget.CardView
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:hint="@string/name"
-			android:inputType="textCapSentences"
-			android:autofillHints="Jane" />
+			android:layout_marginStart="25dp"
+			android:layout_marginEnd="25dp"
+			android:elevation="10dp"
+			app:cardCornerRadius="10dp"
+			android:backgroundTint="#DEDDDD">
 
-		<EditText
-			android:id="@+id/regSurnameET"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:hint="@string/surname"
-			android:inputType="textCapSentences"
-			android:autofillHints="Jane" />
-
-		<EditText
-			android:id="@+id/regEmailET"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:hint="@string/email"
-			android:inputType="textEmailAddress"
-			android:autofillHints="example@mail.com" />
-
-		<EditText
-			android:id="@+id/regPasswordET"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:hint="@string/password"
-			android:inputType="textPassword"
-			android:autofillHints="password" />
-
-		<Button
-			android:id="@+id/registerBTN"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginTop="24dp"
-			android:backgroundTint="@color/matta_red"
-			android:text="@string/register"
-			android:textColor="@color/white" />
-
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginTop="15dp"
-			android:gravity="center"
-			android:orientation="horizontal">
-
-			<TextView
-				android:layout_width="wrap_content"
+			<LinearLayout
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:text="@string/already_registered"
-				android:textSize="16sp" />
+				android:orientation="vertical"
+				android:padding="10dp"
+				android:background="#DEDEDE">
 
-			<TextView
-				android:id="@+id/loginHereTV"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginStart="8dp"
-				android:text="@string/login_here"
-				android:textColor="@color/matta_red"
-				android:textStyle="bold"
-				android:textSize="16sp" />
+				<com.google.android.material.textfield.TextInputLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:inputType="textCapSentences">
 
-		</LinearLayout>
+					<androidx.appcompat.widget.AppCompatEditText
+						android:id="@+id/regNameET"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:hint="@string/name"
+						android:inputType="textEmailAddress"
+						android:textSize="@dimen/default_text_size" />
+				</com.google.android.material.textfield.TextInputLayout>
+
+				<com.google.android.material.textfield.TextInputLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content">
+
+					<androidx.appcompat.widget.AppCompatEditText
+						android:id="@+id/regUsernameET"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:hint="@string/username"
+						android:inputType="textEmailAddress"
+						android:textSize="@dimen/default_text_size" />
+				</com.google.android.material.textfield.TextInputLayout>
+
+				<com.google.android.material.textfield.TextInputLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content">
+
+					<androidx.appcompat.widget.AppCompatEditText
+						android:id="@+id/regEmailET"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:hint="@string/email"
+						android:inputType="textEmailAddress"
+						android:textSize="@dimen/default_text_size" />
+				</com.google.android.material.textfield.TextInputLayout>
+
+				<com.google.android.material.textfield.TextInputLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content">
+
+					<androidx.appcompat.widget.AppCompatEditText
+						android:id="@+id/regPasswordET"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:hint="@string/password"
+						android:inputType="textPassword"
+						android:textSize="@dimen/default_text_size" />
+				</com.google.android.material.textfield.TextInputLayout>
+
+				<Button
+					android:id="@+id/registerBTN"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="24dp"
+					android:backgroundTint="@color/matta_blue"
+					android:text="@string/sign_up"
+					android:textColor="@color/white" />
+
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="15dp"
+					android:gravity="center"
+					android:orientation="horizontal">
+
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/already_registered"
+						android:textSize="16sp" />
+
+					<TextView
+						android:id="@+id/loginHereTV"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_marginStart="8dp"
+						android:text="@string/login_here"
+						android:textColor="@color/matta_red"
+						android:textStyle="bold"
+						android:textSize="16sp" />
+				</LinearLayout>
+
+			</LinearLayout>
+
+		</androidx.cardview.widget.CardView>
 
 	</LinearLayout>
 
