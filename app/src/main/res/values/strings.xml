@@ -30,6 +30,7 @@
 	<string name="login_failed">"Login failed"</string>
 	<string name="not_registered">Not registered?</string>
 	<string name="register_here">Register here</string>
+	<string name="register_successfully">You have successfully registered</string>
 	<string name="credentials_empty">Email and password fields cannot be empty</string>
 	<string name="auth_failed">Authentication failed</string>
 	<string name="title">Title</string>
@@ -50,10 +51,12 @@
 	<string name="owner_name">Owner name</string>
 	<string name="owner">Owner</string>
 	<string name="username">Username</string>
-	<string name="matta_info">Manage events, todos and keep track of important information regarding your organization.
-		Working out the volunteers shifts, paying SIAE permits, remembering suppliers\' deliveries will never be a problem again!</string>
-	<string name="app_subtitle">Circolo Mattatoyo management app</string>
+	<string name="matta_info">Manage events, todos and keep track of important information regarding your organization. Working out the volunteers shifts, paying SIAE permits, remembering suppliers\' deliveries will never be a problem again!</string>
+	<string name="app_subtitle">Circolo Mattatoyo\nmanagement app</string>
 	<string name="lets_get_started">Let\'s get started!</string>
+	<string name="please_wait">Please wait…</string>
+	<string name="please_click_back_again_to_exit">Please, click back again to exit.</string>
+	<string name="login_successfully">You successfully logged in!</string>
 
 
 </resources>

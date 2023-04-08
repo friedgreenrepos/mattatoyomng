@@ -46,15 +46,10 @@
 				<TextView
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:text="@string/lets_get_started"
-					android:textSize="24sp"
-					android:textStyle="bold"
-					android:gravity="center"/>
-				<TextView
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
 					android:text="@string/app_subtitle"
 					android:textSize="18sp"
+					android:textStyle="bold"
+					android:textAllCaps="true"
 					android:gravity="center"/>
 				<TextView
 					android:layout_width="match_parent"

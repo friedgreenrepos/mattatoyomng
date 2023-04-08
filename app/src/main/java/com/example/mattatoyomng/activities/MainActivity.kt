@@ -99,8 +99,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.logoutItem -> {
                 auth.signOut()
-                val intent = Intent(this, LoginActivity::class.java)
-                startActivity(intent)
+                finish()
             }
         }
         return true

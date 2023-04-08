@@ -11,7 +11,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
-class IntroActivity : AppCompatActivity() {
+class IntroActivity : BaseActivity() {
 
     // binding
     private lateinit var binding: ActivityIntroBinding

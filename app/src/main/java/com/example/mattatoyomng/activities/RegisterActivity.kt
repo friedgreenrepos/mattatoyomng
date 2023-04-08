@@ -2,22 +2,22 @@ package com.example.mattatoyomng.activities
 
 import android.content.Intent
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
-import androidx.activity.addCallback
 import android.os.Bundle
+import android.text.TextUtils
 import android.util.Log
+import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.Toolbar
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.databinding.ActivityRegisterBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
-class RegisterActivity : AppCompatActivity() {
+class RegisterActivity : BaseActivity() {
 
     // binding
     private lateinit var binding: ActivityRegisterBinding
@@ -54,18 +54,21 @@ class RegisterActivity : AppCompatActivity() {
         // Initialize Firebase Auth
         auth = Firebase.auth
 
-        binding.registerBTN.setOnClickListener {
-            val name: String = binding.regNameET.text.toString()
-            val username: String = binding.regUsernameET.toString()
-            val email: String = binding.regEmailET.text.toString()
-            val password: String = binding.regPasswordET.text.toString()
-            createUser(email, password)
-        }
+        binding.apply {
 
-        binding.loginHereTV.setOnClickListener {
-            launchLoginActivity()
+            // "Log in here" button is clicked. Go to LoginActivity
+            loginHereTV.setOnClickListener {
+                val intent = Intent(this@RegisterActivity, LoginActivity::class.java)
+                startActivity(intent)
+            }
+
+            // "Sign-up" button is clicked. Handle user registration.
+            registerBTN.setOnClickListener {
+                createUser()
+            }
         }
     }
+
     private fun setupActionBar() {
         setSupportActionBar(toolbarRegisterActivity)
         val actionBar = supportActionBar
@@ -79,37 +82,79 @@ class RegisterActivity : AppCompatActivity() {
         toolbarRegisterActivity.setNavigationOnClickListener { onBackPressed() }
     }
 
-    private fun createUser(email: String, password: String) {
-        if (email.isNotEmpty() && password.isNotEmpty()) {
+    private fun createUser() {
+        val name: String = binding.regNameET.text.toString()
+        val username: String = binding.regUsernameET.toString().trim { it <= ' ' }
+        val email: String = binding.regEmailET.text.toString().trim { it <= ' ' }
+        val password: String = binding.regPasswordET.text.toString().trim { it <= ' ' }
+
+        if (validateUserForm(name, username, email, password)) {
+
+            // show progress bar
+            binding.registerPB.visibility = View.VISIBLE
+
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
-                        // Sign in success, update UI with the signed-in user's information
-                        Log.d(TAG, "createUserWithEmail:success")
-                        val user = auth.currentUser
-                        launchLoginActivity()
+                        val firebaseUser: FirebaseUser = task.result!!.user!!
+                        val registeredEmail = firebaseUser.email!!
+                        Log.d(
+                            TAG,
+                            "createUserWithEmail:success with email address: $registeredEmail"
+                        )
+                        userRegisterSuccess()
                     } else {
                         // If sign in fails, display a message to the user.
                         Log.w(TAG, "createUserWithEmail:failure", task.exception)
                         Toast.makeText(
-                            baseContext,
+                            this@RegisterActivity,
                             R.string.auth_failed,
                             Toast.LENGTH_SHORT
                         ).show()
                     }
                 }
-        } else {
-            Toast.makeText(
-                baseContext,
-                R.string.credentials_empty,
-                Toast.LENGTH_LONG
-            ).show()
         }
     }
 
-    private fun launchLoginActivity() {
-        val intent = Intent(this, LoginActivity::class.java)
+    // Function to validate user input
+    private fun validateUserForm(
+        name: String,
+        username: String,
+        email: String,
+        password: String
+    ): Boolean {
+        return when {
+            TextUtils.isEmpty(name) -> {
+                showErrorSnackBar("Please enter name.")
+                false
+            }
+            TextUtils.isEmpty(username) -> {
+                showErrorSnackBar("Please enter username.")
+                false
+            }
+            TextUtils.isEmpty(email) -> {
+                showErrorSnackBar("Please enter email.")
+                false
+            }
+            TextUtils.isEmpty(password) -> {
+                showErrorSnackBar("Please enter password.")
+                false
+            }
+            else -> {
+                true
+            }
+        }
+    }
+
+    // Function for when user signs up successfully:
+    private fun userRegisterSuccess() {
+        // hide progress bar
+        binding.registerPB.visibility = View.INVISIBLE
+        showInfoSnackBar(resources.getString(R.string.register_successfully))
+        val intent = Intent(this@RegisterActivity, LoginActivity::class.java)
         startActivity(intent)
         finish()
     }
+
+
 }
