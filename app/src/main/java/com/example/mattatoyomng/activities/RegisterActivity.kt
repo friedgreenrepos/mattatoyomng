@@ -71,11 +71,12 @@ class RegisterActivity : BaseActivity() {
         }
     }
 
+    // Method for setting up action bar:
+    // add back button and back navigation functionality and remove title
     private fun setupActionBar() {
         setSupportActionBar(toolbarRegisterActivity)
         val actionBar = supportActionBar
 
-        // add back button and back navigation functionality and remove title
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true)
             actionBar.setHomeAsUpIndicator(R.drawable.arrow_back)
@@ -84,6 +85,10 @@ class RegisterActivity : BaseActivity() {
         toolbarRegisterActivity.setNavigationOnClickListener { onBackPressed() }
     }
 
+    // Method for creating User:
+    // 1. Validate user form
+    // 2. create User on Firebase Authentication (with email and password)
+    // 3. create User on Firebase Firestore (with all info)
     private fun createUser() {
         val name: String = binding.regNameET.text.toString()
         val username: String = binding.regUsernameET.text.toString().trim { it <= ' ' }
@@ -114,7 +119,7 @@ class RegisterActivity : BaseActivity() {
         }
     }
 
-    // Function to validate user input
+    // Function to validate user input. Show Snackbar if input is empty.
     private fun validateUserForm(
         name: String,
         username: String,
