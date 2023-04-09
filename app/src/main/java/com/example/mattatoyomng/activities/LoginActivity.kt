@@ -13,6 +13,8 @@ import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.databinding.ActivityLoginBinding
+import com.example.mattatoyomng.firebase.FirestoreClass
+import com.example.mattatoyomng.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -92,7 +94,7 @@ class LoginActivity : BaseActivity() {
                     if (task.isSuccessful) {
                         // Sign in success, update UI with the signed-in user's information
                         Log.d(TAG, "signInWithEmail:success")
-                        userLoginSuccess()
+                        FirestoreClass().loginUser(this@LoginActivity)
                     } else {
                         // If sign in fails, display a message to the user.
                         Log.w(TAG, "signInWithEmail:failure", task.exception)
@@ -122,12 +124,17 @@ class LoginActivity : BaseActivity() {
         }
     }
 
-    private fun userLoginSuccess() {
+    // Function to call when user successfully logs in:
+    // 1. Hide progress bar
+    // 2. Go to MainActivity and finish current activity
+    fun userLoginSuccess(user: User) {
         // hide progress bar
         binding.loginPB.visibility = View.INVISIBLE
         showInfoSnackBar(resources.getString(R.string.login_successfully))
+        // go to MainActivity
         val intent = Intent(this@LoginActivity, MainActivity::class.java)
         startActivity(intent)
+        // finish activity so the user can't go back to login page
         finish()
     }
 }

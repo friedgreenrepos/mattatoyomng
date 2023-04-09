@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.WindowInsets
 import android.view.WindowManager
 import com.example.mattatoyomng.databinding.ActivityIntroBinding
+import com.example.mattatoyomng.firebase.FirestoreClass
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -24,17 +25,6 @@ class IntroActivity : BaseActivity() {
         binding = ActivityIntroBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Initialize Firebase Auth
-        auth = Firebase.auth
-
-        // if user is not signed-in -> go to Login page
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            val intent = Intent(this@IntroActivity, MainActivity::class.java)
-            startActivity(intent)
-            finish()
-        }
-
         // Set activity to full screen
         @Suppress("DEPRECATION")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -44,6 +34,14 @@ class IntroActivity : BaseActivity() {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN
             )
+        }
+
+        // Check if user is logged in. If so, go to MainActivity and finish IntroActivity
+        val currentUserID = FirestoreClass().getCurrentUserID()
+        if (currentUserID.isNotEmpty()) {
+            val intent = Intent(this@IntroActivity, MainActivity::class.java)
+            startActivity(intent)
+            finish()
         }
 
         binding.apply {

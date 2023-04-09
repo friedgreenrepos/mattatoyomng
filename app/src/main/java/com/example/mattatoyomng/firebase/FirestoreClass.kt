@@ -1,6 +1,7 @@
 package com.example.mattatoyomng.firebase
 
 import android.util.Log
+import com.example.mattatoyomng.activities.LoginActivity
 import com.example.mattatoyomng.activities.RegisterActivity
 import com.example.mattatoyomng.models.User
 import com.example.mattatoyomng.utils.Constants
@@ -28,7 +29,6 @@ class FirestoreClass {
                 activity.userRegisteredSuccess()
             }
             .addOnFailureListener { e ->
-//                activity.hideProgressDialog()
                 Log.e(
                     activity.javaClass.simpleName,
                     "Error writing document",
@@ -37,17 +37,32 @@ class FirestoreClass {
             }
     }
 
-    // Function to get the user id of current logged user. Return empty string if no user is logged in.
-    fun getCurrentUserID(): String {
-        // An Instance of currentUser using FirebaseAuth
-        val currentUser = FirebaseAuth.getInstance().currentUser
+    fun loginUser(activity: LoginActivity) {
+        dbFirestore.collection(Constants.USERS)
+            // Get document for current user
+            .document(getCurrentUserID())
+            // merge User info with user document
+            .get()
+            .addOnSuccessListener {document ->
+                val loggedInUser = document.toObject(User::class.java)!!
+                activity.userLoginSuccess(loggedInUser)
+            }
+            .addOnFailureListener { e ->
+                Log.e(
+                    activity.javaClass.simpleName,
+                    "Error writing document",
+                    e
+                )
+            }
+    }
 
-        // Assign the currentUserId to variable
+    // Function to get the userid of current logged user. Return empty string if no user is logged in.
+    fun getCurrentUserID(): String {
+        val currentUser = FirebaseAuth.getInstance().currentUser
         var currentUserID = ""
         if (currentUser != null) {
             currentUserID = currentUser.uid
         }
-
         return currentUserID
     }
 }
