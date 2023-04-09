@@ -1,16 +1,17 @@
 #+TITLE: MattatoyoMNG DEV TODO
 #+AUTHOR: Giulia
 * UI
+- [X] show user info in drawer (username, profile pic)
+- [X] show default image if no profile picture is supplied by user for =User=
+- [ ] show default image if no image is supplied by user for =Event=
 - [ ] back button in =CreateEventActivity=
 - [ ] date picker in =CreateEventActivity=
 - [ ] time picker in =CreateEventActivity=
-- [ ] show default image if no image is supplied by user for =Event=
-- [ ] show default image if no profile picture is supplied by user for =User=
-- [ ] show user info in drawer
 - [ ] hide keyboard when clicking outside an =EditText=
 * Functionalities
 - [X] split save event from load
-- [ ] move Firebase logic to Firebase module
+- [X] move Firebase logic to Firebase module
 - [ ] delete event activity
 - [ ] edit event activity
 - [ ] add Activity to update user info
+- [ ] load event image programmatically in event card
