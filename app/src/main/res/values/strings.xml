@@ -58,5 +58,10 @@
 	<string name="please_click_back_again_to_exit">Please, click back again to exit.</string>
 	<string name="login_successfully">You successfully logged in!</string>
 
+	<string name="enter_name">"Please enter name"</string>
+	<string name="enter_username">"Please enter username"</string>
+	<string name="enter_email">"Please enter email"</string>
+	<string name="enter_password">"Please enter password"</string>
+
 
 </resources>

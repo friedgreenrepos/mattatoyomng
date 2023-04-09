@@ -12,6 +12,8 @@ import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.databinding.ActivityRegisterBinding
+import com.example.mattatoyomng.firebase.FirestoreClass
+import com.example.mattatoyomng.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
@@ -84,7 +86,7 @@ class RegisterActivity : BaseActivity() {
 
     private fun createUser() {
         val name: String = binding.regNameET.text.toString()
-        val username: String = binding.regUsernameET.toString().trim { it <= ' ' }
+        val username: String = binding.regUsernameET.text.toString().trim { it <= ' ' }
         val email: String = binding.regEmailET.text.toString().trim { it <= ' ' }
         val password: String = binding.regPasswordET.text.toString().trim { it <= ' ' }
 
@@ -98,19 +100,15 @@ class RegisterActivity : BaseActivity() {
                     if (task.isSuccessful) {
                         val firebaseUser: FirebaseUser = task.result!!.user!!
                         val registeredEmail = firebaseUser.email!!
-                        Log.d(
-                            TAG,
-                            "createUserWithEmail:success with email address: $registeredEmail"
-                        )
-                        userRegisterSuccess()
+                        val user = User(firebaseUser.uid, name, username, registeredEmail)
+
+                        // create new user as document on Firestore as well
+                        FirestoreClass().registerUser(this@RegisterActivity, user)
+                        userRegisteredSuccess()
                     } else {
                         // If sign in fails, display a message to the user.
                         Log.w(TAG, "createUserWithEmail:failure", task.exception)
-                        Toast.makeText(
-                            this@RegisterActivity,
-                            R.string.auth_failed,
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        showErrorSnackBar(resources.getString(R.string.auth_failed))
                     }
                 }
         }
@@ -125,19 +123,19 @@ class RegisterActivity : BaseActivity() {
     ): Boolean {
         return when {
             TextUtils.isEmpty(name) -> {
-                showErrorSnackBar("Please enter name.")
+                showErrorSnackBar(resources.getString(R.string.enter_name))
                 false
             }
             TextUtils.isEmpty(username) -> {
-                showErrorSnackBar("Please enter username.")
+                showErrorSnackBar(resources.getString(R.string.enter_username))
                 false
             }
             TextUtils.isEmpty(email) -> {
-                showErrorSnackBar("Please enter email.")
+                showErrorSnackBar(resources.getString(R.string.enter_email))
                 false
             }
             TextUtils.isEmpty(password) -> {
-                showErrorSnackBar("Please enter password.")
+                showErrorSnackBar(resources.getString(R.string.enter_password))
                 false
             }
             else -> {
@@ -147,7 +145,7 @@ class RegisterActivity : BaseActivity() {
     }
 
     // Function for when user signs up successfully:
-    fun userRegisterSuccess() {
+    fun userRegisteredSuccess() {
         // hide progress bar
         binding.registerPB.visibility = View.INVISIBLE
         showInfoSnackBar(resources.getString(R.string.register_successfully))

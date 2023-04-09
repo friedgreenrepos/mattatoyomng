@@ -18,14 +18,14 @@ class FirestoreClass {
     fun registerUser(activity: RegisterActivity, userInfo: User) {
 
         dbFirestore.collection(Constants.USERS)
-            // Document ID for users fields. Here the document it is the User ID.
+            // Get document for current user
             .document(getCurrentUserID())
-            // Here the userInfo are Field and the SetOption is set to merge. It is for if we wants to merge
+            // merge User info with user document
             .set(userInfo, SetOptions.merge())
             .addOnSuccessListener {
 
                 // Here call a function of base activity for transferring the result to it.
-                activity.userRegisterSuccess()
+                activity.userRegisteredSuccess()
             }
             .addOnFailureListener { e ->
 //                activity.hideProgressDialog()
@@ -37,14 +37,12 @@ class FirestoreClass {
             }
     }
 
-    /**
-     * A function for getting the user id of current logged user.
-     */
+    // Function to get the user id of current logged user. Return empty string if no user is logged in.
     fun getCurrentUserID(): String {
         // An Instance of currentUser using FirebaseAuth
         val currentUser = FirebaseAuth.getInstance().currentUser
 
-        // A variable to assign the currentUserId if it is not null or else it will be blank.
+        // Assign the currentUserId to variable
         var currentUserID = ""
         if (currentUser != null) {
             currentUserID = currentUser.uid

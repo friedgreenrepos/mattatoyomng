@@ -152,11 +152,11 @@ class CreateEventActivity : AppCompatActivity() {
             createEventPB.visibility = View.INVISIBLE
 
             // set event owner to current user
-            if (User.instance != null) {
-                currentUserID = User.instance!!.userid.toString()
-                currentUserName = User.instance!!.name.toString()
-            }
-            ownerNameTV.text = currentUserName
+//            if (User.instance != null) {
+//                currentUserID = User.instance!!.userid.toString()
+//                currentUserName = User.instance!!.name.toString()
+//            }
+//            ownerNameTV.text = currentUserName
 
             // upload image
             addEventImageTV.setOnClickListener() {

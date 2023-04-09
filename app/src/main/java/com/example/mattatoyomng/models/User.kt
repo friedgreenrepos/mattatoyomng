@@ -1,9 +1,7 @@
 package com.example.mattatoyomng.models
 
-import android.os.Build
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.annotation.RequiresApi
 
 data class User(
     val userid: String? = null,
