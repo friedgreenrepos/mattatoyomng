@@ -3,7 +3,7 @@
 	<group android:checkableBehavior="single">
 		<item
 			android:id="@+id/eventsItem"
-			android:title="Events"
+			android:title="@string/events"
 			android:icon="@drawable/calendar" />
 		<item
 			android:id="@+id/searchItem"
@@ -15,7 +15,7 @@
 			android:icon="@drawable/todo" />
 		<item
 			android:id="@+id/profileItem"
-			android:title="Profile"
+			android:title="@string/profile"
 			android:icon="@drawable/user" />
 		<item
 			android:id="@+id/settingsItem"
@@ -23,7 +23,7 @@
 			android:icon="@drawable/settings" />
 		<item
 			android:id="@+id/logoutItem"
-			android:title="Log out"
+			android:title="@string/log_out"
 			android:icon="@drawable/logout" />
 	</group>
 </menu>

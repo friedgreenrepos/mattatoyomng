@@ -62,6 +62,9 @@
 	<string name="enter_username">"Please enter username"</string>
 	<string name="enter_email">"Please enter email"</string>
 	<string name="enter_password">"Please enter password"</string>
+	<string name="events">Events</string>
+	<string name="profile">Profile</string>
+	<string name="log_out">Log out</string>
 
 
 </resources>

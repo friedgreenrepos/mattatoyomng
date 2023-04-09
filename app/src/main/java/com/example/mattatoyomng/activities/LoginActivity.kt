@@ -94,7 +94,7 @@ class LoginActivity : BaseActivity() {
                     if (task.isSuccessful) {
                         // Sign in success, update UI with the signed-in user's information
                         Log.d(TAG, "signInWithEmail:success")
-                        FirestoreClass().loginUser(this@LoginActivity)
+                        FirestoreClass().loadUserData(this@LoginActivity)
                     } else {
                         // If sign in fails, display a message to the user.
                         Log.w(TAG, "signInWithEmail:failure", task.exception)

@@ -9,7 +9,8 @@
 - [ ] show user info in drawer
 - [ ] hide keyboard when clicking outside an =EditText=
 * Functionalities
+- [X] split save event from load
 - [ ] move Firebase logic to Firebase module
 - [ ] delete event activity
 - [ ] edit event activity
-- [ ] split save event from load
+- [ ] add Activity to update user info
