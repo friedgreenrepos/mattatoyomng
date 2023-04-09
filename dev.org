@@ -1,0 +1,15 @@
+#+TITLE: MattatoyoMNG DEV TODO
+#+AUTHOR: Giulia
+* UI
+- [ ] back button in =CreateEventActivity=
+- [ ] date picker in =CreateEventActivity=
+- [ ] time picker in =CreateEventActivity=
+- [ ] show default image if no image is supplied by user for =Event=
+- [ ] show default image if no profile picture is supplied by user for =User=
+- [ ] show user info in drawer
+- [ ] hide keyboard when clicking outside an =EditText=
+* Functionalities
+- [ ] move Firebase logic to Firebase module
+- [ ] delete event activity
+- [ ] edit event activity
+- [ ] split save event from load
