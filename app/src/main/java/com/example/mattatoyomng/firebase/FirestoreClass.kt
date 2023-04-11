@@ -51,7 +51,7 @@ class FirestoreClass {
             .document(getCurrentUserID())
             .get()
             .addOnSuccessListener { document ->
-                // Here we have received the document snapshot which is converted to User object.
+                // Convert document to User object.
                 val loggedInUser = document.toObject(User::class.java)!!
 
                 if (activity != null) {
