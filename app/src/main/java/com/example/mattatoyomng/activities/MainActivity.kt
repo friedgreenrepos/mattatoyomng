@@ -1,7 +1,9 @@
 package com.example.mattatoyomng.activities
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.TextView
@@ -110,15 +112,17 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     // Function to update the navigation bar with user detail.
     fun updateNavigationUserDetails(user: User) {
         val headerView = binding.navView.getHeaderView(0)
+        Log.d(TAG, "in updateNavigationUserDetails...")
+        Log.d(TAG, user.profilePic)
 
         // Set user profile picture in nav header
-        val navUserImage = headerView.findViewById<ImageView>(R.id.userProfilePicIV)
+        val navUserProfilePic = headerView.findViewById<ImageView>(R.id.navUserProfilePic)
         Glide
             .with(this@MainActivity)
             .load(user.profilePic)
             .centerCrop()
-            .placeholder(R.drawable.user)
-            .into(navUserImage)
+            .placeholder(R.drawable.user_white_80)
+            .into(navUserProfilePic)
 
         // Set user username in nav header
         val navUsername = headerView.findViewById<TextView>(R.id.usernameTV)
