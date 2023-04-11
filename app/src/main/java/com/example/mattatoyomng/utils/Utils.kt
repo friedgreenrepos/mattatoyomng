@@ -1,8 +1,12 @@
 package com.example.mattatoyomng
 
+import android.Manifest
 import android.net.Uri
+import android.os.Build
 import android.view.View
 import android.webkit.MimeTypeMap
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
 import com.google.android.material.snackbar.Snackbar
 
 fun View.showSnackbar(

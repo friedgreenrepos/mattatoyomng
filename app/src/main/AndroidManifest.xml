@@ -3,8 +3,7 @@
 	xmlns:tools="http://schemas.android.com/tools">
 
 	<uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-	<!-- TODO: remove permissions if unused -->
+	<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" /> <!-- TODO: remove permissions if unused -->
 	<uses-permission android:name="android.permission.CAMERA" />
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
@@ -33,7 +32,7 @@
 			android:exported="false" />
 		<activity
 			android:name=".activities.MainActivity"
-			android:exported="false"/>
+			android:exported="false" />
 		<activity
 			android:name=".activities.LoginActivity"
 			android:exported="false"
@@ -45,6 +44,10 @@
 		<activity
 			android:name=".activities.CreateEventActivity"
 			android:exported="false" />
+		<activity
+			android:name=".activities.UpdateProfileActivity"
+			android:exported="false"
+			android:theme="@style/AppTheme.NoActionBar"/>
 	</application>
 
 </manifest>

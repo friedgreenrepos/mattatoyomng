@@ -30,6 +30,10 @@ class EventsFragment : Fragment() {
     private var db = FirebaseFirestore.getInstance()
     private var storageReference = FirebaseStorage.getInstance().reference
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

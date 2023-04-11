@@ -60,6 +60,42 @@ class CreateEventActivity : AppCompatActivity() {
     // Global variable for a event image URL
     private var eventImageUrl: String = ""
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        binding = ActivityCreateEventBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        auth = FirebaseAuth.getInstance()
+
+        binding.apply {
+
+            // bind layout
+            layout = createEventLayout
+
+            // hide progress bar
+            createEventPB.visibility = View.INVISIBLE
+
+            // set event owner to current user
+//            if (User.instance != null) {
+//                currentUserID = User.instance!!.userid.toString()
+//                currentUserName = User.instance!!.name.toString()
+//            }
+//            ownerNameTV.text = currentUserName
+
+            // upload image
+            addEventImageTV.setOnClickListener() {
+                requestStoragePermission(view = it)
+            }
+
+            // save event
+            saveEventBTN.setOnClickListener() {
+                saveEvent()
+            }
+        }
+    }
+
     // ActivityResultLauncher to open gallery
     private val openGalleryLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -92,7 +128,7 @@ class CreateEventActivity : AppCompatActivity() {
                         openGalleryLauncher.launch(pickIntent)
                     }
                 } else {
-                    // Displaying toast if storage permission is not granted 
+                    // Displaying toast if storage permission is not granted
                     if (permissionName == Manifest.permission.READ_MEDIA_IMAGES)
                         Toast.makeText(
                             this@CreateEventActivity,
@@ -116,7 +152,7 @@ class CreateEventActivity : AppCompatActivity() {
             // call the rationale dialog to tell the user why they need to allow permission request
             layout.showSnackbar(
                 view,
-                getString(R.string.permission_granted),
+                getString(R.string.permission_storage_required),
                 Snackbar.LENGTH_INDEFINITE,
                 null
             ) {}
@@ -128,45 +164,6 @@ class CreateEventActivity : AppCompatActivity() {
                     Manifest.permission.READ_MEDIA_IMAGES
                 )
             )
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        binding = ActivityCreateEventBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        layout = binding.createEventLayout
-
-        auth = FirebaseAuth.getInstance()
-
-        // toolbar
-        val actionBar: ActionBar? = supportActionBar
-
-
-        binding.apply {
-
-            // hide progress bar
-            createEventPB.visibility = View.INVISIBLE
-
-            // set event owner to current user
-//            if (User.instance != null) {
-//                currentUserID = User.instance!!.userid.toString()
-//                currentUserName = User.instance!!.name.toString()
-//            }
-//            ownerNameTV.text = currentUserName
-
-            // upload image
-            addEventImageTV.setOnClickListener() {
-                requestStoragePermission(view = it)
-            }
-
-            // save event
-            saveEventBTN.setOnClickListener() {
-                saveEvent()
-            }
         }
     }
 

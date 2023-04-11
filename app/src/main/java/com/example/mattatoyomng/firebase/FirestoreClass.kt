@@ -2,9 +2,15 @@ package com.example.mattatoyomng.firebase
 
 import android.app.Activity
 import android.util.Log
+import android.view.View
+import android.widget.ProgressBar
+import androidx.fragment.app.Fragment
+import com.example.mattatoyomng.R
 import com.example.mattatoyomng.activities.LoginActivity
 import com.example.mattatoyomng.activities.MainActivity
 import com.example.mattatoyomng.activities.RegisterActivity
+import com.example.mattatoyomng.activities.UpdateProfileActivity
+import com.example.mattatoyomng.fragments.UpdateProfileFragment
 import com.example.mattatoyomng.models.User
 import com.example.mattatoyomng.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
@@ -39,50 +45,39 @@ class FirestoreClass {
             }
     }
 
-    fun loginUser(activity: LoginActivity) {
-        dbFirestore.collection(Constants.USERS)
-            // Get document for current user
-            .document(getCurrentUserID())
-            // merge User info with user document
-            .get()
-            .addOnSuccessListener { document ->
-                val loggedInUser = document.toObject(User::class.java)!!
-                activity.userLoginSuccess(loggedInUser)
-            }
-            .addOnFailureListener { e ->
-                Log.e(
-                    activity.javaClass.simpleName,
-                    "Error writing document",
-                    e
-                )
-            }
-    }
-
-    fun loadUserData(activity: Activity) {
-
+    fun loadUserData(activity: Activity? = null, fragment: Fragment? = null) {
         // Here we pass the collection name from which we wants the data.
         dbFirestore.collection(Constants.USERS)
             // The document id to get the Fields of user.
             .document(getCurrentUserID())
             .get()
             .addOnSuccessListener { document ->
-                Log.e(activity.javaClass.simpleName, document.toString())
-
-                // Here we have received the document snapshot which is converted into the User Data model object.
+                // Here we have received the document snapshot which is converted to User object.
                 val loggedInUser = document.toObject(User::class.java)!!
 
-                // Here call a function of base activity for transferring the result to it.
-                when (activity) {
-                    is LoginActivity -> {
-                        activity.userLoginSuccess(loggedInUser)
+                if (activity != null) {
+                    Log.i(activity.javaClass.simpleName, document.toString())
+                    // Here call a function of base activity for transferring the result to it.
+                    when (activity) {
+                        is LoginActivity -> {
+                            activity.userLoginSuccess(loggedInUser)
+                        }
+                        is MainActivity -> {
+                            activity.updateNavigationUserDetails(loggedInUser)
+                        }
+                        // TODO: implement User Profile Activity
+                        is UpdateProfileActivity -> {
+                            activity.setUserDataInUI(loggedInUser)
+                        }
                     }
-                    is MainActivity -> {
-                        activity.updateNavigationUserDetails(loggedInUser)
+                }
+                if (fragment != null) {
+                    Log.i(fragment.javaClass.simpleName, document.toString())
+                    when (fragment) {
+                        is UpdateProfileFragment -> {
+                            fragment.setUserDataInUI(loggedInUser)
+                        }
                     }
-                    // TODO: implement User Profile Activity
-//                    is MyProfileActivity -> {
-//                        activity.setUserDataInUI(loggedInUser)
-//                    }
                 }
             }
             .addOnFailureListener { e ->
@@ -95,15 +90,74 @@ class FirestoreClass {
                         activity.showErrorSnackBar("Error loading user data")
                     }
                     // TODO: implement User Profile Activity
-//                    is MyProfileActivity -> {
-//                        activity.showErrorSnackBar("Error loading user data")
-//                    }
+                    is UpdateProfileActivity -> {
+                        activity.showErrorSnackBar("Error loading user data")
+                    }
                 }
                 Log.e(
-                    activity.javaClass.simpleName,
+                    activity!!.javaClass.simpleName,
                     "Error while getting loggedIn user details",
                     e
                 )
+            }
+    }
+
+    // Function to update user profile using hashmap
+    fun updateUserProfileData(fragment: UpdateProfileFragment, userHashMap: HashMap<String, Any>) {
+        dbFirestore.collection(Constants.USERS)
+            .document(getCurrentUserID())
+            .update(userHashMap)
+            .addOnSuccessListener {
+                // User profile has been successfully update.
+                Log.i(
+                    fragment.javaClass.simpleName,
+                    fragment.resources.getString(R.string.update_profile_success)
+                )
+                fragment.showInfoSnackBar(fragment.resources.getString(R.string.update_profile_success))
+
+                fragment.profileUpdateSuccess()
+            }
+            .addOnFailureListener { e ->
+                // hide progress bar and show error
+                val profilePB: ProgressBar = fragment.requireView().findViewById(R.id.profilePB)
+                profilePB.visibility = View.INVISIBLE
+                Log.e(
+                    fragment.javaClass.simpleName,
+                    fragment.resources.getString(R.string.update_profile_error),
+                    e
+                )
+                fragment.showErrorSnackBar(fragment.resources.getString(R.string.update_profile_error))
+            }
+    }
+
+    // Function to update user profile using hashmap
+    fun updateUserProfileDataActivity(
+        activity: UpdateProfileActivity,
+        userHashMap: HashMap<String, Any>
+    ) {
+        dbFirestore.collection(Constants.USERS)
+            .document(getCurrentUserID())
+            .update(userHashMap)
+            .addOnSuccessListener {
+                // User profile has been successfully update.
+                Log.i(
+                    activity.javaClass.simpleName,
+                    activity.resources.getString(R.string.update_profile_success)
+                )
+                activity.showInfoSnackBar(activity.resources.getString(R.string.update_profile_success))
+
+                activity.profileUpdateSuccess()
+            }
+            .addOnFailureListener { e ->
+                // hide progress bar and show error
+                val profilePB: ProgressBar = activity.findViewById(R.id.profilePB)
+                profilePB.visibility = View.INVISIBLE
+                Log.e(
+                    activity.javaClass.simpleName,
+                    activity.resources.getString(R.string.update_profile_error),
+                    e
+                )
+                activity.showErrorSnackBar(activity.resources.getString(R.string.update_profile_error))
             }
     }
 

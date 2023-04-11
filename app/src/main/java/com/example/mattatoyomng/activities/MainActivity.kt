@@ -7,7 +7,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
@@ -15,12 +14,10 @@ import com.example.mattatoyomng.R
 import com.example.mattatoyomng.databinding.ActivityMainBinding
 import com.example.mattatoyomng.firebase.FirestoreClass
 import com.example.mattatoyomng.fragments.EventsFragment
+import com.example.mattatoyomng.fragments.UpdateProfileFragment
 import com.example.mattatoyomng.models.User
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import de.hdodenhof.circleimageview.CircleImageView
 
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -96,8 +93,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                     .show()
             }
             R.id.profileItem -> {
-                Toast.makeText(this@MainActivity, "profile Item Clicked", Toast.LENGTH_SHORT)
-                    .show()
+                replaceFragment(UpdateProfileFragment(), item.title.toString())
+//                val intent = Intent(this@MainActivity, UpdateProfileActivity::class.java)
+//                startActivity(intent)
             }
             R.id.logoutItem -> {
                 FirebaseAuth.getInstance().signOut()

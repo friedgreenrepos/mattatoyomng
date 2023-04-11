@@ -2,21 +2,24 @@ package com.example.mattatoyomng.models
 
 import android.os.Parcel
 import android.os.Parcelable
+import android.widget.ImageView
+import androidx.databinding.BindingAdapter
+import com.bumptech.glide.Glide
 
 data class User(
-    val userid: String? = null,
-    val name: String? = null,
-    val username: String? = null,
-    val email: String? = null,
-    val profilePic: String? = null,
+    val userid: String = "",
+    val name: String = "",
+    val username: String = "",
+    val email: String = "",
+    val profilePic: String = "",
     val admin: Boolean = false
-): Parcelable {
+) : Parcelable {
     constructor(parcel: Parcel) : this(
-        parcel.readString(),
-        parcel.readString(),
-        parcel.readString(),
-        parcel.readString(),
-        parcel.readString(),
+        parcel.readString()!!,
+        parcel.readString()!!,
+        parcel.readString()!!,
+        parcel.readString()!!,
+        parcel.readString()!!,
         parcel.readByte() != 0.toByte()
     )
 

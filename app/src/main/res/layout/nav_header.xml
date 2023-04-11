@@ -9,7 +9,7 @@
 		android:id="@+id/userProfilePicIV"
 		android:layout_width="80dp"
 		android:layout_height="80dp"
-		android:src="@mipmap/ic_launcher_round"
+		android:src="@drawable/user_white_80"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintBottom_toTopOf="@+id/usernameTV"
 		android:layout_marginStart="@dimen/default_margin"
