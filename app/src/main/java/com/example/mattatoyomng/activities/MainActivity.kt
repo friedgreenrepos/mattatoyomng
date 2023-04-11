@@ -112,8 +112,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     // Function to update the navigation bar with user detail.
     fun updateNavigationUserDetails(user: User) {
         val headerView = binding.navView.getHeaderView(0)
-        Log.d(TAG, "in updateNavigationUserDetails...")
-        Log.d(TAG, user.profilePic)
+        Log.d(TAG, "CALLING updateNavigationUserDetails...")
+        Log.d(TAG, "profile pic = ${user.profilePic}")
 
         // Set user profile picture in nav header
         val navUserProfilePic = headerView.findViewById<ImageView>(R.id.navUserProfilePic)

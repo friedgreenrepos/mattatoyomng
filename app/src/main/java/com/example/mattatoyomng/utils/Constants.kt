@@ -10,5 +10,5 @@ object Constants {
     // Firebase database field names
     const val PROFILE_PIC: String = "profilePic"
     const val NAME: String = "name"
-    const val MOBILE: String = "mobile"
+    const val USERNAME: String = "username"
 }

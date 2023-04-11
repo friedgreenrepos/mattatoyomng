@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,18 +18,17 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.activities.MainActivity
 import com.example.mattatoyomng.databinding.FragmentUpdateProfileBinding
 import com.example.mattatoyomng.firebase.FirestoreClass
 import com.example.mattatoyomng.models.User
-import com.example.mattatoyomng.showSnackbar
 import com.example.mattatoyomng.utils.Constants
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
-import kotlinx.coroutines.MainScope
 import java.io.IOException
 
 
@@ -44,6 +42,8 @@ class UpdateProfileFragment : Fragment() {
 
     // Global variable for URI of a selected image from phone storage.
     private var profilePicUri: Uri? = null
+    // Global variable for URL of a selected image from phone storage.
+    private var profilePicUrl: String = ""
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,19 +69,21 @@ class UpdateProfileFragment : Fragment() {
             requestStoragePermission(view = it)
         }
         binding.updateProfileBTN.setOnClickListener {
-            updateUserInfo()
+            if (profilePicUri != null) {
+                uploadUserProfilePic()
+            } else {
+                updateUserInfo()
+            }
         }
     }
 
     // Function to populate user profile with user info
     fun setUserDataInUI(user: User) {
         userInfo = user
-        Log.d(TAG, "CALLING setUserDataInUI...")
-        Log.d(TAG, "User profile pic URL/URI = ${user.profilePic}")
         try {
             Glide
                 .with(this@UpdateProfileFragment)
-                .load(Uri.parse(user.profilePic))
+                .load(user.profilePic)
                 .centerCrop()
                 .placeholder(R.drawable.user_white_80)
                 .into(binding.userUpdateProfilePicIV)
@@ -107,7 +109,7 @@ class UpdateProfileFragment : Fragment() {
                 // Load user image into ImageView
                 try {
                     Glide
-                        .with(this@UpdateProfileFragment)
+                        .with(requireActivity())
                         .load(Uri.parse(profilePicUri.toString()))
                         .centerCrop()
                         .placeholder(R.drawable.user_white_80)
@@ -132,7 +134,6 @@ class UpdateProfileFragment : Fragment() {
                         val pickIntent =
                             Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
                         openGalleryLauncher.launch(pickIntent)
-                        Log.d(TAG, "Permission granted to open gallery...")
                     }
                 } else {
                     // Displaying toast if storage permission is not granted
@@ -168,7 +169,8 @@ class UpdateProfileFragment : Fragment() {
 
     // Method to get the extension of selected image.
     private fun getFileExtension(uri: Uri?): String? {
-        return MimeTypeMap.getSingleton().getExtensionFromMimeType(requireActivity().contentResolver.getType(uri!!))
+        return MimeTypeMap.getSingleton()
+            .getExtensionFromMimeType(requireActivity().contentResolver.getType(uri!!))
     }
 
     // Method to upload user image to firebase storage. Also sets image URI global var
@@ -180,15 +182,22 @@ class UpdateProfileFragment : Fragment() {
             "user_" + System.currentTimeMillis() + "." + getFileExtension(profilePicUri)
 
         if (profilePicUri != null) {
-            // save image to Firebase Storage "user_profile_pics" folder
+            // get storage reference
             val sRef: StorageReference = FirebaseStorage.getInstance().reference
                 .child("user_profile_pics")
                 .child(imageFilename)
+
+            // save image to Firebase Storage "user_profile_pics" folder
             sRef.putFile(profilePicUri!!)
-                .addOnSuccessListener {
+                .addOnSuccessListener { taskSnapshot ->
                     // hide progress bar
                     binding.profilePB.visibility = View.INVISIBLE
-                    Log.i(TAG, "User pic URL = ${profilePicUri.toString()}")
+                    taskSnapshot.metadata!!.reference!!.downloadUrl
+                        .addOnSuccessListener { uri ->
+                            // save image URL
+                            profilePicUrl = uri.toString()
+                            updateUserInfo()
+                        }
                 }
                 .addOnFailureListener { exception ->
                     // if operation fails hide progress bar and show Snackbar with error
@@ -200,15 +209,9 @@ class UpdateProfileFragment : Fragment() {
     }
 
     private fun updateUserInfo() {
-        if (profilePicUri != null) {
-            uploadUserProfilePic()
-        }
-
         val userHashMap = HashMap<String, Any>()
         val name = binding.profileNameET.text.toString()
         val username = binding.profileUsernameET.text.toString()
-        val profilePicUrl = profilePicUri.toString()
-
         if (profilePicUrl.isNotEmpty() && profilePicUrl != userInfo.profilePic) {
             userHashMap[Constants.PROFILE_PIC] = profilePicUrl
         }
@@ -218,7 +221,7 @@ class UpdateProfileFragment : Fragment() {
         }
 
         if (username != userInfo.username) {
-            userHashMap[Constants.MOBILE] = username
+            userHashMap[Constants.USERNAME] = username
         }
 
         // Update the data in the database.
@@ -227,8 +230,9 @@ class UpdateProfileFragment : Fragment() {
 
     fun profileUpdateSuccess() {
         binding.profilePB.visibility = View.INVISIBLE
-        // re-load user data
-        FirestoreClass().loadUserData(activity=MainActivity())
+        // re-launch main activity so that the navigation drawer updates
+        val intent = Intent(this.context, MainActivity::class.java)
+        startActivity(intent)
     }
 
 
@@ -240,10 +244,10 @@ class UpdateProfileFragment : Fragment() {
         )
         val snackBarView = snackBar.view
         snackBarView.setBackgroundColor(
-                ContextCompat.getColor(
-                        this.requireContext(),
-                        R.color.green_700
-                )
+            ContextCompat.getColor(
+                this.requireContext(),
+                R.color.green_700
+            )
         )
         snackBar.show()
     }
@@ -256,10 +260,10 @@ class UpdateProfileFragment : Fragment() {
         )
         val snackBarView = snackBar.view
         snackBarView.setBackgroundColor(
-                ContextCompat.getColor(
-                        this.requireContext(),
-                        R.color.red_800
-                )
+            ContextCompat.getColor(
+                this.requireContext(),
+                R.color.red_800
+            )
         )
         snackBar.show()
     }
