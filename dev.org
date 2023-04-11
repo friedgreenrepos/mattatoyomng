@@ -12,10 +12,12 @@
 - [X] split save event from load
 - [X] move Firebase logic to Firebase module for Login and Register
 - [X] add Activity to update user info
+- [X] show date time properly in event card
+- [X] show events chronologically
+- [ ] hide past events (show past events option in settings??)
 - [ ] move Firebase logic to Firebase module for =CreateEventActivity=
 - [ ] edit/delete event activity
 - [ ] load event image programmatically in event card
-- [ ] show date time properly in event card
 - [ ] show default image if no image is supplied for =Event=
-- [ ] show events chronologically
-- [ ] hide past events (show past events option in settings??)
+- [ ] fix ERROR when saving event without image
+- [ ] make Event model Parcelable instead of Serializable

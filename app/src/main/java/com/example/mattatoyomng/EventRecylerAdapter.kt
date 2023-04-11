@@ -5,6 +5,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mattatoyomng.databinding.EventCardBinding
 import com.example.mattatoyomng.models.Event
+import com.example.mattatoyomng.utils.dateFormatter
+import com.example.mattatoyomng.utils.timeFormatter
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -12,6 +14,7 @@ class EventRecyclerAdapter(private val eventList: ArrayList<Event>) :
     RecyclerView.Adapter<EventRecyclerAdapter.EventViewHolder>() {
 
     lateinit var binding: EventCardBinding
+    private var onClickListener: OnClickListener? = null
     inner class EventViewHolder(binding: EventCardBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(event: Event) {
             binding.event = event
@@ -32,11 +35,24 @@ class EventRecyclerAdapter(private val eventList: ArrayList<Event>) :
     override fun onBindViewHolder(holder: EventViewHolder, position: Int) {
         val event: Event = eventList[position]
         holder.bind(event)
-        val dateFormat = "dd MMMM yyyy"
-        val timeFormat = "hh:mm"
-        val sdfDate = SimpleDateFormat(dateFormat, Locale.getDefault())
-        val sdfTime = SimpleDateFormat(timeFormat, Locale.getDefault())
-        binding.cardEventDateTV.text = sdfDate.format(event.date!!.toDate()).toString()
-        binding.cardEventTimeTV.text = sdfTime.format(event.date.toDate()).toString()
+
+        // format date and time
+        binding.cardEventDateTV.text = dateFormatter(event.date)
+        binding.cardEventTimeTV.text = timeFormatter(event.date)
+
+        // bind edit event
+        binding.editEventIV.setOnClickListener {
+            if (onClickListener != null) {
+                onClickListener!!.onClick(position, event)
+            }
+        }
+    }
+
+    interface OnClickListener{
+        fun onClick(position: Int, model: Event)
+    }
+
+    fun setOnClickListener(onClickListener: OnClickListener){
+        this.onClickListener = onClickListener
     }
 }

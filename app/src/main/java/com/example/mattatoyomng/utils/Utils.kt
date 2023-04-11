@@ -1,29 +1,19 @@
-package com.example.mattatoyomng
+package com.example.mattatoyomng.utils
 
-import android.Manifest
-import android.net.Uri
-import android.os.Build
-import android.view.View
-import android.webkit.MimeTypeMap
-import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
-import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.Timestamp
+import java.text.SimpleDateFormat
+import java.util.*
 
-fun View.showSnackbar(
-    view: View,
-    msg: String,
-    length: Int,
-    actionMessage: CharSequence?,
-    action: (View) -> Unit
-) {
-    val snackbar = Snackbar.make(view, msg, length)
-    if (actionMessage != null) {
-        snackbar.setAction(actionMessage) {
-            action(this)
-        }.show()
-    } else {
-        snackbar.show()
-    }
+fun dateFormatter(date: Timestamp?): String{
+    val dateFormat = Constants.DATE_FORMAT
+    val sdfDate = SimpleDateFormat(dateFormat, Locale.getDefault())
+    return sdfDate.format(date!!.toDate()).toString()
+}
+
+fun timeFormatter(date: Timestamp?): String{
+    val timeFormat = Constants.TIME_FORMAT
+    val sdfDate = SimpleDateFormat(timeFormat, Locale.getDefault())
+    return sdfDate.format(date!!.toDate()).toString()
 }
 
 fun stripSpaces(s: String): String {

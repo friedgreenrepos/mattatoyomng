@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mattatoyomng.EventRecyclerAdapter
 import com.example.mattatoyomng.activities.CreateEventActivity
+import com.example.mattatoyomng.activities.EditEventActivity
 import com.example.mattatoyomng.databinding.FragmentEventsBinding
 import com.example.mattatoyomng.models.Event
 import com.example.mattatoyomng.utils.Constants
@@ -65,6 +66,13 @@ class EventsFragment : Fragment() {
                     eventAdapter = EventRecyclerAdapter(eventList)
                     eventRecyclerView.adapter = eventAdapter
                     eventAdapter.notifyDataSetChanged()
+                    eventAdapter.setOnClickListener(object : EventRecyclerAdapter.OnClickListener{
+                        override fun onClick(position:Int, model: Event) {
+                            val intent = Intent(requireContext(), EditEventActivity::class.java)
+                            intent.putExtra(EVENT_DETAIL, model)
+                            startActivity(intent)
+                        }
+                    })
                 } else {
                     // show "no events" textview if event list is empty
                     binding.noEventsTV.visibility = View.VISIBLE
@@ -82,6 +90,10 @@ class EventsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         eventRecyclerView.setHasFixedSize(true)
         eventRecyclerView.layoutManager = LinearLayoutManager(activity)
+    }
+
+    companion object{
+        var EVENT_DETAIL = "event_details"
     }
 
 }

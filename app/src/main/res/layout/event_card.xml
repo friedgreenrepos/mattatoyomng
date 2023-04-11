@@ -4,6 +4,7 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<data>
+
 		<variable
 			name="event"
 			type="com.example.mattatoyomng.models.Event" />
@@ -51,7 +52,18 @@
 					app:layout_constraintEnd_toEndOf="parent"
 					app:layout_constraintStart_toEndOf="@+id/eventImageIV"
 					app:layout_constraintTop_toTopOf="parent"
-					android:layout_marginTop="16dp" />
+					android:layout_marginTop="16dp"
+					android:layout_marginEnd="50dp"/>
+
+				<ImageView
+					android:id="@+id/editEventIV"
+					android:layout_width="30dp"
+					android:layout_height="30dp"
+					android:background="@drawable/edit_red"
+					android:clickable="true"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintTop_toTopOf="parent"
+					android:contentDescription="@string/edit_event" />
 
 				<TextView
 					android:id="@+id/eventDescriptionTV"

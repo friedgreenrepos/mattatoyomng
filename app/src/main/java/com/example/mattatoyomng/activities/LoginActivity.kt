@@ -71,7 +71,7 @@ class LoginActivity : BaseActivity() {
         // add back button and back navigation functionality and remove title
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true)
-            actionBar.setHomeAsUpIndicator(R.drawable.arrow_back_white)
+            actionBar.setHomeAsUpIndicator(R.drawable.arrow_back_red)
             actionBar.setDisplayShowTitleEnabled(false)
         }
         toolbarLoginActivity.setNavigationOnClickListener { onBackPressed() }

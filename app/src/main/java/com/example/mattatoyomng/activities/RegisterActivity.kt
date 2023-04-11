@@ -78,7 +78,7 @@ class RegisterActivity : BaseActivity() {
 
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true)
-            actionBar.setHomeAsUpIndicator(R.drawable.arrow_back_white)
+            actionBar.setHomeAsUpIndicator(R.drawable.arrow_back_blue)
             actionBar.setDisplayShowTitleEnabled(false)
         }
         toolbarRegisterActivity.setNavigationOnClickListener { onBackPressed() }

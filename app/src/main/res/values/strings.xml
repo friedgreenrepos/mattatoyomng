@@ -69,6 +69,8 @@
 	<string name="update">Update</string>
 	<string name="update_profile_success">Profile updated successfully!</string>
 	<string name="update_profile_error">Error while updating user profile</string>
+	<string name="no_events_yet">NO EVENTS YET</string>
+	<string name="edit_event">Edit event</string>
 
 
 </resources>

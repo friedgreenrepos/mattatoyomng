@@ -113,7 +113,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onClick(v: View?) {
         when (v!!.id) {
-            R.id.eventDateTV -> {
+            R.id.editEventDateTV -> {
                 DatePickerDialog(
                     this@CreateEventActivity,
                     dateSetListener,
@@ -122,7 +122,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                     cal.get(Calendar.DAY_OF_MONTH)
                 ).show()
             }
-            R.id.eventTimeTV -> {
+            R.id.editEventTimeTV -> {
                 TimePickerDialog(
                     this@CreateEventActivity,
                     timeSetListener,
@@ -131,10 +131,10 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 DateFormat.is24HourFormat(this@CreateEventActivity)
                 ).show()
             }
-            R.id.addEventImageTV -> {
+            R.id.editEventImageTV -> {
                 requestStoragePermission(view = v)
             }
-            R.id.saveEventBTN -> {
+            R.id.updateEventBTN -> {
                 saveEvent()
             }
         }
@@ -160,7 +160,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true)
             actionBar.setHomeAsUpIndicator(R.drawable.arrow_back_white)
-            actionBar.setDisplayShowTitleEnabled(false)
+            actionBar.title = "Create event"
         }
         toolbar.setNavigationOnClickListener { onBackPressed() }
     }
@@ -171,8 +171,8 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
             // get the returned result from the lambda and check the resultCode and the data returned
             // if the data is not null reference the imageView from the layout
             if (result.resultCode == RESULT_OK && result.data != null) {
-                val eventImage: ImageView = findViewById(R.id.showEventImageIV)
-                val addEventImageTV: TextView = findViewById(R.id.addEventImageTV)
+                val eventImage: ImageView = findViewById(R.id.eventImageEditIV)
+                val addEventImageTV: TextView = findViewById(R.id.editEventImageTV)
                 // show image uploaded
                 eventImage.setImageURI(result.data?.data)
                 // change "add image" button text
