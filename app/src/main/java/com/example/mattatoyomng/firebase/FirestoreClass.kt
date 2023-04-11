@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
 import com.example.mattatoyomng.R
+import com.example.mattatoyomng.activities.CreateEventActivity
 import com.example.mattatoyomng.activities.LoginActivity
 import com.example.mattatoyomng.activities.MainActivity
 import com.example.mattatoyomng.activities.RegisterActivity
@@ -64,6 +65,9 @@ class FirestoreClass {
                         is MainActivity -> {
                             activity.updateNavigationUserDetails(loggedInUser)
                         }
+                        is CreateEventActivity -> {
+                            activity.setEventOwner(loggedInUser)
+                        }
                     }
                 }
                 if (fragment != null) {
@@ -88,6 +92,9 @@ class FirestoreClass {
                             activity.showErrorSnackBar("Error loading user data")
                         }
                         is MainActivity -> {
+                            activity.showErrorSnackBar("Error loading user data")
+                        }
+                        is CreateEventActivity -> {
                             activity.showErrorSnackBar("Error loading user data")
                         }
                     }
@@ -119,7 +126,6 @@ class FirestoreClass {
                     fragment.resources.getString(R.string.update_profile_success)
                 )
                 fragment.showInfoSnackBar(fragment.resources.getString(R.string.update_profile_success))
-
                 fragment.profileUpdateSuccess()
             }
             .addOnFailureListener { e ->

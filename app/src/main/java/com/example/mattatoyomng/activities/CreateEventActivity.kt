@@ -1,12 +1,15 @@
 package com.example.mattatoyomng.activities
 
 import android.Manifest
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.text.TextUtils
+import android.text.format.DateFormat
 import android.util.Log
 import android.view.View
 import android.webkit.MimeTypeMap
@@ -16,40 +19,35 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.ActionBar
-import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.databinding.ActivityCreateEventBinding
+import com.example.mattatoyomng.firebase.FirestoreClass
 import com.example.mattatoyomng.models.Event
 import com.example.mattatoyomng.models.User
-import com.example.mattatoyomng.showSnackbar
-import com.example.mattatoyomng.stripSpaces
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import java.text.SimpleDateFormat
 import java.util.*
 
 
-class CreateEventActivity : AppCompatActivity() {
+class CreateEventActivity : BaseActivity(), View.OnClickListener {
 
     private val TAG: String = "CreateEventActivity"
 
+    // binding
     private lateinit var binding: ActivityCreateEventBinding
-    private lateinit var layout: View
 
-    // user credentials
-    private var currentUserID: String = ""
-    private var currentUserName: String = ""
+    // Toolbar
+    private lateinit var toolbar: Toolbar
 
     // Firebase
     private lateinit var auth: FirebaseAuth
-    private lateinit var currentUser: FirebaseUser
     private var storageReference = FirebaseStorage.getInstance().reference
     private var db = FirebaseFirestore.getInstance()
     private var collectionReference: CollectionReference = db.collection("events")
@@ -60,6 +58,11 @@ class CreateEventActivity : AppCompatActivity() {
     // Global variable for a event image URL
     private var eventImageUrl: String = ""
 
+    // calendar for date/time picker
+    private var cal = Calendar.getInstance()
+    private lateinit var dateSetListener: DatePickerDialog.OnDateSetListener
+    private lateinit var timeSetListener: TimePickerDialog.OnTimeSetListener
+
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,31 +72,97 @@ class CreateEventActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
+        // initialize date picker listener
+        dateSetListener = DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
+            cal.set(Calendar.YEAR, year)
+            cal.set(Calendar.MONTH, month)
+            cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+            updateDateInView()
+        }
+
+        // initialize time picker listener
+        timeSetListener = TimePickerDialog.OnTimeSetListener { view, hourOfDay, minute ->
+            cal.set(Calendar.HOUR_OF_DAY, hourOfDay)
+            cal.set(Calendar.MINUTE, minute)
+            updateTimeInView()
+        }
+
+        // set event owner to current user
+        FirestoreClass().loadUserData(this@CreateEventActivity)
+
         binding.apply {
 
-            // bind layout
-            layout = createEventLayout
+            // toolbar setup
+            toolbar = toolbarCreateEvent
+            setupActionBar()
 
-            // hide progress bar
-            createEventPB.visibility = View.INVISIBLE
-
-            // set event owner to current user
-//            if (User.instance != null) {
-//                currentUserID = User.instance!!.userid.toString()
-//                currentUserName = User.instance!!.name.toString()
-//            }
-//            ownerNameTV.text = currentUserName
+            // default date is today, default time is now
+            updateDateInView()
+            updateTimeInView()
+            eventDateTV.setOnClickListener(this@CreateEventActivity)
+            eventTimeTV.setOnClickListener(this@CreateEventActivity)
 
             // upload image
-            addEventImageTV.setOnClickListener() {
-                requestStoragePermission(view = it)
-            }
+            addEventImageTV.setOnClickListener(this@CreateEventActivity)
 
             // save event
-            saveEventBTN.setOnClickListener() {
+            saveEventBTN.setOnClickListener(this@CreateEventActivity)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    override fun onClick(v: View?) {
+        when (v!!.id) {
+            R.id.eventDateTV -> {
+                DatePickerDialog(
+                    this@CreateEventActivity,
+                    dateSetListener,
+                    cal.get(Calendar.YEAR),
+                    cal.get(Calendar.MONTH),
+                    cal.get(Calendar.DAY_OF_MONTH)
+                ).show()
+            }
+            R.id.eventTimeTV -> {
+                TimePickerDialog(
+                    this@CreateEventActivity,
+                    timeSetListener,
+                    cal.get(Calendar.HOUR_OF_DAY),
+                    cal.get(Calendar.MINUTE),
+                DateFormat.is24HourFormat(this@CreateEventActivity)
+                ).show()
+            }
+            R.id.addEventImageTV -> {
+                requestStoragePermission(view = v)
+            }
+            R.id.saveEventBTN -> {
                 saveEvent()
             }
         }
+    }
+
+    private fun updateDateInView() {
+        val myFormat = "dd/MM/yyyy"
+        val sdf = SimpleDateFormat(myFormat, Locale.getDefault())
+        binding.eventDateTV.text = sdf.format(cal.time).toString()
+    }
+
+    private fun updateTimeInView() {
+        val myFormat = "hh:mm"
+        val sdf = SimpleDateFormat(myFormat, Locale.getDefault())
+        binding.eventTimeTV.text = sdf.format(cal.time).toString()
+    }
+
+    private fun setupActionBar() {
+        setSupportActionBar(toolbar)
+        val actionBar = supportActionBar
+
+        // add back button and back navigation functionality and remove title
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true)
+            actionBar.setHomeAsUpIndicator(R.drawable.arrow_back_white)
+            actionBar.setDisplayShowTitleEnabled(false)
+        }
+        toolbar.setNavigationOnClickListener { onBackPressed() }
     }
 
     // ActivityResultLauncher to open gallery
@@ -149,13 +218,7 @@ class CreateEventActivity : AppCompatActivity() {
                 Manifest.permission.READ_MEDIA_IMAGES
             )
         ) {
-            // call the rationale dialog to tell the user why they need to allow permission request
-            layout.showSnackbar(
-                view,
-                getString(R.string.permission_storage_required),
-                Snackbar.LENGTH_INDEFINITE,
-                null
-            ) {}
+            showInfoSnackBar(getString(R.string.permission_storage_required))
         } else {
             // If it has not been denied then request, directly ask for the permission.
             // The registered ActivityResultCallback gets the result of this request.
@@ -216,8 +279,8 @@ class CreateEventActivity : AppCompatActivity() {
         // get event info
         val title: String = binding.eventTitleET.text.toString()
         val description: String = binding.eventDescriptionET.text.toString()
-        val owner: String = currentUserName
-        val date = Timestamp(Date())
+        val owner: String = binding.ownerTV.text.toString()
+        val date = Timestamp(cal.time)
 
         // first upload image to firebase storage
         uploadEventImage()
@@ -258,5 +321,10 @@ class CreateEventActivity : AppCompatActivity() {
         } else {
             Toast.makeText(this, "Event title cannot be empty", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    // Method to set user as event owner
+    fun setEventOwner(user: User) {
+        binding.ownerNameTV.text = user.username
     }
 }

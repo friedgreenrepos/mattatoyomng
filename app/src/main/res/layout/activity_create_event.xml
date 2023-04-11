@@ -1,20 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools"
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:orientation="vertical"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<androidx.appcompat.widget.Toolbar
+		android:id="@+id/toolbarCreateEvent"
+		android:layout_width="match_parent"
+		android:layout_height="?attr/actionBarSize"/>
 
 	<androidx.core.widget.NestedScrollView
 		android:id="@+id/event_nested_scrollview"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:layout_marginTop="?attr/actionBarSize"
 		android:fillViewport="true"
 		android:scrollbars="none">
 
 		<androidx.constraintlayout.widget.ConstraintLayout
 			android:id="@+id/createEventLayout"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
+			android:layout_height="match_parent">
 
 			<ImageView
 				android:id="@+id/showEventImageIV"
@@ -258,6 +264,7 @@
 			<ProgressBar
 				android:id="@+id/createEventPB"
 				style="?android:attr/progressBarStyle"
+				android:visibility="invisible"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				app:layout_constraintBottom_toBottomOf="parent"
@@ -268,4 +275,4 @@
 		</androidx.constraintlayout.widget.ConstraintLayout>
 	</androidx.core.widget.NestedScrollView>
 
-</layout>
+</LinearLayout>
