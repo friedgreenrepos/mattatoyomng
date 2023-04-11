@@ -44,10 +44,6 @@
 		<activity
 			android:name=".activities.CreateEventActivity"
 			android:exported="false" />
-		<activity
-			android:name=".activities.UpdateProfileActivity"
-			android:exported="false"
-			android:theme="@style/AppTheme.NoActionBar"/>
 	</application>
 
 </manifest>

@@ -9,7 +9,6 @@ import com.example.mattatoyomng.R
 import com.example.mattatoyomng.activities.LoginActivity
 import com.example.mattatoyomng.activities.MainActivity
 import com.example.mattatoyomng.activities.RegisterActivity
-import com.example.mattatoyomng.activities.UpdateProfileActivity
 import com.example.mattatoyomng.fragments.UpdateProfileFragment
 import com.example.mattatoyomng.models.User
 import com.example.mattatoyomng.utils.Constants
@@ -65,10 +64,6 @@ class FirestoreClass {
                         is MainActivity -> {
                             activity.updateNavigationUserDetails(loggedInUser)
                         }
-                        // TODO: implement User Profile Activity
-                        is UpdateProfileActivity -> {
-                            activity.setUserDataInUI(loggedInUser)
-                        }
                     }
                 }
                 if (fragment != null) {
@@ -82,23 +77,33 @@ class FirestoreClass {
             }
             .addOnFailureListener { e ->
                 // Here call a function of base activity for transferring the result to it.
-                when (activity) {
-                    is LoginActivity -> {
-                        activity.showErrorSnackBar("Error loading user data")
-                    }
-                    is MainActivity -> {
-                        activity.showErrorSnackBar("Error loading user data")
-                    }
-                    // TODO: implement User Profile Activity
-                    is UpdateProfileActivity -> {
-                        activity.showErrorSnackBar("Error loading user data")
+                if (activity != null) {
+                    Log.e(
+                        activity.javaClass.simpleName,
+                        "Error while getting loggedIn user details",
+                        e
+                    )
+                    when (activity) {
+                        is LoginActivity -> {
+                            activity.showErrorSnackBar("Error loading user data")
+                        }
+                        is MainActivity -> {
+                            activity.showErrorSnackBar("Error loading user data")
+                        }
                     }
                 }
-                Log.e(
-                    activity!!.javaClass.simpleName,
-                    "Error while getting loggedIn user details",
-                    e
-                )
+                if (fragment != null) {
+                    Log.e(
+                        fragment.javaClass.simpleName,
+                        "Error while getting loggedIn user details",
+                        e
+                    )
+                    when (fragment) {
+                        is UpdateProfileFragment -> {
+                            fragment.showErrorSnackBar("Error loading user data")
+                        }
+                    }
+                }
             }
     }
 
@@ -127,37 +132,6 @@ class FirestoreClass {
                     e
                 )
                 fragment.showErrorSnackBar(fragment.resources.getString(R.string.update_profile_error))
-            }
-    }
-
-    // Function to update user profile using hashmap
-    fun updateUserProfileDataActivity(
-        activity: UpdateProfileActivity,
-        userHashMap: HashMap<String, Any>
-    ) {
-        dbFirestore.collection(Constants.USERS)
-            .document(getCurrentUserID())
-            .update(userHashMap)
-            .addOnSuccessListener {
-                // User profile has been successfully update.
-                Log.i(
-                    activity.javaClass.simpleName,
-                    activity.resources.getString(R.string.update_profile_success)
-                )
-                activity.showInfoSnackBar(activity.resources.getString(R.string.update_profile_success))
-
-                activity.profileUpdateSuccess()
-            }
-            .addOnFailureListener { e ->
-                // hide progress bar and show error
-                val profilePB: ProgressBar = activity.findViewById(R.id.profilePB)
-                profilePB.visibility = View.INVISIBLE
-                Log.e(
-                    activity.javaClass.simpleName,
-                    activity.resources.getString(R.string.update_profile_error),
-                    e
-                )
-                activity.showErrorSnackBar(activity.resources.getString(R.string.update_profile_error))
             }
     }
 
