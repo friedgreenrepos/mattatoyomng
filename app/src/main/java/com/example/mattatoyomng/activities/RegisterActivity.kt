@@ -8,7 +8,6 @@ import android.util.Log
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.databinding.ActivityRegisterBinding
@@ -79,7 +78,7 @@ class RegisterActivity : BaseActivity() {
 
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true)
-            actionBar.setHomeAsUpIndicator(R.drawable.arrow_back)
+            actionBar.setHomeAsUpIndicator(R.drawable.arrow_back_white)
             actionBar.setDisplayShowTitleEnabled(false)
         }
         toolbarRegisterActivity.setNavigationOnClickListener { onBackPressed() }

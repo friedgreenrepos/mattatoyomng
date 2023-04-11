@@ -2,14 +2,12 @@ package com.example.mattatoyomng.activities
 
 import android.content.Intent
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.databinding.ActivityLoginBinding
@@ -73,7 +71,7 @@ class LoginActivity : BaseActivity() {
         // add back button and back navigation functionality and remove title
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true)
-            actionBar.setHomeAsUpIndicator(R.drawable.arrow_back)
+            actionBar.setHomeAsUpIndicator(R.drawable.arrow_back_white)
             actionBar.setDisplayShowTitleEnabled(false)
         }
         toolbarLoginActivity.setNavigationOnClickListener { onBackPressed() }
