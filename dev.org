@@ -11,9 +11,9 @@
 * Functionalities
 - [X] split save event from load
 - [X] move Firebase logic to Firebase module for Login and Register
-- [ ] add Activity to update user info
+- [X] add Activity to update user info
 - [ ] move Firebase logic to Firebase module for =CreateEventActivity=
 - [ ] delete event activity
 - [ ] edit event activity
 - [ ] load event image programmatically in event card
-- [ ] show default image if no image is supplied by user for =Event=
+- [ ] show default image if no image is supplied for =Event=
