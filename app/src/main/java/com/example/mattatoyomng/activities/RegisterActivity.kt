@@ -112,7 +112,7 @@ class RegisterActivity : BaseActivity() {
                     } else {
                         // If sign in fails, display a message to the user.
                         Log.w(TAG, "createUserWithEmail:failure", task.exception)
-                        showErrorSnackBar(resources.getString(R.string.auth_failed))
+                        showErrorSnackBar("${resources.getString(R.string.auth_failed)}: ${task.exception}")
                     }
                 }
         }
