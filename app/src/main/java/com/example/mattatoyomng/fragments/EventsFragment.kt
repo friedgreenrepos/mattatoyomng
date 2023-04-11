@@ -10,12 +10,12 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mattatoyomng.activities.CreateEventActivity
-import com.example.mattatoyomng.models.Event
 import com.example.mattatoyomng.EventRecyclerAdapter
+import com.example.mattatoyomng.activities.CreateEventActivity
 import com.example.mattatoyomng.databinding.FragmentEventsBinding
-import com.google.firebase.firestore.*
-import com.google.firebase.storage.FirebaseStorage
+import com.example.mattatoyomng.models.Event
+import com.example.mattatoyomng.utils.Constants
+import com.google.firebase.firestore.FirebaseFirestore
 
 const val TAG = "EventsFragment"
 
@@ -28,7 +28,6 @@ class EventsFragment : Fragment() {
 
     // Firebase references
     private var db = FirebaseFirestore.getInstance()
-    private var storageReference = FirebaseStorage.getInstance().reference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,7 +52,7 @@ class EventsFragment : Fragment() {
             startActivity(intent)
         }
 
-        db.collection("events")
+        db.collection(Constants.EVENTS)
             .get()
             .addOnSuccessListener { it ->
                 Log.d(TAG, "n.of events in db = ${it.size()}")
