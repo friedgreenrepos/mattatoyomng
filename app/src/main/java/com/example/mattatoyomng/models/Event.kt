@@ -4,6 +4,7 @@ import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.google.firebase.Timestamp
+import java.util.*
 
 data class Event(
     val title: String? = null,

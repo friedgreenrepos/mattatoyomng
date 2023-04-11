@@ -5,6 +5,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mattatoyomng.databinding.EventCardBinding
 import com.example.mattatoyomng.models.Event
+import java.text.SimpleDateFormat
+import java.util.*
 
 class EventRecyclerAdapter(private val eventList: ArrayList<Event>) :
     RecyclerView.Adapter<EventRecyclerAdapter.EventViewHolder>() {
@@ -30,5 +32,11 @@ class EventRecyclerAdapter(private val eventList: ArrayList<Event>) :
     override fun onBindViewHolder(holder: EventViewHolder, position: Int) {
         val event: Event = eventList[position]
         holder.bind(event)
+        val dateFormat = "dd MMMM yyyy"
+        val timeFormat = "hh:mm"
+        val sdfDate = SimpleDateFormat(dateFormat, Locale.getDefault())
+        val sdfTime = SimpleDateFormat(timeFormat, Locale.getDefault())
+        binding.cardEventDateTV.text = sdfDate.format(event.date!!.toDate()).toString()
+        binding.cardEventTimeTV.text = sdfTime.format(event.date.toDate()).toString()
     }
 }

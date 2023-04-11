@@ -44,7 +44,6 @@ class EventsFragment : Fragment() {
         eventRecyclerView = binding.eventRV
 
         // initialize array of events
-        // TODO: check if necessary
         eventList = arrayListOf()
 
         binding.addEventBTN.setOnClickListener() {
@@ -52,8 +51,9 @@ class EventsFragment : Fragment() {
             startActivity(intent)
         }
 
-        db.collection(Constants.EVENTS)
-            .get()
+        // get events ordered by date
+        val docRef = db.collection(Constants.EVENTS).orderBy("date")
+        docRef.get()
             .addOnSuccessListener { it ->
                 Log.d(TAG, "n.of events in db = ${it.size()}")
                 if (!it.isEmpty) {

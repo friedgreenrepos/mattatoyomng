@@ -3,17 +3,19 @@
 * UI
 - [X] show user info in drawer (username, profile pic)
 - [X] show default image if no profile picture is supplied by user for =User=
-- [ ] show owner name in =CreateEventActivity=
-- [ ] back button in =CreateEventActivity=
-- [ ] date picker in =CreateEventActivity=
-- [ ] time picker in =CreateEventActivity=
+- [X] show owner name in =CreateEventActivity=
+- [X] back button in =CreateEventActivity=
+- [X] date picker in =CreateEventActivity=
+- [X] time picker in =CreateEventActivity=
 - [ ] hide keyboard when clicking outside an =EditText=
 * Functionalities
 - [X] split save event from load
 - [X] move Firebase logic to Firebase module for Login and Register
 - [X] add Activity to update user info
 - [ ] move Firebase logic to Firebase module for =CreateEventActivity=
-- [ ] delete event activity
-- [ ] edit event activity
+- [ ] edit/delete event activity
 - [ ] load event image programmatically in event card
+- [ ] show date time properly in event card
 - [ ] show default image if no image is supplied for =Event=
+- [ ] show events chronologically
+- [ ] hide past events (show past events option in settings??)

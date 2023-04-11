@@ -150,4 +150,8 @@ class FirestoreClass {
         }
         return currentUserID
     }
+
+    fun loadEvents() {
+
+    }
 }
