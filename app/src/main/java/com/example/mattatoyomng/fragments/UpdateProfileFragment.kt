@@ -42,9 +42,6 @@ class UpdateProfileFragment : Fragment() {
     // User info global variable
     private lateinit var userInfo: User
 
-    // layout
-    private lateinit var layout: View
-
     // Global variable for URI of a selected image from phone storage.
     private var profilePicUri: Uri? = null
 
@@ -53,30 +50,27 @@ class UpdateProfileFragment : Fragment() {
         super.onCreate(savedInstanceState)
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
         binding = FragmentUpdateProfileBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        // load user data
+        FirestoreClass().loadUserData(fragment = this@UpdateProfileFragment)
 
         binding.userUpdateProfilePicIV.setOnClickListener {
             requestStoragePermission(view = it)
         }
-
         binding.updateProfileBTN.setOnClickListener {
             updateUserInfo()
         }
-
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        // load user data
-        Log.d(TAG, "onViewCreated...")
-        FirestoreClass().loadUserData(fragment = this@UpdateProfileFragment)
     }
 
     // Function to populate user profile with user info
@@ -110,10 +104,6 @@ class UpdateProfileFragment : Fragment() {
                 val userProfilePic: ImageView = binding.userUpdateProfilePicIV
                 // save URI of selected image
                 profilePicUri = result.data?.data!!
-
-                Log.d(TAG, "in openGalleryLauncher...")
-                Log.d(TAG, "Glide load URI: ${Uri.parse(profilePicUri.toString())}")
-
                 // Load user image into ImageView
                 try {
                     Glide
@@ -238,7 +228,7 @@ class UpdateProfileFragment : Fragment() {
     fun profileUpdateSuccess() {
         binding.profilePB.visibility = View.INVISIBLE
         // re-load user data
-        FirestoreClass().loadUserData(fragment = this@UpdateProfileFragment)
+        FirestoreClass().loadUserData(activity=MainActivity())
     }
 
 
