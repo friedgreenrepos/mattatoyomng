@@ -1,8 +1,8 @@
 package com.example.mattatoyomng.activities
 
 import android.Manifest
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
+import android.app.*
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -28,8 +28,7 @@ import com.example.mattatoyomng.R
 import com.example.mattatoyomng.databinding.ActivityCreateEventBinding
 import com.example.mattatoyomng.firebase.FirestoreClass
 import com.example.mattatoyomng.fragments.EventsFragment
-import com.example.mattatoyomng.models.Event
-import com.example.mattatoyomng.models.User
+import com.example.mattatoyomng.models.*
 import com.example.mattatoyomng.utils.*
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.Timestamp
@@ -44,7 +43,7 @@ import kotlin.collections.HashMap
 
 class CreateEventActivity : BaseActivity(), View.OnClickListener {
 
-    val TAG: String = "CreateEventActivity"
+    private val TAG: String = "CreateEventActivity"
 
     // binding
     private lateinit var binding: ActivityCreateEventBinding
@@ -103,6 +102,9 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 intent.getParcelableExtra(EventsFragment.EVENT_DETAILS, Event::class.java)
         }
 
+        // create notification channel
+        createNotificationChannel()
+
         // set-up layout:
         // if eventDetails exists -> create event
         // else -> edit event
@@ -116,6 +118,8 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
             saveEventBTN.setOnClickListener(this@CreateEventActivity)
             // add tags
             addTagLL.setOnClickListener(this@CreateEventActivity)
+            // set reminder
+            addReminderTV.setOnClickListener(this@CreateEventActivity)
 
             // load event data if event details is passed in intent
             if (eventDetails != null) {
@@ -181,19 +185,74 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
             R.id.addTagLL ->{
                 showAddTagDialog()
             }
+            R.id.addReminderTV -> {
+                scheduleNotification()
+            }
         }
     }
 
+    private fun createNotificationChannel() {
+        val name = "Notification Channel"
+        val desc = "A Description"
+        val importance = NotificationManager.IMPORTANCE_DEFAULT
+        val channel = NotificationChannel(channelID, name, importance)
+        channel.description = desc
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+    }
+
+    private fun scheduleNotification() {
+        val intent = Intent(applicationContext, MattaNotification::class.java)
+        val title = resources.getString(R.string.app_name)
+        val eventTitle = binding.eventTitleET.text.toString()
+        if (TextUtils.isEmpty(eventTitle)){
+            showErrorSnackBar("Set title first!")
+            return
+        }
+        val message = "Reminder for event: $eventTitle"
+        intent.putExtra(titleExtra, title)
+        intent.putExtra(messageExtra, message)
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            applicationContext,
+            notificationID,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        // TODO: get time + 30min
+        val time = 1681339080000
+        Log.d(TAG, "time for alert is $time")
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            time,
+            pendingIntent
+        )
+        showAlert(time, title, message)
+    }
+
+    private fun showAlert(time: Long, title: String, message: String) {
+        val date = Date(time)
+        val dateFormat = DateFormat.getLongDateFormat(applicationContext)
+        val timeFormat = DateFormat.getTimeFormat(applicationContext)
+
+        AlertDialog.Builder(this)
+            .setTitle("Notification Scheduled")
+            .setMessage(
+                "Title: " + title +
+                "\nMessage: " + message +
+                "\nAt: " + dateFormat.format(date) + " " + timeFormat.format(date))
+            .setPositiveButton("Okay"){_,_ ->}
+            .show()
+    }
+
     private fun updateDateInView() {
-        val myFormat = "dd/MM/yyyy"
-        val sdf = SimpleDateFormat(myFormat, Locale.getDefault())
-        binding.eventDateTV.text = sdf.format(cal.time).toString()
+        binding.eventDateTV.text = dateFormatter(Timestamp(cal.time))
     }
 
     private fun updateTimeInView() {
-        val myFormat = "hh:mm"
-        val sdf = SimpleDateFormat(myFormat, Locale.getDefault())
-        binding.eventTimeTV.text = sdf.format(cal.time).toString()
+        binding.eventTimeTV.text = timeFormatter(Timestamp(cal.time))
     }
 
     private fun setupActionBarCreate() {

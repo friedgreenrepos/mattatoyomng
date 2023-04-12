@@ -5,12 +5,14 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 fun dateFormatter(date: Timestamp?): String{
+//    val dateFormat = android.text.format.DateFormat.getLongDateFormat(applicationContext)
     val dateFormat = Constants.DATE_FORMAT
     val sdfDate = SimpleDateFormat(dateFormat, Locale.getDefault())
     return sdfDate.format(date!!.toDate()).toString()
 }
 
 fun timeFormatter(date: Timestamp?): String{
+//    val timeFormat = android.text.format.DateFormat.getTimeFormat(applicationContext)
     val timeFormat = Constants.TIME_FORMAT
     val sdfDate = SimpleDateFormat(timeFormat, Locale.getDefault())
     return sdfDate.format(date!!.toDate()).toString()
