@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.mattatoyomng.activities.CreateEventActivity
 import com.example.mattatoyomng.databinding.EventCardBinding
+import com.example.mattatoyomng.firebase.FirestoreClass
 import com.example.mattatoyomng.fragments.EventsFragment
 import com.example.mattatoyomng.models.Event
 import com.example.mattatoyomng.utils.dateFormatter
@@ -23,6 +24,7 @@ class EventRecyclerAdapter(private val context: Context, private val eventList: 
 
     lateinit var binding: EventCardBinding
     private var onClickListener: OnClickListener? = null
+
     inner class EventViewHolder(binding: EventCardBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(event: Event) {
             binding.event = event
@@ -62,18 +64,27 @@ class EventRecyclerAdapter(private val context: Context, private val eventList: 
 
     }
 
-    interface OnClickListener{
+    interface OnClickListener {
         fun onClick(position: Int, model: Event)
     }
 
-    fun setOnClickListener(onClickListener: OnClickListener){
+    fun setOnClickListener(onClickListener: OnClickListener) {
         this.onClickListener = onClickListener
     }
 
-    fun notifyEditItem(fragment: Fragment, position: Int, requestCode: Int){
+    fun notifyEditItem(fragment: Fragment, position: Int, requestCode: Int) {
         val intent = Intent(context, CreateEventActivity::class.java)
         intent.putExtra(EventsFragment.EVENT_DETAILS, eventList[position])
         fragment.startActivityForResult(intent, requestCode)
         notifyItemChanged(position)
+    }
+
+    fun removeAt(fragment: EventsFragment, position: Int) {
+        val documentId = eventList[position].documentId
+        FirestoreClass().deleteEvent(fragment, documentId)
+        // TODO: what if delete is not successful???
+        eventList.removeAt(position)
+        notifyItemRemoved(position)
+
     }
 }

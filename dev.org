@@ -14,17 +14,19 @@
 - [X] swipe to edit instead of clicking edit icon
 
 * Functionalities
+- [ ] change password in =ProfileUpdate=
+- [ ] forgot password
 - [ ] hide past events (show past events option in settings??)
-- [ ] move Firebase logic to Firebase module for events loading in =EventsFragment=
-- [ ] edit event activity
-- [ ] delete event activity
 - [ ] add =profileUpdateFail()= method to handle errors (like =eventUploadFail()=)
 - [ ] load images with multi-threading
 - [ ] add tags in create/edit event
 - [ ] add search feature
 - [ ] add notification feature
 - [ ] add people/shifts to event
-
+- [ ] add delete dialog
+- [X] delete event activity
+- [X] edit event activity
+- [X] move Firebase logic to Firebase module for events loading in =EventsFragment=
 - [X] split save event from load
 - [X] move Firebase logic to Firebase module for Login and Register
 - [X] add Activity to update user info

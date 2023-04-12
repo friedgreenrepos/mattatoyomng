@@ -207,4 +207,18 @@ class FirestoreClass {
             }
     }
 
+    fun deleteEvent(fragment: EventsFragment, documentId: String){
+        dbFirestore.collection(Constants.EVENTS)
+            .document(documentId)
+            .delete()
+            .addOnSuccessListener {
+                fragment.showInfoSnackBar(fragment.resources.getString(R.string.delete_event_success))
+            }
+            .addOnFailureListener{e ->
+                fragment.showErrorSnackBar(
+                    fragment.resources.getString(R.string.delete_event_fail) + ":" + e
+                )
+            }
+    }
+
 }

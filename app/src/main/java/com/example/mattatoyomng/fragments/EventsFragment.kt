@@ -13,6 +13,7 @@ import com.example.mattatoyomng.activities.CreateEventActivity
 import com.example.mattatoyomng.databinding.FragmentEventsBinding
 import com.example.mattatoyomng.firebase.FirestoreClass
 import com.example.mattatoyomng.models.Event
+import com.example.mattatoyomng.utils.SwipeToDeleteCallback
 import com.example.mattatoyomng.utils.SwipeToEditCallback
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -46,9 +47,12 @@ class EventsFragment : BaseFragment() {
         // initialize recycler view
         eventRecyclerView = binding.eventRV
 
-        FirestoreClass().getEventsList(this@EventsFragment)
-
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        FirestoreClass().getEventsList(this@EventsFragment)
     }
 
     fun setupEventsRecyclerView(eventList: ArrayList<Event>) {
@@ -57,9 +61,12 @@ class EventsFragment : BaseFragment() {
             binding.noEventsTV.visibility = View.VISIBLE
         } else {
             // setup event adapter using event list from firestore
+            eventRecyclerView.setHasFixedSize(true)
+            eventRecyclerView.layoutManager = LinearLayoutManager(activity)
             eventAdapter = EventRecyclerAdapter(requireContext(), eventList)
             eventRecyclerView.adapter = eventAdapter
             eventAdapter.notifyDataSetChanged()
+            // setup swipe left to edit
             val editSwipeHandler = object : SwipeToEditCallback(this.requireContext()) {
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     eventAdapter.notifyEditItem(
@@ -71,13 +78,19 @@ class EventsFragment : BaseFragment() {
             }
             val editItemTouchHelper = ItemTouchHelper(editSwipeHandler)
             editItemTouchHelper.attachToRecyclerView(eventRecyclerView)
-        }
-    }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        eventRecyclerView.setHasFixedSize(true)
-        eventRecyclerView.layoutManager = LinearLayoutManager(activity)
+            // setup swipe right to delete
+            val deleteSwipeHandler = object : SwipeToDeleteCallback(this.requireContext()) {
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    eventAdapter.removeAt(
+                        this@EventsFragment,
+                        viewHolder.absoluteAdapterPosition)
+                    FirestoreClass().getEventsList(this@EventsFragment)
+                }
+            }
+            val deleteItemTouchHelper = ItemTouchHelper(deleteSwipeHandler)
+            deleteItemTouchHelper.attachToRecyclerView(eventRecyclerView)
+        }
     }
 
     companion object {
