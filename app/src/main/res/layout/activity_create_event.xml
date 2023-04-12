@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:orientation="vertical"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
@@ -181,22 +182,52 @@
 				app:layout_constraintEnd_toEndOf="parent"
 				app:drawableStartCompat="@drawable/notification_add" />
 
-			<TextView
-				android:id="@+id/addTagTV"
+			<LinearLayout
+				android:id="@+id/addTagLL"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="@dimen/default_margin"
+				android:layout_marginStart="@dimen/default_margin_start"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@+id/addReminderTV">
+
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="Tags"
+					app:drawableTint="@color/red_grey"
+					android:drawablePadding="@dimen/default_drawable_padding"
+					android:textSize="@dimen/default_text_size"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toBottomOf="@+id/addReminderTV"
+					app:layout_constraintEnd_toEndOf="parent"
+					android:layout_marginTop="@dimen/default_margin"
+					android:layout_marginBottom="@dimen/default_margin"
+					app:drawableLeftCompat="@drawable/label" />
+
+				<ImageView
+					android:id="@+id/addTagIV"
+					android:layout_width="26dp"
+					android:layout_height="26dp"
+					android:src="@drawable/add_circle_outline"
+					android:layout_marginTop="@dimen/default_margin"
+					android:layout_marginStart="8dp"
+					app:layout_constraintEnd_toStartOf="@+id/done"
+					app:layout_constraintTop_toTopOf="parent"
+					app:tint="@color/red_grey"
+					android:contentDescription="@string/add_tag" />
+
+			</LinearLayout>
+
+			<com.google.android.material.chip.ChipGroup
+				android:id="@+id/tagsCG"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
-				android:text="@string/add_tag"
-				android:textSize="@dimen/default_text_size"
-				android:background="?attr/selectableItemBackground"
-				android:drawablePadding="@dimen/default_drawable_padding"
-				app:drawableTint="@color/red_grey"
-				app:layout_constraintStart_toStartOf="parent"
-				android:layout_marginStart="20dp"
-				android:layout_marginTop="@dimen/default_margin"
-				android:layout_marginEnd="@dimen/default_margin"
-				app:layout_constraintTop_toBottomOf="@+id/addReminderTV"
+				android:layout_marginStart="@dimen/default_margin"
+				android:layout_marginTop="22dp"
+				app:layout_constraintStart_toEndOf="@id/addTagLL"
 				app:layout_constraintEnd_toEndOf="parent"
-				app:drawableStartCompat="@drawable/label" />
+				app:layout_constraintTop_toBottomOf="@+id/addReminderTV"/>
 
 			<TextView
 				android:id="@+id/addPeopleTV"
@@ -207,9 +238,9 @@
 				android:background="?attr/selectableItemBackground"
 				app:layout_constraintStart_toStartOf="parent"
 				android:layout_marginStart="20dp"
-				android:layout_marginTop="@dimen/default_margin"
+				android:layout_marginTop="64dp"
 				android:layout_marginEnd="@dimen/default_margin"
-				app:layout_constraintTop_toBottomOf="@+id/addTagTV"
+				app:layout_constraintTop_toBottomOf="@+id/tagsCG"
 				app:layout_constraintEnd_toEndOf="parent"
 				android:drawablePadding="@dimen/default_drawable_padding"
 				app:drawableTint="@color/red_grey"

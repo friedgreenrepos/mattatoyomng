@@ -78,6 +78,9 @@
 	<string name="update_event_fail">Error while updating event</string>
 	<string name="delete_event_fail">Error deleting event</string>
 	<string name="delete_event_success">"Event successfully deleted"</string>
+	<string name="enter_text">Enter text</string>
+	<string name="add_new_tag">Add new tag</string>
+	<string name="chip">Chip</string>
 
 
 </resources>

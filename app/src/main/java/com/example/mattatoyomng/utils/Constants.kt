@@ -15,6 +15,7 @@ object Constants {
     const val DESCRIPTION: String = "description"
     const val DATE: String = "date"
     const val EVENT_IMAGE_URL: String = "eventImgURL"
+    const val TAGS: String = "tags"
     // date formatting
     const val DATE_FORMAT: String = "dd MMMM yyyy"
     const val TIME_FORMAT: String = "hh:mm"

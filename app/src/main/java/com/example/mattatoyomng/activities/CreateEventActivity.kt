@@ -12,7 +12,9 @@ import android.text.TextUtils
 import android.text.format.DateFormat
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.webkit.MimeTypeMap
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -28,9 +30,8 @@ import com.example.mattatoyomng.firebase.FirestoreClass
 import com.example.mattatoyomng.fragments.EventsFragment
 import com.example.mattatoyomng.models.Event
 import com.example.mattatoyomng.models.User
-import com.example.mattatoyomng.utils.Constants
-import com.example.mattatoyomng.utils.dateFormatter
-import com.example.mattatoyomng.utils.timeFormatter
+import com.example.mattatoyomng.utils.*
+import com.google.android.material.button.MaterialButton
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
@@ -68,6 +69,9 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
 
     // event passed in intent
     private var eventDetails: Event? = null
+
+    // tag list
+    private var eventTagsList: MutableList<String> = arrayListOf()
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -109,8 +113,9 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
             // upload image
             addEventImageTV.setOnClickListener(this@CreateEventActivity)
             // save/update event
-            // TODO: handle update event too!!!!!
             saveEventBTN.setOnClickListener(this@CreateEventActivity)
+            // add tags
+            addTagLL.setOnClickListener(this@CreateEventActivity)
 
             // load event data if event details is passed in intent
             if (eventDetails != null) {
@@ -120,6 +125,8 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 eventDateTV.text = dateFormatter(eventDetails!!.date)
                 eventTimeTV.text = timeFormatter(eventDetails!!.date)
                 ownerNameTV.text = eventDetails!!.owner
+                eventTagsList = eventDetails!!.tags
+                addTags(eventTagsList)
                 saveEventBTN.text = resources.getString(R.string.update)
                 try {
                     Glide
@@ -170,6 +177,9 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
             R.id.saveEventBTN -> {
                 if (eventImageUri != null) uploadEventImage()
                 else saveEvent()
+            }
+            R.id.addTagLL ->{
+                showAddTagDialog()
             }
         }
     }
@@ -356,6 +366,9 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 if (eventImageUrl.isNotEmpty() && eventImageUrl != eventDetails!!.eventImgURL) {
                     eventHashMap[Constants.EVENT_IMAGE_URL] = eventImageUrl
                 }
+
+                eventHashMap[Constants.TAGS] = eventTagsList
+
                 FirestoreClass().updateEvent(
                     this@CreateEventActivity,
                     eventHashMap,
@@ -369,6 +382,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                     owner,
                     date,
                     eventImageUrl,
+                    eventTagsList
                 )
                 FirestoreClass().createEvent(this@CreateEventActivity, event)
             }
@@ -407,4 +421,51 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
     fun setEventOwner(user: User) {
         binding.ownerNameTV.text = user.username
     }
+
+    private fun showAddTagDialog(){
+        val dialog = this.createDialog(R.layout.add_tag_dialog, true)
+        val button = dialog.findViewById<MaterialButton>(R.id.tagDialogAdd)
+        val editText = dialog.findViewById<EditText>(R.id.tagDialogET)
+        button.setOnClickListener {
+            if (editText.text.toString().isEmpty()) {
+                showErrorSnackBar(resources.getString(R.string.enter_text))
+            } else {
+                val text = editText.text.toString()
+                eventTagsList.add(text)
+                binding.tagsCG.apply {
+                    addChip(text, true) {
+                        eventTagsList.forEachIndexed { index, tag ->
+                            if (text == tag) {
+                                eventTagsList.removeAt(index)
+                                binding.tagsCG.removeViewAt(index)
+                            }
+                        }
+                        if (eventTagsList.size == 0){
+                            layoutParams.height = 40.dpToPx
+                        }
+                    }
+                    layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+                }
+                dialog.dismiss()
+            }
+        }
+        dialog.show()
+    }
+    // Function to show tags as chips in view
+    private fun addTags(tagsList: MutableList<String>) {
+        if (tagsList.size > 0) {
+            binding.tagsCG.apply {
+                removeAllViews()
+                tagsList.forEachIndexed { index, tag ->
+                    addChip(tag, true) {
+                        if (isEnabled) {
+                            tagsList.removeAt(index)
+                            this.removeViewAt(index)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }
