@@ -32,7 +32,7 @@ import com.google.firebase.storage.StorageReference
 import java.io.IOException
 
 
-class UpdateProfileFragment : Fragment() {
+class UpdateProfileFragment : BaseFragment() {
     private val TAG: String = "UpdateProfileFragment"
 
     private lateinit var binding: FragmentUpdateProfileBinding
@@ -232,43 +232,9 @@ class UpdateProfileFragment : Fragment() {
 
     fun profileUpdateSuccess() {
         binding.profilePB.visibility = View.INVISIBLE
+        showInfoSnackBar(resources.getString(R.string.update_profile_success))
         // re-launch main activity so that the navigation drawer updates
         val intent = Intent(this.context, MainActivity::class.java)
         startActivity(intent)
     }
-
-
-    fun showInfoSnackBar(message: String) {
-        val snackBar = Snackbar.make(
-            requireActivity().findViewById(android.R.id.content),
-            message,
-            Snackbar.LENGTH_LONG
-        )
-        val snackBarView = snackBar.view
-        snackBarView.setBackgroundColor(
-            ContextCompat.getColor(
-                this.requireContext(),
-                R.color.green_700
-            )
-        )
-        snackBar.show()
-    }
-
-    fun showErrorSnackBar(message: String) {
-        val snackBar = Snackbar.make(
-            requireActivity().findViewById(android.R.id.content),
-            message,
-            Snackbar.LENGTH_LONG
-        )
-        val snackBarView = snackBar.view
-        snackBarView.setBackgroundColor(
-            ContextCompat.getColor(
-                this.requireContext(),
-                R.color.red_800
-            )
-        )
-        snackBar.show()
-    }
-
-
 }

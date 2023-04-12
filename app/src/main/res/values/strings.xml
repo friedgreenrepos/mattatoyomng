@@ -72,6 +72,10 @@
 	<string name="update_profile_error">Error while updating user profile</string>
 	<string name="no_events_yet">NO EVENTS YET</string>
 	<string name="edit_event">Edit event</string>
+	<string name="create_event_success">Event created successfully!</string>
+	<string name="update_event_success">Event updated successfully!</string>
+	<string name="create_event_fail">Error while creating event</string>
+	<string name="update_event_fail">Error while updating event</string>
 
 
 </resources>

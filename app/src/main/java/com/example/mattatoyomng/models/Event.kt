@@ -10,7 +10,7 @@ data class Event(
     val owner: String = "",
     val date: Timestamp? = null,
     val eventImgURL: String = "",
-    val documentID: String = ""
+    var documentId: String = ""
 ) : Parcelable {
 
     constructor(parcel: Parcel) : this(
@@ -28,7 +28,7 @@ data class Event(
         parcel.writeString(owner)
         parcel.writeParcelable(date, flags)
         parcel.writeString(eventImgURL)
-        parcel.writeString(documentID)
+        parcel.writeString(documentId)
     }
 
     override fun describeContents(): Int = 0

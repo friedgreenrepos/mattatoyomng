@@ -7,11 +7,14 @@ object Constants {
     const val USERS: String = "users"
     const val EVENTS: String = "events"
 
-    // Firebase database field names
+    // Firestore db field names
     const val PROFILE_PIC: String = "profilePic"
     const val NAME: String = "name"
     const val USERNAME: String = "username"
-
+    const val TITLE: String = "title"
+    const val DESCRIPTION: String = "description"
+    const val DATE: String = "date"
+    const val EVENT_IMAGE_URL: String = "eventImgURL"
     // date formatting
     const val DATE_FORMAT: String = "dd MMMM yyyy"
     const val TIME_FORMAT: String = "hh:mm"

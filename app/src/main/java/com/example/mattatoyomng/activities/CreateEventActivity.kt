@@ -28,6 +28,7 @@ import com.example.mattatoyomng.firebase.FirestoreClass
 import com.example.mattatoyomng.fragments.EventsFragment
 import com.example.mattatoyomng.models.Event
 import com.example.mattatoyomng.models.User
+import com.example.mattatoyomng.utils.Constants
 import com.example.mattatoyomng.utils.dateFormatter
 import com.example.mattatoyomng.utils.timeFormatter
 import com.google.firebase.Timestamp
@@ -37,11 +38,12 @@ import com.google.firebase.storage.StorageReference
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.HashMap
 
 
 class CreateEventActivity : BaseActivity(), View.OnClickListener {
 
-    private val TAG: String = "CreateEventActivity"
+    val TAG: String = "CreateEventActivity"
 
     // binding
     private lateinit var binding: ActivityCreateEventBinding
@@ -139,7 +141,6 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 FirestoreClass().loadUserData(this@CreateEventActivity)
             }
         }
-
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -326,33 +327,59 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
         }
     }
 
-    // Method to save event
+    // Method to save event have two possible options:
+    // 1. If we're editing and existing event create hash-map and update existing document in db
+    // 2. If we're creating a new event pass object to Firestore method to create document
     private fun saveEvent() {
-        // get event info
+        // get event date from view
         val title: String = binding.eventTitleET.text.toString()
         val description: String = binding.eventDescriptionET.text.toString()
         val owner: String = binding.ownerNameTV.text.toString()
         val date = Timestamp(cal.time)
 
+        // validate form
         if (validateEventForm(title, date)) {
             // make progress bar visible
             binding.createEventPB.visibility = View.VISIBLE
-
-            val newEvent = Event(
-                title,
-                description,
-                owner,
-                date,
-                eventImageUrl
-            )
-            FirestoreClass().createEvent(this@CreateEventActivity, newEvent)
+            // 1. edit existing event
+            if (eventDetails != null) {
+                val eventHashMap = HashMap<String, Any>()
+                if (title != eventDetails!!.title) {
+                    eventHashMap[Constants.TITLE] = title
+                }
+                if (description.isNotEmpty() && description != eventDetails!!.description) {
+                    eventHashMap[Constants.DESCRIPTION] = description
+                }
+                if (date != eventDetails!!.date) {
+                    eventHashMap[Constants.DATE] = date
+                }
+                if (eventImageUrl.isNotEmpty() && eventImageUrl != eventDetails!!.eventImgURL) {
+                    eventHashMap[Constants.EVENT_IMAGE_URL] = eventImageUrl
+                }
+                FirestoreClass().updateEvent(
+                    this@CreateEventActivity,
+                    eventHashMap,
+                    eventDetails!!.documentId
+                )
+            } else {
+                // 2. create event
+                val event = Event(
+                    title,
+                    description,
+                    owner,
+                    date,
+                    eventImageUrl,
+                )
+                FirestoreClass().createEvent(this@CreateEventActivity, event)
+            }
         }
     }
 
     // Function to call when event upload is successful:
     // hide progress bar and go to main activity
-    fun eventUploadSuccess() {
+    fun eventUploadSuccess(msg: String) {
         binding.createEventPB.visibility = View.INVISIBLE
+        showInfoSnackBar(msg)
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
     }
@@ -361,7 +388,6 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
     // hide progress bar and show error
     fun eventUploadFail(msg: String) {
         binding.createEventPB.visibility = View.INVISIBLE
-        Log.e(TAG, msg)
         showErrorSnackBar(msg)
     }
 

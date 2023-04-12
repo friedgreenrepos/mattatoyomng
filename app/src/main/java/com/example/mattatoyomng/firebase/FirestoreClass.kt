@@ -1,15 +1,19 @@
 package com.example.mattatoyomng.firebase
 
 import android.app.Activity
+import android.text.TextUtils
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.activities.CreateEventActivity
 import com.example.mattatoyomng.activities.LoginActivity
 import com.example.mattatoyomng.activities.MainActivity
 import com.example.mattatoyomng.activities.RegisterActivity
+import com.example.mattatoyomng.fragments.EventsFragment
+import com.example.mattatoyomng.fragments.TAG
 import com.example.mattatoyomng.fragments.UpdateProfileFragment
 import com.example.mattatoyomng.models.Event
 import com.example.mattatoyomng.models.User
@@ -22,9 +26,17 @@ class FirestoreClass {
 
     private val dbFirestore = FirebaseFirestore.getInstance()
 
-    /**
-     * A function to make an entry of the registered user in the firestore database.
-     */
+    // Function to get the userid of current logged user. Return empty string if no user is logged in.
+    fun getCurrentUserID(): String {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        var currentUserID = ""
+        if (currentUser != null) {
+            currentUserID = currentUser.uid
+        }
+        return currentUserID
+    }
+
+    // Register user by creating an entry in Firestore collection "users"
     fun registerUser(activity: RegisterActivity, userInfo: User) {
 
         dbFirestore.collection(Constants.USERS)
@@ -33,16 +45,12 @@ class FirestoreClass {
             // merge User info with user document
             .set(userInfo, SetOptions.merge())
             .addOnSuccessListener {
-
-                // Here call a function of base activity for transferring the result to it.
                 activity.userRegisteredSuccess()
             }
             .addOnFailureListener { e ->
-                Log.e(
-                    activity.javaClass.simpleName,
-                    "Error writing document",
-                    e
-                )
+                val msg = "Error writing document: ${e.message}"
+                Log.e(activity.javaClass.simpleName, msg)
+                activity.showErrorSnackBar(msg)
             }
     }
 
@@ -126,7 +134,6 @@ class FirestoreClass {
                     fragment.javaClass.simpleName,
                     fragment.resources.getString(R.string.update_profile_success)
                 )
-                fragment.showInfoSnackBar(fragment.resources.getString(R.string.update_profile_success))
                 fragment.profileUpdateSuccess()
             }
             .addOnFailureListener { e ->
@@ -147,25 +154,57 @@ class FirestoreClass {
             .document()
             .set(event, SetOptions.merge())
             .addOnSuccessListener {
-                activity.eventUploadSuccess()
+                val msg = activity.resources.getString(R.string.create_event_success)
+                activity.eventUploadSuccess(msg)
             }
             .addOnFailureListener {
-                val msg = "ERROR: ${it.message.toString()}"
+                val msg = activity.resources.getString(R.string.create_event_fail) +
+                        "ERROR: ${it.message.toString()}"
                 activity.eventUploadFail(msg)
             }
     }
 
-    // Function to get the userid of current logged user. Return empty string if no user is logged in.
-    fun getCurrentUserID(): String {
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        var currentUserID = ""
-        if (currentUser != null) {
-            currentUserID = currentUser.uid
-        }
-        return currentUserID
+    fun updateEvent(
+        activity: CreateEventActivity,
+        eventHashMap: HashMap<String, Any>,
+        documentId: String
+    ) {
+        dbFirestore.collection(Constants.EVENTS)
+            .document(documentId)
+            .update(eventHashMap)
+            .addOnSuccessListener {
+                val msg = activity.resources.getString(R.string.update_event_success)
+                activity.eventUploadSuccess(msg)
+            }
+            .addOnFailureListener {
+                val msg = activity.resources.getString(R.string.update_event_fail) +
+                        "ERROR: ${it.message.toString()}"
+                activity.eventUploadFail(msg)
+            }
     }
 
-    fun loadEvents() {
-        //TODO: write load events from db function
+    fun getEventsList(fragment: EventsFragment) {
+        // get events ordered by date
+        val docRef = dbFirestore.collection(Constants.EVENTS).orderBy("date")
+        docRef.get()
+            .addOnSuccessListener { document ->
+                Log.d(TAG, "n.of events in db = ${document.size()}")
+                val eventList: ArrayList<Event> = ArrayList()
+                if (!document.isEmpty) {
+                    document.forEach {
+                        // convert snapshots to Event objects
+                        val event = it.toObject(Event::class.java)
+                        event.documentId = it.id
+                        eventList.add(event)
+                    }
+                }
+                fragment.setupEventsRecyclerView(eventList)
+            }
+            .addOnFailureListener {
+                val msg = "ERROR: ${it.message}"
+                Log.e(TAG, msg)
+                fragment.showErrorSnackBar(msg)
+            }
     }
+
 }

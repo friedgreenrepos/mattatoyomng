@@ -1,6 +1,9 @@
 #+TITLE: MattatoyoMNG DEV TODO
 #+AUTHOR: Giulia
 * UI
+- [ ] swipe to delete
+- [ ] hide keyboard when clicking outside an =EditText=
+
 - [X] show user info in drawer (username, profile pic)
 - [X] show default image if no profile picture is supplied by user for =User=
 - [X] show owner name in =CreateEventActivity=
@@ -9,18 +12,8 @@
 - [X] time picker in =CreateEventActivity=
 - [X] show default image if no image is supplied for =Event=
 - [X] swipe to edit instead of clicking edit icon
-- [ ] hide keyboard when clicking outside an =EditText=
 
 * Functionalities
-- [X] split save event from load
-- [X] move Firebase logic to Firebase module for Login and Register
-- [X] add Activity to update user info
-- [X] show date time properly in event card
-- [X] show events chronologically
-- [X] move Firebase logic to Firebase module for =CreateEventActivity=
-- [X] load event image programmatically in event card
-- [X] fix ERROR when saving event without image
-- [X] make Event model =Parcelable= instead of =Serializable=
 - [ ] hide past events (show past events option in settings??)
 - [ ] move Firebase logic to Firebase module for events loading in =EventsFragment=
 - [ ] edit event activity
@@ -31,3 +24,13 @@
 - [ ] add search feature
 - [ ] add notification feature
 - [ ] add people/shifts to event
+
+- [X] split save event from load
+- [X] move Firebase logic to Firebase module for Login and Register
+- [X] add Activity to update user info
+- [X] show date time properly in event card
+- [X] show events chronologically
+- [X] move Firebase logic to Firebase module for =CreateEventActivity=
+- [X] load event image programmatically in event card
+- [X] fix ERROR when saving event without image
+- [X] make Event model =Parcelable= instead of =Serializable=
