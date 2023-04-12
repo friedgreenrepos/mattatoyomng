@@ -25,12 +25,13 @@ import com.bumptech.glide.Glide
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.databinding.ActivityCreateEventBinding
 import com.example.mattatoyomng.firebase.FirestoreClass
+import com.example.mattatoyomng.fragments.EventsFragment
 import com.example.mattatoyomng.models.Event
 import com.example.mattatoyomng.models.User
+import com.example.mattatoyomng.utils.dateFormatter
+import com.example.mattatoyomng.utils.timeFormatter
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import java.io.IOException
@@ -51,8 +52,6 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
     // Firebase
     private lateinit var auth: FirebaseAuth
     private var storageReference = FirebaseStorage.getInstance().reference
-    private var db = FirebaseFirestore.getInstance()
-    private var collectionReference: CollectionReference = db.collection("events")
 
     // Global variable for URI of a selected image from phone storage.
     private var eventImageUri: Uri? = null
@@ -64,6 +63,9 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
     private var cal = Calendar.getInstance()
     private lateinit var dateSetListener: DatePickerDialog.OnDateSetListener
     private lateinit var timeSetListener: TimePickerDialog.OnTimeSetListener
+
+    // event passed in intent
+    private var eventDetails: Event? = null
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,27 +91,55 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
             updateTimeInView()
         }
 
-        // set event owner to current user
-        FirestoreClass().loadUserData(this@CreateEventActivity)
+        // check if event is passed in intent
+        if (intent.hasExtra(EventsFragment.EVENT_DETAILS)) {
+            eventDetails =
+                intent.getParcelableExtra(EventsFragment.EVENT_DETAILS, Event::class.java)
+        }
 
+        // set-up layout:
+        // if eventDetails exists -> create event
+        // else -> edit event
         binding.apply {
-
-            // toolbar setup
             toolbar = toolbarCreateEvent
-            setupActionBar()
-
-            // default date is today, default time is now
-            updateDateInView()
-            updateTimeInView()
             eventDateTV.setOnClickListener(this@CreateEventActivity)
             eventTimeTV.setOnClickListener(this@CreateEventActivity)
-
             // upload image
             addEventImageTV.setOnClickListener(this@CreateEventActivity)
-
-            // save event
+            // save/update event
+            // TODO: handle update event too!!!!!
             saveEventBTN.setOnClickListener(this@CreateEventActivity)
+
+            // load event data if event details is passed in intent
+            if (eventDetails != null) {
+                setupActionBarEdit()
+                eventTitleET.setText(eventDetails!!.title)
+                eventDescriptionET.setText(eventDetails!!.description)
+                eventDateTV.text = dateFormatter(eventDetails!!.date)
+                eventTimeTV.text = timeFormatter(eventDetails!!.date)
+                ownerNameTV.text = eventDetails!!.owner
+                saveEventBTN.text = resources.getString(R.string.update)
+                try {
+                    Glide
+                        .with(this@CreateEventActivity)
+                        .load(eventDetails!!.eventImgURL)
+                        .centerCrop()
+                        .placeholder(R.drawable.image_red_transparency4)
+                        .into(showEventImageIV)
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    Log.e(TAG, "Error loading event image: ${e.message}")
+                }
+            } else {
+                setupActionBarCreate()
+                // populate date TV with today's date and time TV with current time
+                updateDateInView()
+                updateTimeInView()
+                // set event owner to current user
+                FirestoreClass().loadUserData(this@CreateEventActivity)
+            }
         }
+
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -155,7 +185,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
         binding.eventTimeTV.text = sdf.format(cal.time).toString()
     }
 
-    private fun setupActionBar() {
+    private fun setupActionBarCreate() {
         setSupportActionBar(toolbar)
         val actionBar = supportActionBar
 
@@ -164,6 +194,19 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
             actionBar.setDisplayHomeAsUpEnabled(true)
             actionBar.setHomeAsUpIndicator(R.drawable.arrow_back_white)
             actionBar.title = "Create event"
+        }
+        toolbar.setNavigationOnClickListener { onBackPressed() }
+    }
+
+    private fun setupActionBarEdit() {
+        setSupportActionBar(toolbar)
+        val actionBar = supportActionBar
+
+        // add back button and back navigation functionality and remove title
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true)
+            actionBar.setHomeAsUpIndicator(R.drawable.arrow_back_white)
+            actionBar.title = "Edit event"
         }
         toolbar.setNavigationOnClickListener { onBackPressed() }
     }
@@ -302,7 +345,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 date,
                 eventImageUrl
             )
-            FirestoreClass().saveEventData(this@CreateEventActivity, newEvent)
+            FirestoreClass().createEvent(this@CreateEventActivity, newEvent)
         }
     }
 

@@ -45,10 +45,6 @@
 			android:name=".activities.CreateEventActivity"
 			android:exported="false"
 			android:theme="@style/AppTheme.NoActionBar" />
-		<activity
-			android:name=".activities.EditEventActivity"
-			android:exported="false"
-			android:theme="@style/AppTheme.NoActionBar"/>
 	</application>
 
 </manifest>

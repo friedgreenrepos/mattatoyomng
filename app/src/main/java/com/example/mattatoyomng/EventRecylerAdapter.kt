@@ -1,19 +1,22 @@
 package com.example.mattatoyomng
 
+import android.content.Context
+import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.mattatoyomng.activities.CreateEventActivity
 import com.example.mattatoyomng.databinding.EventCardBinding
+import com.example.mattatoyomng.fragments.EventsFragment
 import com.example.mattatoyomng.models.Event
 import com.example.mattatoyomng.utils.dateFormatter
 import com.example.mattatoyomng.utils.timeFormatter
 import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.*
 
-class EventRecyclerAdapter(private val eventList: ArrayList<Event>) :
+class EventRecyclerAdapter(private val context: Context, private val eventList: ArrayList<Event>) :
     RecyclerView.Adapter<EventRecyclerAdapter.EventViewHolder>() {
 
     private var TAG = "EventRecyclerAdapter"
@@ -28,7 +31,7 @@ class EventRecyclerAdapter(private val eventList: ArrayList<Event>) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventViewHolder {
         binding = EventCardBinding.inflate(
-            LayoutInflater.from(parent.context),
+            LayoutInflater.from(context),
             parent,
             false
         )
@@ -40,7 +43,7 @@ class EventRecyclerAdapter(private val eventList: ArrayList<Event>) :
     override fun onBindViewHolder(holder: EventViewHolder, position: Int) {
         val event: Event = eventList[position]
         holder.bind(event)
-
+        // load event image
         try {
             Glide
                 .with(holder.itemView.context)
@@ -57,12 +60,6 @@ class EventRecyclerAdapter(private val eventList: ArrayList<Event>) :
         binding.cardEventDateTV.text = dateFormatter(event.date)
         binding.cardEventTimeTV.text = timeFormatter(event.date)
 
-        // bind edit event
-        binding.editEventIV.setOnClickListener {
-            if (onClickListener != null) {
-                onClickListener!!.onClick(position, event)
-            }
-        }
     }
 
     interface OnClickListener{
@@ -71,5 +68,12 @@ class EventRecyclerAdapter(private val eventList: ArrayList<Event>) :
 
     fun setOnClickListener(onClickListener: OnClickListener){
         this.onClickListener = onClickListener
+    }
+
+    fun notifyEditItem(fragment: Fragment, position: Int, requestCode: Int){
+        val intent = Intent(context, CreateEventActivity::class.java)
+        intent.putExtra(EventsFragment.EVENT_DETAILS, eventList[position])
+        fragment.startActivityForResult(intent, requestCode)
+        notifyItemChanged(position)
     }
 }
