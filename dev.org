@@ -8,6 +8,7 @@
 - [X] date picker in =CreateEventActivity=
 - [X] time picker in =CreateEventActivity=
 - [ ] hide keyboard when clicking outside an =EditText=
+- [ ] swipe to edit instead of clicking edit icon
 * Functionalities
 - [X] split save event from load
 - [X] move Firebase logic to Firebase module for Login and Register
@@ -20,4 +21,5 @@
 - [ ] load event image programmatically in event card
 - [ ] show default image if no image is supplied for =Event=
 - [ ] fix ERROR when saving event without image
-- [ ] make Event model Parcelable instead of Serializable
+- [ ] make Event model =Parcelable= instead of =Serializable=
+- [ ] add =profileUpdateFail()= method to handle errors (like =eventUploadFail()=)

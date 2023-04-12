@@ -5,10 +5,16 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
-	<androidx.appcompat.widget.Toolbar
-		android:id="@+id/toolbarCreateEvent"
+	<com.google.android.material.appbar.AppBarLayout
 		android:layout_width="match_parent"
-		android:layout_height="?attr/actionBarSize"/>
+		android:layout_height="wrap_content"
+		android:theme="@style/AppTheme.AppBarOverlay">
+
+		<androidx.appcompat.widget.Toolbar
+			android:id="@+id/toolbarCreateEvent"
+			android:layout_width="match_parent"
+			android:layout_height="?attr/actionBarSize" />
+	</com.google.android.material.appbar.AppBarLayout>
 
 	<androidx.core.widget.NestedScrollView
 		android:id="@+id/event_nested_scrollview"
@@ -240,7 +246,7 @@
 				android:id="@+id/ownerNameTV"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="@string/owner_name"
+				android:hint="@string/owner_name"
 				android:textSize="@dimen/default_text_size"
 				android:background="?attr/selectableItemBackground"
 				android:layout_marginTop="@dimen/default_margin"

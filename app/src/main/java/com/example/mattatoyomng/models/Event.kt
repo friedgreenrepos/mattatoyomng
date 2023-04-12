@@ -37,15 +37,6 @@ data class Event(
     }
 
     companion object CREATOR : Parcelable.Creator<Event> {
-
-        // Binding Adapter to display event image in custom views
-        @BindingAdapter("eventImgURL")
-        @JvmStatic
-        fun loadImage(imageView: ImageView, imgUrl: String) {
-            Glide.with(imageView.context)
-                .load(imgUrl)
-                .into(imageView)
-        }
         override fun createFromParcel(parcel: Parcel): Event {
             return Event(parcel)
         }

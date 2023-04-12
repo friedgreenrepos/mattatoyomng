@@ -4,8 +4,10 @@ import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.Toolbar
+import com.bumptech.glide.Glide
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.databinding.ActivityCreateEventBinding
 import com.example.mattatoyomng.databinding.ActivityEditEventBinding
@@ -13,6 +15,7 @@ import com.example.mattatoyomng.fragments.EventsFragment
 import com.example.mattatoyomng.models.Event
 import com.example.mattatoyomng.utils.dateFormatter
 import com.example.mattatoyomng.utils.timeFormatter
+import java.io.IOException
 
 class EditEventActivity : AppCompatActivity() {
     private val TAG: String = "EditEventActivity"
@@ -36,10 +39,22 @@ class EditEventActivity : AppCompatActivity() {
         if (eventDetails != null) {
             binding.editEventTitleET.setText(eventDetails.title)
             binding.editEventDescriptionET.setText(eventDetails.description)
-            binding.eventImageEditIV.setImageURI(Uri.parse(eventDetails.eventImgURL))
             binding.editEventDateTV.text = dateFormatter(eventDetails.date)
             binding.editEventTimeTV.text = timeFormatter(eventDetails.date)
             binding.ownerNameTV.text = eventDetails.owner
+
+            try {
+                Glide
+                    .with(this@EditEventActivity)
+                    .load(eventDetails.eventImgURL)
+                    .centerCrop()
+                    .placeholder(R.drawable.image_red_transparency4)
+                    .into(binding.eventImageEditIV)
+            } catch (e: IOException) {
+                e.printStackTrace()
+                Log.e(TAG, "Error loading event image: ${e.message}")
+            }
+
         }
 
 

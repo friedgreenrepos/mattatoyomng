@@ -192,6 +192,8 @@ class UpdateProfileFragment : Fragment() {
                 .addOnSuccessListener { taskSnapshot ->
                     // hide progress bar
                     binding.profilePB.visibility = View.INVISIBLE
+                    // Get the downloadable url from the task snapshot
+                    // assign value to image URL global variable
                     taskSnapshot.metadata!!.reference!!.downloadUrl
                         .addOnSuccessListener { uri ->
                             // save image URL

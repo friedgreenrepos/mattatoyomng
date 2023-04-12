@@ -1,9 +1,11 @@
 package com.example.mattatoyomng.firebase
 
 import android.app.Activity
+import android.content.Intent
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.activities.CreateEventActivity
@@ -11,6 +13,7 @@ import com.example.mattatoyomng.activities.LoginActivity
 import com.example.mattatoyomng.activities.MainActivity
 import com.example.mattatoyomng.activities.RegisterActivity
 import com.example.mattatoyomng.fragments.UpdateProfileFragment
+import com.example.mattatoyomng.models.Event
 import com.example.mattatoyomng.models.User
 import com.example.mattatoyomng.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
@@ -141,6 +144,17 @@ class FirestoreClass {
             }
     }
 
+    fun saveEventData(activity: CreateEventActivity, event: Event){
+        dbFirestore.collection(Constants.EVENTS).add(event)
+                .addOnSuccessListener {
+                    activity.eventUploadSuccess()
+                }
+                .addOnFailureListener {
+                    val msg = "ERROR: ${it.message.toString()}"
+                    activity.eventUploadFail(msg)
+                }
+    }
+
     // Function to get the userid of current logged user. Return empty string if no user is logged in.
     fun getCurrentUserID(): String {
         val currentUser = FirebaseAuth.getInstance().currentUser
@@ -152,6 +166,6 @@ class FirestoreClass {
     }
 
     fun loadEvents() {
-
+        //TODO: write load events from db function
     }
 }

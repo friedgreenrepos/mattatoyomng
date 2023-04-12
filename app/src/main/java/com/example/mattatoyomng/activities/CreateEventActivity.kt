@@ -21,6 +21,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
+import com.bumptech.glide.Glide
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.databinding.ActivityCreateEventBinding
 import com.example.mattatoyomng.firebase.FirestoreClass
@@ -32,6 +33,7 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -55,7 +57,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
     // Global variable for URI of a selected image from phone storage.
     private var eventImageUri: Uri? = null
 
-    // Global variable for a event image URL
+    // Global variable for URL of a selected image from phone storage.
     private var eventImageUrl: String = ""
 
     // calendar for date/time picker
@@ -113,7 +115,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onClick(v: View?) {
         when (v!!.id) {
-            R.id.editEventDateTV -> {
+            R.id.eventDateTV -> {
                 DatePickerDialog(
                     this@CreateEventActivity,
                     dateSetListener,
@@ -122,20 +124,21 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                     cal.get(Calendar.DAY_OF_MONTH)
                 ).show()
             }
-            R.id.editEventTimeTV -> {
+            R.id.eventTimeTV -> {
                 TimePickerDialog(
                     this@CreateEventActivity,
                     timeSetListener,
                     cal.get(Calendar.HOUR_OF_DAY),
                     cal.get(Calendar.MINUTE),
-                DateFormat.is24HourFormat(this@CreateEventActivity)
+                    DateFormat.is24HourFormat(this@CreateEventActivity)
                 ).show()
             }
-            R.id.editEventImageTV -> {
+            R.id.addEventImageTV -> {
                 requestStoragePermission(view = v)
             }
-            R.id.updateEventBTN -> {
-                saveEvent()
+            R.id.saveEventBTN -> {
+                if (eventImageUri != null) uploadEventImage()
+                else saveEvent()
             }
         }
     }
@@ -171,14 +174,24 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
             // get the returned result from the lambda and check the resultCode and the data returned
             // if the data is not null reference the imageView from the layout
             if (result.resultCode == RESULT_OK && result.data != null) {
-                val eventImage: ImageView = findViewById(R.id.eventImageEditIV)
-                val addEventImageTV: TextView = findViewById(R.id.editEventImageTV)
-                // show image uploaded
-                eventImage.setImageURI(result.data?.data)
+                val eventImage: ImageView = binding.showEventImageIV
+                val addEventImageTV: TextView = binding.addEventImageTV
+                eventImageUri = result.data?.data!!
+                // show selected image
+                try {
+                    Glide
+                        .with(this@CreateEventActivity)
+                        .load(Uri.parse(eventImageUri.toString()))
+                        .centerCrop()
+                        .placeholder(R.drawable.user_white_80)
+                        .into(eventImage)
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    Log.e(TAG, "Error loading event image: ${e.message}")
+                }
+//                eventImage.setImageURI(result.data?.data)
                 // change "add image" button text
                 addEventImageTV.setText(R.string.update_event_image)
-                // save ImageUri for Firebase Storage upload
-                eventImageUri = result.data?.data!!
             }
         }
 
@@ -237,6 +250,9 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
 
     // Method to upload event image to firebase storage. Also sets image URI global var
     private fun uploadEventImage() {
+        // show progress bar
+        binding.createEventPB.visibility = View.VISIBLE
+
         val imageFilename =
             "event_" + System.currentTimeMillis() + "." + getFileExtension(eventImageUri)
 
@@ -247,46 +263,35 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 .child(imageFilename)
             sRef.putFile(eventImageUri!!)
                 .addOnSuccessListener { taskSnapshot ->
-                    Log.i(
-                        TAG,
-                        "Event image URL = ${taskSnapshot.metadata!!.reference!!.downloadUrl}"
-                    )
+                    // hide progress bar
+                    binding.createEventPB.visibility = View.INVISIBLE
                     // Get the downloadable url from the task snapshot
                     // assign value to image URL global variable
                     taskSnapshot.metadata!!.reference!!.downloadUrl
                         .addOnSuccessListener { uri ->
-                            Log.i("Downloadable Image URL", uri.toString())
                             eventImageUrl = uri.toString()
+                            Log.i("Downloadable Image URL", eventImageUrl)
+                            saveEvent()
                         }
                 }
                 .addOnFailureListener { exception ->
-                    // if operation fails show toast with error
-                    Log.e(TAG, "ERROR: ${exception.message}")
-                    Toast.makeText(
-                        this@CreateEventActivity,
-                        exception.message,
-                        Toast.LENGTH_LONG
-                    ).show()
+                    // if operation fails show snackbar with error
+                    val msg = "ERROR: ${exception.message}"
+                    Log.e(TAG, msg)
+                    showErrorSnackBar(msg)
                 }
         }
     }
 
-    // Method to save event:
-    // 1. upload event image to Storage
-    // 2. create Event object
-    // 3. add new event to Firestore collection
+    // Method to save event
     private fun saveEvent() {
         // get event info
         val title: String = binding.eventTitleET.text.toString()
         val description: String = binding.eventDescriptionET.text.toString()
-        val owner: String = binding.ownerTV.text.toString()
+        val owner: String = binding.ownerNameTV.text.toString()
         val date = Timestamp(cal.time)
 
-        // first upload image to firebase storage
-        uploadEventImage()
-
-        // title must not be empty to create event
-        if (!TextUtils.isEmpty(title)) {
+        if (validateEventForm(title, date)) {
             // make progress bar visible
             binding.createEventPB.visibility = View.VISIBLE
 
@@ -295,31 +300,37 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 description,
                 owner,
                 date,
-                eventImageUri.toString()
+                eventImageUrl
             )
-            collectionReference.add(newEvent)
-                .addOnSuccessListener {
-                    // if operation successful:
-                    // 1. hide progress bar
-                    binding.createEventPB.visibility = View.INVISIBLE
-                    // 2. go back to main activity
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
-                }
-                .addOnFailureListener {
-                    // if operation fails:
-                    // 1. hide progress bar
-                    binding.createEventPB.visibility = View.INVISIBLE
-                    // 2. show Toast with error
-                    Log.e(TAG, "ERROR: ${it.message.toString()}")
-                    Toast.makeText(
-                        this,
-                        "ERROR: ${it.message.toString()}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-        } else {
-            Toast.makeText(this, "Event title cannot be empty", Toast.LENGTH_SHORT).show()
+            FirestoreClass().saveEventData(this@CreateEventActivity, newEvent)
+        }
+    }
+
+    // Function to call when event upload is successful:
+    // hide progress bar and go to main activity
+    fun eventUploadSuccess() {
+        binding.createEventPB.visibility = View.INVISIBLE
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+    }
+
+    // Function to call when event upload fails:
+    // hide progress bar and show error
+    fun eventUploadFail(msg: String) {
+        binding.createEventPB.visibility = View.INVISIBLE
+        Log.e(TAG, msg)
+        showErrorSnackBar(msg)
+    }
+
+    private fun validateEventForm(name: String, date: Timestamp): Boolean {
+        return when {
+            TextUtils.isEmpty(name) -> {
+                showErrorSnackBar(resources.getString(R.string.event_title_no_empty))
+                false
+            }
+            else -> {
+                true
+            }
         }
     }
 
