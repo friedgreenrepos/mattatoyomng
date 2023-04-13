@@ -151,8 +151,8 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 setupActionBarEdit()
                 eventTitleET.setText(eventDetails!!.title)
                 eventDescriptionET.setText(eventDetails!!.description)
-                eventDateTV.text = dateFormatter(eventDetails!!.date)
-                eventTimeTV.text = timeFormatter(eventDetails!!.date)
+                eventDateTV.text = dateFormatter(eventDetails!!.date, applicationContext)
+                eventTimeTV.text = timeFormatter(eventDetails!!.date, applicationContext)
                 ownerNameTV.text = eventDetails!!.owner
                 eventTagsList = eventDetails!!.tags
                 addTagsInView(eventTagsList)
@@ -303,11 +303,11 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun updateDateInView() {
-        binding.eventDateTV.text = dateFormatter(Timestamp(eventCal.time))
+        binding.eventDateTV.text = dateFormatter(Timestamp(eventCal.time), applicationContext)
     }
 
     private fun updateTimeInView() {
-        binding.eventTimeTV.text = timeFormatter(Timestamp(eventCal.time))
+        binding.eventTimeTV.text = timeFormatter(Timestamp(eventCal.time), applicationContext)
     }
 
     private fun showReminderDatePicker() {
@@ -335,8 +335,8 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun updateReminderInView() {
         val reminderTs = Timestamp(reminderCal.time)
-        val reminderString = dateFormatter(reminderTs) +
-                " " + timeFormatter(reminderTs)
+        val reminderString = dateFormatter(reminderTs, applicationContext) +
+                " " + timeFormatter(reminderTs, applicationContext)
         binding.addReminderTV.visibility = View.INVISIBLE
         binding.reminderDateTV.visibility = View.VISIBLE
         binding.reminderDateTV.text = reminderString
@@ -647,8 +647,8 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
 
     private fun addReminderInView(reminder: Timestamp?) {
         if (reminder != null) {
-            val reminderString = dateFormatter(reminder) +
-                    " " + timeFormatter(reminder)
+            val reminderString = dateFormatter(reminder, applicationContext) +
+                    " " + timeFormatter(reminder, applicationContext)
             binding.addReminderTV.visibility = View.INVISIBLE
             binding.reminderDateTV.visibility = View.VISIBLE
             binding.reminderDateTV.text = reminderString

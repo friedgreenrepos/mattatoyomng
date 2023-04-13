@@ -1,21 +1,17 @@
 package com.example.mattatoyomng.utils
 
+import android.content.Context
 import com.google.firebase.Timestamp
-import java.text.SimpleDateFormat
 import java.util.*
 
-fun dateFormatter(date: Timestamp?): String{
-//    val dateFormat = android.text.format.DateFormat.getLongDateFormat(applicationContext)
-    val dateFormat = Constants.DATE_FORMAT
-    val sdfDate = SimpleDateFormat(dateFormat, Locale.getDefault())
-    return sdfDate.format(date!!.toDate()).toString()
+fun dateFormatter(date: Timestamp?, context: Context): String{
+    val formatter = android.text.format.DateFormat.getLongDateFormat(context)
+    return formatter.format(date!!.toDate()).toString()
 }
 
-fun timeFormatter(date: Timestamp?): String{
-//    val timeFormat = android.text.format.DateFormat.getTimeFormat(applicationContext)
-    val timeFormat = Constants.TIME_FORMAT
-    val sdfDate = SimpleDateFormat(timeFormat, Locale.getDefault())
-    return sdfDate.format(date!!.toDate()).toString()
+fun timeFormatter(date: Timestamp?, context: Context): String{
+    val formatter = android.text.format.DateFormat.getTimeFormat(context)
+    return formatter.format(date!!.toDate()).toString()
 }
 
 fun stripSpaces(s: String): String {

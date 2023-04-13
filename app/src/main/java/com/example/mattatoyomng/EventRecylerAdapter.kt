@@ -59,8 +59,8 @@ class EventRecyclerAdapter(private val context: Context, private val eventList: 
         }
 
         // format date and time
-        binding.cardEventDateTV.text = dateFormatter(event.date)
-        binding.cardEventTimeTV.text = timeFormatter(event.date)
+        binding.cardEventDateTV.text = dateFormatter(event.date, context)
+        binding.cardEventTimeTV.text = timeFormatter(event.date, context)
 
     }
 
