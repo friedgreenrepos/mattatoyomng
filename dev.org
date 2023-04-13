@@ -1,9 +1,10 @@
 #+TITLE: MattatoyoMNG DEV TODO
 #+AUTHOR: Giulia
 * UI
-- [ ] swipe to delete
 - [ ] hide keyboard when clicking outside an =EditText=
 - [ ] update date/time formatter to use =applicationContext= (in =Utils.kt=)
+- [ ] add detailview for event
+- [X] swipe to delete
 - [X] show user info in drawer (username, profile pic)
 - [X] show default image if no profile picture is supplied by user for =User=
 - [X] show owner name in =CreateEventActivity=
@@ -20,9 +21,9 @@
 - [ ] add =profileUpdateFail()= method to handle errors (like =eventUploadFail()=)
 - [ ] load images with multi-threading
 - [ ] add search feature
-- [ ] add notification feature
 - [ ] add people/shifts to event
 - [ ] add delete dialog
+- [X] add reminder feature
 - [X] add tags in create/edit event
 - [X] delete event activity
 - [X] edit event activity

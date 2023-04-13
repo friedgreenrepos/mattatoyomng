@@ -81,6 +81,6 @@
 	<string name="enter_text">Enter text</string>
 	<string name="add_new_tag">Add new tag</string>
 	<string name="chip">Chip</string>
-
+	<string name="permission_notification_required">Notification permission required. Enable it from settings.</string>
 
 </resources>

@@ -8,11 +8,11 @@ import androidx.core.app.NotificationCompat
 import com.example.mattatoyomng.R
 
 const val notificationID = 1
-const val channelID = "channel1"
+const val channelID = "mattatoyo_channel"
 const val titleExtra = "titleExtra"
 const val messageExtra = "messageExtra"
 
-class MattaNotification : BroadcastReceiver() {
+class NotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
 
         val notification = NotificationCompat.Builder(context, channelID)

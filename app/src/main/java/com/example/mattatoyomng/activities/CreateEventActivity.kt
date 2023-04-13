@@ -17,7 +17,6 @@ import android.webkit.MimeTypeMap
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -36,7 +35,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import java.io.IOException
-import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -62,9 +60,17 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
     private var eventImageUrl: String = ""
 
     // calendar for date/time picker
-    private var cal = Calendar.getInstance()
+    private var eventCal = Calendar.getInstance()
     private lateinit var dateSetListener: DatePickerDialog.OnDateSetListener
     private lateinit var timeSetListener: TimePickerDialog.OnTimeSetListener
+
+    // calendar for reminder
+    private var reminderCal = Calendar.getInstance()
+    private lateinit var reminderDateSetListener: DatePickerDialog.OnDateSetListener
+    private lateinit var reminderTimeSetListener: TimePickerDialog.OnTimeSetListener
+
+    // reminder timestamp
+    private var reminderTimestamp: Timestamp? = null
 
     // event passed in intent
     private var eventDetails: Event? = null
@@ -83,20 +89,37 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
 
         // initialize date picker listener
         dateSetListener = DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
-            cal.set(Calendar.YEAR, year)
-            cal.set(Calendar.MONTH, month)
-            cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+            eventCal.set(Calendar.YEAR, year)
+            eventCal.set(Calendar.MONTH, month)
+            eventCal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
             updateDateInView()
         }
 
         // initialize time picker listener
         timeSetListener = TimePickerDialog.OnTimeSetListener { view, hourOfDay, minute ->
-            cal.set(Calendar.HOUR_OF_DAY, hourOfDay)
-            cal.set(Calendar.MINUTE, minute)
+            eventCal.set(Calendar.HOUR_OF_DAY, hourOfDay)
+            eventCal.set(Calendar.MINUTE, minute)
             updateTimeInView()
         }
 
-        // check if event is passed in intent
+        // initialize reminder date picker listener
+        reminderDateSetListener =
+            DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
+                reminderCal.set(Calendar.YEAR, year)
+                reminderCal.set(Calendar.MONTH, month)
+                reminderCal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                showReminderTimePicker()
+            }
+
+        // initialize time picker listener
+        reminderTimeSetListener = TimePickerDialog.OnTimeSetListener { view, hourOfDay, minute ->
+            reminderCal.set(Calendar.HOUR_OF_DAY, hourOfDay)
+            reminderCal.set(Calendar.MINUTE, minute)
+            scheduleNotification()
+            updateReminderInView()
+        }
+
+        // check if event is passed in intent, if so we're in edit mode
         if (intent.hasExtra(EventsFragment.EVENT_DETAILS)) {
             eventDetails =
                 intent.getParcelableExtra(EventsFragment.EVENT_DETAILS, Event::class.java)
@@ -112,14 +135,16 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
             toolbar = toolbarCreateEvent
             eventDateTV.setOnClickListener(this@CreateEventActivity)
             eventTimeTV.setOnClickListener(this@CreateEventActivity)
-            // upload image
+            // upload image listener
             addEventImageTV.setOnClickListener(this@CreateEventActivity)
-            // save/update event
+            // save/update event listener
             saveEventBTN.setOnClickListener(this@CreateEventActivity)
-            // add tags
+            // add tags listener
             addTagLL.setOnClickListener(this@CreateEventActivity)
-            // set reminder
+            // set reminder listener
             addReminderTV.setOnClickListener(this@CreateEventActivity)
+            // delete reminder listener
+            reminderDateTV.setOnClickListener(this@CreateEventActivity)
 
             // load event data if event details is passed in intent
             if (eventDetails != null) {
@@ -130,7 +155,9 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 eventTimeTV.text = timeFormatter(eventDetails!!.date)
                 ownerNameTV.text = eventDetails!!.owner
                 eventTagsList = eventDetails!!.tags
-                addTags(eventTagsList)
+                addTagsInView(eventTagsList)
+                val reminder = eventDetails!!.reminderTimestamp
+                addReminderInView(reminder)
                 saveEventBTN.text = resources.getString(R.string.update)
                 try {
                     Glide
@@ -161,32 +188,35 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 DatePickerDialog(
                     this@CreateEventActivity,
                     dateSetListener,
-                    cal.get(Calendar.YEAR),
-                    cal.get(Calendar.MONTH),
-                    cal.get(Calendar.DAY_OF_MONTH)
+                    eventCal.get(Calendar.YEAR),
+                    eventCal.get(Calendar.MONTH),
+                    eventCal.get(Calendar.DAY_OF_MONTH)
                 ).show()
             }
             R.id.eventTimeTV -> {
                 TimePickerDialog(
                     this@CreateEventActivity,
                     timeSetListener,
-                    cal.get(Calendar.HOUR_OF_DAY),
-                    cal.get(Calendar.MINUTE),
+                    eventCal.get(Calendar.HOUR_OF_DAY),
+                    eventCal.get(Calendar.MINUTE),
                     DateFormat.is24HourFormat(this@CreateEventActivity)
                 ).show()
             }
             R.id.addEventImageTV -> {
-                requestStoragePermission(view = v)
+                requestStoragePermission(v)
             }
             R.id.saveEventBTN -> {
                 if (eventImageUri != null) uploadEventImage()
                 else saveEvent()
             }
-            R.id.addTagLL ->{
+            R.id.addTagLL -> {
                 showAddTagDialog()
             }
             R.id.addReminderTV -> {
-                scheduleNotification()
+                requestNotificationPermission(v)
+            }
+            R.id.reminderDateTV -> {
+                deleteReminder()
             }
         }
     }
@@ -202,17 +232,17 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun scheduleNotification() {
-        val intent = Intent(applicationContext, MattaNotification::class.java)
+        val intent = Intent(applicationContext, NotificationReceiver::class.java)
         val title = resources.getString(R.string.app_name)
         val eventTitle = binding.eventTitleET.text.toString()
-        if (TextUtils.isEmpty(eventTitle)){
-            showErrorSnackBar("Set title first!")
-            return
+        var message = "Reminder for event"
+        if (!TextUtils.isEmpty(eventTitle)) {
+            message += ": $eventTitle"
         }
-        val message = "Reminder for event: $eventTitle"
         intent.putExtra(titleExtra, title)
         intent.putExtra(messageExtra, message)
 
+        // create pending intent
         val pendingIntent = PendingIntent.getBroadcast(
             applicationContext,
             notificationID,
@@ -220,18 +250,42 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
+        // setup and call alarm manager, get notification time from reminder calendar
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        // TODO: get time + 30min
-        val time = 1681339080000
-        Log.d(TAG, "time for alert is $time")
+        val time = reminderCal.timeInMillis
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
             time,
             pendingIntent
         )
+        // update global variable to save to event
+        reminderTimestamp = Timestamp(reminderCal.time)
         showAlert(time, title, message)
     }
 
+    private fun deleteReminder() {
+        val intent = Intent(applicationContext, NotificationReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            applicationContext,
+            notificationID,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.cancel(pendingIntent)
+        deleteReminderInView()
+        // update global var containing reminder timestamp
+        reminderTimestamp = null
+        showInfoSnackBar("Reminder successfully deleted")
+    }
+
+    // update view after reminder deletion
+    private fun deleteReminderInView() {
+        binding.addReminderTV.visibility = View.VISIBLE
+        binding.reminderDateTV.visibility = View.INVISIBLE
+    }
+
+    // function to show and alert for notification
     private fun showAlert(time: Long, title: String, message: String) {
         val date = Date(time)
         val dateFormat = DateFormat.getLongDateFormat(applicationContext)
@@ -241,18 +295,51 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
             .setTitle("Notification Scheduled")
             .setMessage(
                 "Title: " + title +
-                "\nMessage: " + message +
-                "\nAt: " + dateFormat.format(date) + " " + timeFormat.format(date))
-            .setPositiveButton("Okay"){_,_ ->}
+                        "\nMessage: " + message +
+                        "\nAt: " + dateFormat.format(date) + " " + timeFormat.format(date)
+            )
+            .setPositiveButton("Okay") { _, _ -> }
             .show()
     }
 
     private fun updateDateInView() {
-        binding.eventDateTV.text = dateFormatter(Timestamp(cal.time))
+        binding.eventDateTV.text = dateFormatter(Timestamp(eventCal.time))
     }
 
     private fun updateTimeInView() {
-        binding.eventTimeTV.text = timeFormatter(Timestamp(cal.time))
+        binding.eventTimeTV.text = timeFormatter(Timestamp(eventCal.time))
+    }
+
+    private fun showReminderDatePicker() {
+        DatePickerDialog(
+            this@CreateEventActivity,
+            reminderDateSetListener,
+            reminderCal.get(Calendar.YEAR),
+            reminderCal.get(Calendar.MONTH),
+            reminderCal.get(Calendar.DAY_OF_MONTH)
+        ).show()
+    }
+
+    // show time picker
+    private fun showReminderTimePicker() {
+        TimePickerDialog(
+            this@CreateEventActivity,
+            reminderTimeSetListener,
+            reminderCal.get(Calendar.HOUR_OF_DAY),
+            reminderCal.get(Calendar.MINUTE),
+            DateFormat.is24HourFormat(this@CreateEventActivity)
+        ).show()
+    }
+
+    // update reminder date time in view
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun updateReminderInView() {
+        val reminderTs = Timestamp(reminderCal.time)
+        val reminderString = dateFormatter(reminderTs) +
+                " " + timeFormatter(reminderTs)
+        binding.addReminderTV.visibility = View.INVISIBLE
+        binding.reminderDateTV.visibility = View.VISIBLE
+        binding.reminderDateTV.text = reminderString
     }
 
     private fun setupActionBarCreate() {
@@ -302,7 +389,6 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                     e.printStackTrace()
                     Log.e(TAG, "Error loading event image: ${e.message}")
                 }
-//                eventImage.setImageURI(result.data?.data)
                 // change "add image" button text
                 addEventImageTV.setText(R.string.update_event_image)
             }
@@ -322,14 +408,19 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                             Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
                         openGalleryLauncher.launch(pickIntent)
                     }
+                    // If permission name is POST_NOTIFICATIONS schedule notification
+                    if (permissionName == Manifest.permission.POST_NOTIFICATIONS) {
+                        showReminderDatePicker()
+                    }
+
                 } else {
-                    // Displaying toast if storage permission is not granted
-                    if (permissionName == Manifest.permission.READ_MEDIA_IMAGES)
-                        Toast.makeText(
-                            this@CreateEventActivity,
-                            R.string.permission_storage_required,
-                            Toast.LENGTH_LONG
-                        ).show()
+                    // Displaying error if permission is not granted
+                    if (permissionName == Manifest.permission.READ_MEDIA_IMAGES) {
+                        showErrorSnackBar(resources.getString(R.string.permission_storage_required))
+                    }
+                    if (permissionName == Manifest.permission.POST_NOTIFICATIONS) {
+                        showErrorSnackBar(resources.getString(R.string.permission_notification_required))
+                    }
                 }
             }
         }
@@ -344,13 +435,35 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 Manifest.permission.READ_MEDIA_IMAGES
             )
         ) {
-            showInfoSnackBar(getString(R.string.permission_storage_required))
+            showErrorSnackBar(getString(R.string.permission_storage_required))
         } else {
             // If it has not been denied then request, directly ask for the permission.
             // The registered ActivityResultCallback gets the result of this request.
             requestPermissionsLauncher.launch(
                 arrayOf(
                     Manifest.permission.READ_MEDIA_IMAGES
+                )
+            )
+        }
+    }
+
+    // Method to request notification permission
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun requestNotificationPermission(view: View) {
+        // Check if the permission was denied and show rationale
+        if (
+            ActivityCompat.shouldShowRequestPermissionRationale(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            )
+        ) {
+            showErrorSnackBar(getString(R.string.permission_notification_required))
+        } else {
+            // If it has not been denied then request, directly ask for the permission.
+            // The registered ActivityResultCallback gets the result of this request.
+            requestPermissionsLauncher.launch(
+                arrayOf(
+                    Manifest.permission.POST_NOTIFICATIONS
                 )
             )
         }
@@ -404,7 +517,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
         val title: String = binding.eventTitleET.text.toString()
         val description: String = binding.eventDescriptionET.text.toString()
         val owner: String = binding.ownerNameTV.text.toString()
-        val date = Timestamp(cal.time)
+        val date = Timestamp(eventCal.time)
 
         // validate form
         if (validateEventForm(title, date)) {
@@ -412,7 +525,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
             binding.createEventPB.visibility = View.VISIBLE
             // 1. edit existing event
             if (eventDetails != null) {
-                val eventHashMap = HashMap<String, Any>()
+                val eventHashMap = HashMap<String, Any?>()
                 if (title != eventDetails!!.title) {
                     eventHashMap[Constants.TITLE] = title
                 }
@@ -425,6 +538,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 if (eventImageUrl.isNotEmpty() && eventImageUrl != eventDetails!!.eventImgURL) {
                     eventHashMap[Constants.EVENT_IMAGE_URL] = eventImageUrl
                 }
+                eventHashMap[Constants.REMINDER] = reminderTimestamp
 
                 eventHashMap[Constants.TAGS] = eventTagsList
 
@@ -434,6 +548,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                     eventDetails!!.documentId
                 )
             } else {
+                // if pending intent exists then the event has a reminder
                 // 2. create event
                 val event = Event(
                     title,
@@ -441,7 +556,8 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                     owner,
                     date,
                     eventImageUrl,
-                    eventTagsList
+                    eventTagsList,
+                    reminderTimestamp
                 )
                 FirestoreClass().createEvent(this@CreateEventActivity, event)
             }
@@ -481,7 +597,8 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
         binding.ownerNameTV.text = user.username
     }
 
-    private fun showAddTagDialog(){
+    // show dialog to add tags as chips in chipgroup
+    private fun showAddTagDialog() {
         val dialog = this.createDialog(R.layout.add_tag_dialog, true)
         val button = dialog.findViewById<MaterialButton>(R.id.tagDialogAdd)
         val editText = dialog.findViewById<EditText>(R.id.tagDialogET)
@@ -499,7 +616,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                                 binding.tagsCG.removeViewAt(index)
                             }
                         }
-                        if (eventTagsList.size == 0){
+                        if (eventTagsList.size == 0) {
                             layoutParams.height = 40.dpToPx
                         }
                     }
@@ -510,8 +627,9 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
         }
         dialog.show()
     }
+
     // Function to show tags as chips in view
-    private fun addTags(tagsList: MutableList<String>) {
+    private fun addTagsInView(tagsList: MutableList<String>) {
         if (tagsList.size > 0) {
             binding.tagsCG.apply {
                 removeAllViews()
@@ -524,6 +642,16 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                     }
                 }
             }
+        }
+    }
+
+    private fun addReminderInView(reminder: Timestamp?) {
+        if (reminder != null) {
+            val reminderString = dateFormatter(reminder) +
+                    " " + timeFormatter(reminder)
+            binding.addReminderTV.visibility = View.INVISIBLE
+            binding.reminderDateTV.visibility = View.VISIBLE
+            binding.reminderDateTV.text = reminderString
         }
     }
 

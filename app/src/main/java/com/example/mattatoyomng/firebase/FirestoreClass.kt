@@ -166,7 +166,7 @@ class FirestoreClass {
 
     fun updateEvent(
         activity: CreateEventActivity,
-        eventHashMap: HashMap<String, Any>,
+        eventHashMap: HashMap<String, Any?>,
         documentId: String
     ) {
         dbFirestore.collection(Constants.EVENTS)

@@ -12,5 +12,6 @@ data class Event(
     val date: Timestamp? = null,
     val eventImgURL: String = "",
     val tags: MutableList<String> = arrayListOf(),
+    val reminderTimestamp: Timestamp? = null,
     var documentId: String = "",
 ) : Parcelable

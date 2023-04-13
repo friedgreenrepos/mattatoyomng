@@ -172,15 +172,28 @@
 				android:text="@string/add_reminder"
 				android:textSize="@dimen/default_text_size"
 				android:background="?attr/selectableItemBackground"
+				app:drawableStartCompat="@drawable/notification_add"
 				android:drawablePadding="@dimen/default_drawable_padding"
 				app:drawableTint="@color/red_grey"
-				app:layout_constraintStart_toStartOf="parent"
 				android:layout_marginStart="20dp"
 				android:layout_marginTop="@dimen/default_margin"
-				android:layout_marginEnd="@dimen/default_margin"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@+id/eventDateDivider" />
+
+			<TextView
+				android:visibility="invisible"
+				android:id="@+id/reminderDateTV"
+				android:textSize="@dimen/default_text_size"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				app:drawableStartCompat="@drawable/notifications_off"
+				android:drawablePadding="@dimen/default_drawable_padding"
+				app:drawableTint="@color/red_grey"
+				android:background="?attr/selectableItemBackground"
+				android:layout_marginStart="20dp"
+				android:layout_marginTop="@dimen/default_margin"
 				app:layout_constraintTop_toBottomOf="@+id/eventDateDivider"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:drawableStartCompat="@drawable/notification_add" />
+				app:layout_constraintStart_toStartOf="parent" />
 
 			<LinearLayout
 				android:id="@+id/addTagLL"
