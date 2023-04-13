@@ -1,11 +1,9 @@
 package com.example.mattatoyomng.firebase
 
 import android.app.Activity
-import android.text.TextUtils
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.activities.CreateEventActivity
@@ -13,7 +11,6 @@ import com.example.mattatoyomng.activities.LoginActivity
 import com.example.mattatoyomng.activities.MainActivity
 import com.example.mattatoyomng.activities.RegisterActivity
 import com.example.mattatoyomng.fragments.EventsFragment
-import com.example.mattatoyomng.fragments.TAG
 import com.example.mattatoyomng.fragments.UpdateProfileFragment
 import com.example.mattatoyomng.models.Event
 import com.example.mattatoyomng.models.User
@@ -23,6 +20,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 
 class FirestoreClass {
+
+    private val TAG = "FirestoreClass"
 
     private val dbFirestore = FirebaseFirestore.getInstance()
 
@@ -187,11 +186,11 @@ class FirestoreClass {
         // get events ordered by date
         val docRef = dbFirestore.collection(Constants.EVENTS).orderBy("date")
         docRef.get()
-            .addOnSuccessListener { document ->
-                Log.d(TAG, "n.of events in db = ${document.size()}")
+            .addOnSuccessListener { documents ->
+                Log.d(TAG, "n.of events in db = ${documents.size()}")
                 val eventList: ArrayList<Event> = ArrayList()
-                if (!document.isEmpty) {
-                    document.forEach {
+                if (!documents.isEmpty) {
+                    documents.forEach {
                         // convert snapshots to Event objects
                         val event = it.toObject(Event::class.java)
                         event.documentId = it.id
@@ -207,18 +206,38 @@ class FirestoreClass {
             }
     }
 
-    fun deleteEvent(fragment: EventsFragment, documentId: String){
+    fun deleteEvent(fragment: EventsFragment, documentId: String) {
         dbFirestore.collection(Constants.EVENTS)
             .document(documentId)
             .delete()
             .addOnSuccessListener {
                 fragment.showInfoSnackBar(fragment.resources.getString(R.string.delete_event_success))
             }
-            .addOnFailureListener{e ->
+            .addOnFailureListener { e ->
                 fragment.showErrorSnackBar(
                     fragment.resources.getString(R.string.delete_event_fail) + ":" + e
                 )
             }
+    }
+
+    fun searchInFirestore(fragment: EventsFragment, searchText: String) {
+        dbFirestore.collection(Constants.EVENTS)
+            .orderBy(Constants.KEYWORDS)
+            .startAt(searchText)
+            .endAt("$searchText\uf8ff")
+            .get()
+            .addOnCompleteListener {
+                if (it.isSuccessful) {
+                    Log.d(TAG, "searchtext = $searchText")
+                    Log.d(TAG, "event list size ${it.result.size()}")
+                    val eventList: ArrayList<Event> =
+                        it.result!!.toObjects(Event::class.java) as ArrayList<Event>
+                    fragment.setupEventsRecyclerView(eventList)
+                } else {
+                    fragment.showErrorSnackBar("Error: ${it.exception!!.message}")
+                }
+            }
+
     }
 
 }

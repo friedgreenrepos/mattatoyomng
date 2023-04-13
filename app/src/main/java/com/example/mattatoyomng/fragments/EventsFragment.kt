@@ -2,13 +2,16 @@ package com.example.mattatoyomng.fragments
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
+import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.appcompat.widget.SearchView
 import com.example.mattatoyomng.EventRecyclerAdapter
+import com.example.mattatoyomng.R
 import com.example.mattatoyomng.activities.CreateEventActivity
 import com.example.mattatoyomng.databinding.FragmentEventsBinding
 import com.example.mattatoyomng.firebase.FirestoreClass
@@ -17,9 +20,9 @@ import com.example.mattatoyomng.utils.SwipeToDeleteCallback
 import com.example.mattatoyomng.utils.SwipeToEditCallback
 import com.google.firebase.firestore.FirebaseFirestore
 
-const val TAG = "EventsFragment"
-
 class EventsFragment : BaseFragment() {
+
+    private val TAG = "EventsFragment"
 
     private lateinit var binding: FragmentEventsBinding
     private lateinit var eventRecyclerView: RecyclerView
@@ -39,7 +42,7 @@ class EventsFragment : BaseFragment() {
         // Inflate the layout for this fragment
         binding = FragmentEventsBinding.inflate(inflater, container, false)
 
-        binding.addEventBTN.setOnClickListener() {
+        binding.addEventBTN.setOnClickListener {
             val intent = Intent(this.context, CreateEventActivity::class.java)
             startActivity(intent)
         }
@@ -52,14 +55,52 @@ class EventsFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // get event list from firestore
         FirestoreClass().getEventsList(this@EventsFragment)
+
+        // setup search view in menu
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.event_menu, menu)
+            }
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                // Handle the menu selection
+                val searchView = menuItem.actionView as SearchView
+                searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                    override fun onQueryTextSubmit(query: String?): Boolean {
+                        val searchText = query!!.lowercase()
+                        if (searchText.isNotEmpty()) {
+                            FirestoreClass().searchInFirestore(this@EventsFragment, searchText)
+                        } else {
+                            FirestoreClass().getEventsList(this@EventsFragment)
+                        }
+                        return false
+                    }
+
+                    override fun onQueryTextChange(newText: String?): Boolean {
+                        val searchText = newText!!.lowercase()
+                        if (searchText.isNotEmpty()) {
+                            FirestoreClass().searchInFirestore(this@EventsFragment, searchText)
+                        } else {
+                            FirestoreClass().getEventsList(this@EventsFragment)
+                        }
+                        return false
+                    }
+
+                })
+                return false
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
+
 
     fun setupEventsRecyclerView(eventList: ArrayList<Event>) {
         if (eventList.size == 0) {
             // show "no events" textview if event list is empty
             binding.noEventsTV.visibility = View.VISIBLE
         } else {
+            binding.noEventsTV.visibility = View.INVISIBLE
             // setup event adapter using event list from firestore
             eventRecyclerView.setHasFixedSize(true)
             eventRecyclerView.layoutManager = LinearLayoutManager(activity)
@@ -84,7 +125,8 @@ class EventsFragment : BaseFragment() {
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     eventAdapter.removeAt(
                         this@EventsFragment,
-                        viewHolder.absoluteAdapterPosition)
+                        viewHolder.absoluteAdapterPosition
+                    )
                     FirestoreClass().getEventsList(this@EventsFragment)
                 }
             }

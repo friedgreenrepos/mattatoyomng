@@ -528,6 +528,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 val eventHashMap = HashMap<String, Any?>()
                 if (title != eventDetails!!.title) {
                     eventHashMap[Constants.TITLE] = title
+                    eventHashMap[Constants.KEYWORDS] = title.lowercase()
                 }
                 if (description.isNotEmpty() && description != eventDetails!!.description) {
                     eventHashMap[Constants.DESCRIPTION] = description
@@ -557,7 +558,8 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                     date,
                     eventImageUrl,
                     eventTagsList,
-                    reminderTimestamp
+                    reminderTimestamp,
+                    title.lowercase()
                 )
                 FirestoreClass().createEvent(this@CreateEventActivity, event)
             }

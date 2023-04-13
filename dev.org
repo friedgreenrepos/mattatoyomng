@@ -2,8 +2,8 @@
 #+AUTHOR: Giulia
 * UI
 - [ ] hide keyboard when clicking outside an =EditText=
-- [ ] update date/time formatter to use =applicationContext= (in =Utils.kt=)
 - [ ] add detailview for event
+- [X] update date/time formatter to use =applicationContext= (in =Utils.kt=)
 - [X] swipe to delete
 - [X] show user info in drawer (username, profile pic)
 - [X] show default image if no profile picture is supplied by user for =User=
