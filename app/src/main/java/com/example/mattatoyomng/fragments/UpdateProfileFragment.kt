@@ -237,4 +237,9 @@ class UpdateProfileFragment : BaseFragment() {
         val intent = Intent(this.context, MainActivity::class.java)
         startActivity(intent)
     }
+
+    fun profileUpdateFail() {
+        binding.profilePB.visibility = View.INVISIBLE
+        showErrorSnackBar(resources.getString(R.string.update_profile_error))
+    }
 }

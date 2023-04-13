@@ -18,11 +18,11 @@
 - [ ] change password in =ProfileUpdate=
 - [ ] forgot password
 - [ ] hide past events (show past events option in settings??)
-- [ ] add =profileUpdateFail()= method to handle errors (like =eventUploadFail()=)
 - [ ] load images with multi-threading
 - [ ] add search feature
 - [ ] add people/shifts to event
 - [ ] add delete dialog
+- [X] add =profileUpdateFail()= method to handle errors (like =eventUploadFail()=)
 - [X] add reminder feature
 - [X] add tags in create/edit event
 - [X] delete event activity

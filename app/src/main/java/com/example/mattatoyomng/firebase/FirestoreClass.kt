@@ -129,22 +129,11 @@ class FirestoreClass {
             .update(userHashMap)
             .addOnSuccessListener {
                 // User profile has been successfully update.
-                Log.i(
-                    fragment.javaClass.simpleName,
-                    fragment.resources.getString(R.string.update_profile_success)
-                )
                 fragment.profileUpdateSuccess()
             }
             .addOnFailureListener { e ->
                 // hide progress bar and show error
-                val profilePB: ProgressBar = fragment.requireView().findViewById(R.id.profilePB)
-                profilePB.visibility = View.INVISIBLE
-                Log.e(
-                    fragment.javaClass.simpleName,
-                    fragment.resources.getString(R.string.update_profile_error),
-                    e
-                )
-                fragment.showErrorSnackBar(fragment.resources.getString(R.string.update_profile_error))
+                fragment.profileUpdateFail()
             }
     }
 
