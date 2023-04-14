@@ -16,7 +16,7 @@ object Constants {
     const val DATE: String = "date"
     const val EVENT_IMAGE_URL: String = "eventImgURL"
     const val TAGS: String = "tags"
-    const val REMINDER: String = "reminderTimestamp"
+    const val REMINDER: String = "userReminderMap"
     const val KEYWORDS: String = "keywords"
     // date formatting
     const val DATE_FORMAT: String = "dd MMMM yyyy"

@@ -15,15 +15,18 @@
 - [X] swipe to edit instead of clicking edit icon
 
 * Functionalities
-- [ ] load images with multi-threading
-- [ ] remove unused stuff from =build.grade(:app)=
+- [ ] add add reminder in event detail
 - [ ] add delete dialog
-- [ ] reminder DOES NOT have to be linked to event!! otherwise everybody will have a reminder!! use a tuple <user, reminder>
+- [ ] add people/shifts to event
 - [ ] change password in =ProfileUpdate=
 - [ ] forgot password
-- [ ] hide past events (show past events option in settings??)
+- [ ] load +images+ *something* with multi-threading (coroutines??!?)
+- [ ] paginate query of eventlist?!
 - [ ] fix search feature
-- [ ] add people/shifts to event
+- [ ] show past events option in settings??
+- [X] reminder DOES NOT have to be linked to event!! otherwise everybody will have a reminder!! use a tuple <user, reminder>
+- [X] hide past events
+- [X] remove unused stuff from =build.grade(:app)=
 - [X] add tags in =EventsFragment= card item
 - [X] can't delete tags in detail view
 - [X] add =profileUpdateFail()= method to handle errors (like =eventUploadFail()=)

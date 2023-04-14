@@ -86,7 +86,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
         auth = FirebaseAuth.getInstance()
 
         // initialize date picker listener
-        dateSetListener = DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
+        dateSetListener = DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
             eventCal.set(Calendar.YEAR, year)
             eventCal.set(Calendar.MONTH, month)
             eventCal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
@@ -156,8 +156,8 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 ownerNameTV.text = eventDetails!!.owner
                 eventTagsList = eventDetails!!.tags
                 addTagsInView(eventTagsList)
-                val reminder = eventDetails!!.reminderTimestamp
-                addReminderInView(reminder)
+                val reminderMap = eventDetails!!.userReminderMap
+                addReminderInView(reminderMap)
                 saveEventBTN.text = resources.getString(R.string.update)
                 try {
                     Glide
@@ -519,6 +519,10 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
         if (validateEventForm(title, date)) {
             // make progress bar visible
             binding.createEventPB.visibility = View.VISIBLE
+
+            // define map for user reminder
+            val userReminderMap: MutableMap<String, Timestamp> = mutableMapOf()
+
             // 1. edit existing event
             if (eventDetails != null) {
                 val eventHashMap = HashMap<String, Any?>()
@@ -535,7 +539,13 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 if (eventImageUrl.isNotEmpty() && eventImageUrl != eventDetails!!.eventImgURL) {
                     eventHashMap[Constants.EVENT_IMAGE_URL] = eventImageUrl
                 }
-                eventHashMap[Constants.REMINDER] = reminderTimestamp
+
+                // set reminder for user using a map<userid, reminder timestamp>
+                if (reminderTimestamp != null) {
+                    val currentUserID = FirestoreClass().getCurrentUserID()
+                    userReminderMap[currentUserID] = reminderTimestamp!!
+                    eventHashMap[Constants.REMINDER] = userReminderMap
+                }
 
                 eventHashMap[Constants.TAGS] = eventTagsList
 
@@ -554,8 +564,8 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                     date,
                     eventImageUrl,
                     eventTagsList,
-                    reminderTimestamp,
-                    title.lowercase()
+                    title.lowercase(),
+                    userReminderMap,
                 )
                 FirestoreClass().createEvent(this@CreateEventActivity, event)
             }
@@ -645,10 +655,16 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
         }
     }
 
-    private fun addReminderInView(reminder: Timestamp?) {
-        if (reminder != null) {
-            val reminderString = dateFormatter(reminder, applicationContext) +
-                    " " + timeFormatter(reminder, applicationContext)
+    private fun addReminderInView(reminderMap: Map<String, Timestamp?>) {
+        var reminderTS: Timestamp? = null
+        for (key in reminderMap.keys) {
+            if (key == FirestoreClass().getCurrentUserID()) {
+                reminderTS = reminderMap[key]
+            }
+        }
+        if (reminderTS != null) {
+            val reminderString = dateFormatter(reminderTS, applicationContext) +
+                    " " + timeFormatter(reminderTS, applicationContext)
             binding.addReminderTV.visibility = View.INVISIBLE
             binding.reminderDateTV.visibility = View.VISIBLE
             binding.reminderDateTV.text = reminderString

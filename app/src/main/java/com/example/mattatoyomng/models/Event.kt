@@ -12,7 +12,7 @@ data class Event(
     val date: Timestamp? = null,
     val eventImgURL: String = "",
     val tags: MutableList<String> = arrayListOf(),
-    val reminderTimestamp: Timestamp? = null,
     val keywords: String = "",
+    val userReminderMap: MutableMap<String, Timestamp> = mutableMapOf(),
     var documentId: String = "",
 ) : Parcelable
