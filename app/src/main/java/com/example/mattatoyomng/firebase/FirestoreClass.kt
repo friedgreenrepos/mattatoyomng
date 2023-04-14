@@ -4,10 +4,7 @@ import android.app.Activity
 import android.util.Log
 import androidx.fragment.app.Fragment
 import com.example.mattatoyomng.R
-import com.example.mattatoyomng.activities.CreateEventActivity
-import com.example.mattatoyomng.activities.LoginActivity
-import com.example.mattatoyomng.activities.MainActivity
-import com.example.mattatoyomng.activities.RegisterActivity
+import com.example.mattatoyomng.activities.*
 import com.example.mattatoyomng.fragments.EventsFragment
 import com.example.mattatoyomng.fragments.UpdateProfileFragment
 import com.example.mattatoyomng.models.Event
@@ -136,7 +133,7 @@ class FirestoreClass {
             }
             .addOnFailureListener { e ->
                 // hide progress bar and show error
-                fragment.profileUpdateFail()
+                fragment.profileUpdateFail(e)
             }
     }
 
@@ -156,18 +153,30 @@ class FirestoreClass {
 
     @OptIn(DelicateCoroutinesApi::class)
     fun updateEvent(
-        activity: CreateEventActivity,
+        activity: Activity,
         eventHashMap: HashMap<String, Any?>,
-        documentId: String
+        documentId: String,
+        showMessage: Boolean = true
     ) {
+
         GlobalScope.launch(Dispatchers.IO) {
             dbFirestore.collection(Constants.EVENTS)
                 .document(documentId)
                 .update(eventHashMap)
                 .await()
             withContext(Dispatchers.Main) {
-                val msg = activity.resources.getString(R.string.update_event_success)
-                activity.eventUploadSuccess(msg)
+                when (activity) {
+                    is EventDetailActivity -> {
+                        Log.d(activity.TAG, "Reminder set and event updated correctly.")
+                    }
+                    is CreateEventActivity -> {
+                        if (showMessage){
+                            val msg = activity.resources.getString(R.string.update_event_success)
+                            activity.eventUploadSuccess(msg)
+                        }
+                        Log.d(activity.TAG, "Reminder set and event updated correctly.")
+                    }
+                }
             }
         }
     }

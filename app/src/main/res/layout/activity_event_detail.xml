@@ -147,7 +147,7 @@
 				app:layout_constraintEnd_toEndOf="parent" />
 
 			<TextView
-				android:id="@+id/addReminderDetailTV"
+				android:id="@+id/addReminderDetail"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:text="@string/add_reminder"
@@ -163,7 +163,7 @@
 
 			<TextView
 				android:visibility="invisible"
-				android:id="@+id/reminderDetailDateTV"
+				android:id="@+id/reminderDetailDate"
 				android:textSize="@dimen/default_text_size"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
@@ -183,7 +183,7 @@
 				android:layout_marginTop="@dimen/default_margin"
 				android:layout_marginStart="@dimen/default_margin_start"
 				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/addReminderDetailTV">
+				app:layout_constraintTop_toBottomOf="@+id/addReminderDetail">
 
 				<TextView
 					android:layout_width="wrap_content"
@@ -193,7 +193,7 @@
 					android:drawablePadding="@dimen/default_drawable_padding"
 					android:textSize="@dimen/default_text_size"
 					app:layout_constraintStart_toStartOf="parent"
-					app:layout_constraintTop_toBottomOf="@+id/addReminderDetailTV"
+					app:layout_constraintTop_toBottomOf="@+id/addReminderDetail"
 					app:layout_constraintEnd_toEndOf="parent"
 					android:layout_marginTop="@dimen/default_margin"
 					android:layout_marginBottom="@dimen/default_margin"
@@ -209,7 +209,7 @@
 				android:layout_marginTop="22dp"
 				app:layout_constraintStart_toEndOf="@id/showTagsLL"
 				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/addReminderDetailTV" />
+				app:layout_constraintTop_toBottomOf="@+id/addReminderDetail" />
 
 
 		</androidx.constraintlayout.widget.ConstraintLayout>

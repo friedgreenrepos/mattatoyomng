@@ -4,7 +4,6 @@ import android.Manifest
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
@@ -15,10 +14,7 @@ import android.webkit.MimeTypeMap
 import android.widget.ImageView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.activities.MainActivity
@@ -26,10 +22,10 @@ import com.example.mattatoyomng.databinding.FragmentUpdateProfileBinding
 import com.example.mattatoyomng.firebase.FirestoreClass
 import com.example.mattatoyomng.models.User
 import com.example.mattatoyomng.utils.Constants
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import java.io.IOException
+import java.lang.Exception
 
 
 class UpdateProfileFragment : BaseFragment() {
@@ -59,7 +55,6 @@ class UpdateProfileFragment : BaseFragment() {
         return binding.root
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // load user data
@@ -145,7 +140,6 @@ class UpdateProfileFragment : BaseFragment() {
         }
 
     // Method to request storage permission
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun requestStoragePermission(view: View) {
         // Check if the permission was denied and show rationale
         if (
@@ -238,8 +232,8 @@ class UpdateProfileFragment : BaseFragment() {
         startActivity(intent)
     }
 
-    fun profileUpdateFail() {
+    fun profileUpdateFail(e: Exception) {
         binding.profilePB.visibility = View.INVISIBLE
-        showErrorSnackBar(resources.getString(R.string.update_profile_error))
+        showErrorSnackBar(resources.getString(R.string.update_profile_error) + e)
     }
 }

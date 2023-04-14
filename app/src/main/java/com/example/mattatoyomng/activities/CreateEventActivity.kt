@@ -1,12 +1,10 @@
 package com.example.mattatoyomng.activities
 
-import android.Manifest
 import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.text.TextUtils
 import android.text.format.DateFormat
 import android.util.Log
@@ -19,7 +17,6 @@ import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
-import androidx.core.app.ActivityCompat
 import com.bumptech.glide.Glide
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.databinding.ActivityCreateEventBinding
@@ -38,7 +35,7 @@ import java.util.*
 
 class CreateEventActivity : BaseActivity(), View.OnClickListener {
 
-    private val TAG: String = "CreateEventActivity"
+    val TAG: String = "CreateEventActivity"
 
     // binding
     private lateinit var binding: ActivityCreateEventBinding
@@ -257,8 +254,21 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
             time,
             pendingIntent
         )
-        // update global variable to save to event
         reminderTimestamp = Timestamp(reminderCal.time)
+        // update event document with reminder if documents already exists
+        if (eventDetails != null) {
+            val eventHashMap = HashMap<String, Any?>()
+            val userReminderMap: MutableMap<String, Timestamp> = mutableMapOf()
+            val currentUserID = getCurrentUserID()
+            userReminderMap[currentUserID] = reminderTimestamp!!
+            eventHashMap[Constants.REMINDER] = userReminderMap
+            FirestoreClass().updateEvent(
+                this@CreateEventActivity,
+                eventHashMap,
+                eventDetails!!.documentId,
+                false
+            )
+        }
         showAlert(time, title, message)
     }
 
@@ -271,10 +281,21 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        // cancel notification by passing same intent of its creation
         alarmManager.cancel(pendingIntent)
         deleteReminderInView()
-        // update global var containing reminder timestamp
-        reminderTimestamp = null
+
+        // update event document with reminder
+        val eventHashMap = HashMap<String, Any?>()
+        val userReminderMap: MutableMap<String, Timestamp> = mutableMapOf()
+        eventHashMap[Constants.REMINDER] = userReminderMap
+        FirestoreClass().updateEvent(
+            this@CreateEventActivity,
+            eventHashMap,
+            eventDetails!!.documentId,
+            false
+        )
         showInfoSnackBar("Reminder successfully deleted")
     }
 
@@ -282,23 +303,6 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
     private fun deleteReminderInView() {
         binding.addReminderTV.visibility = View.VISIBLE
         binding.reminderDateTV.visibility = View.INVISIBLE
-    }
-
-    // function to show and alert for notification
-    private fun showAlert(time: Long, title: String, message: String) {
-        val date = Date(time)
-        val dateFormat = DateFormat.getLongDateFormat(applicationContext)
-        val timeFormat = DateFormat.getTimeFormat(applicationContext)
-
-        AlertDialog.Builder(this)
-            .setTitle("Notification Scheduled")
-            .setMessage(
-                "Title: " + title +
-                        "\nMessage: " + message +
-                        "\nAt: " + dateFormat.format(date) + " " + timeFormat.format(date)
-            )
-            .setPositiveButton("Okay") { _, _ -> }
-            .show()
     }
 
     private fun updateDateInView() {
@@ -309,7 +313,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
         binding.eventTimeTV.text = timeFormatter(Timestamp(eventCal.time), applicationContext)
     }
 
-    private fun showReminderDatePicker() {
+    override fun showReminderDatePicker() {
         DatePickerDialog(
             this@CreateEventActivity,
             reminderDateSetListener,
@@ -367,7 +371,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
     }
 
     // ActivityResultLauncher to open gallery
-    private val openGalleryLauncher: ActivityResultLauncher<Intent> =
+    override var openGalleryLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             // get the returned result from the lambda and check the resultCode and the data returned
             // if the data is not null reference the imageView from the layout
@@ -391,79 +395,6 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 addEventImageTV.setText(R.string.update_event_image)
             }
         }
-
-    // ActivityResultLauncher for MultiplePermissions
-    private val requestPermissionsLauncher: ActivityResultLauncher<Array<String>> =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            permissions.entries.forEach {
-                val permissionName = it.key
-                val isGranted = it.value
-                // if permission is granted perform operation
-                if (isGranted) {
-                    // If permission name is READ_MEDIA_IMAGES, call gallery launcher with pick intent
-                    if (permissionName == Manifest.permission.READ_MEDIA_IMAGES) {
-                        val pickIntent =
-                            Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-                        openGalleryLauncher.launch(pickIntent)
-                    }
-                    // If permission name is POST_NOTIFICATIONS schedule notification
-                    if (permissionName == Manifest.permission.POST_NOTIFICATIONS) {
-                        showReminderDatePicker()
-                    }
-
-                } else {
-                    // Displaying error if permission is not granted
-                    if (permissionName == Manifest.permission.READ_MEDIA_IMAGES) {
-                        showErrorSnackBar(resources.getString(R.string.permission_storage_required))
-                    }
-                    if (permissionName == Manifest.permission.POST_NOTIFICATIONS) {
-                        showErrorSnackBar(resources.getString(R.string.permission_notification_required))
-                    }
-                }
-            }
-        }
-
-    // Method to request storage permission
-    private fun requestStoragePermission(view: View) {
-        // Check if the permission was denied and show rationale
-        if (
-            ActivityCompat.shouldShowRequestPermissionRationale(
-                this,
-                Manifest.permission.READ_MEDIA_IMAGES
-            )
-        ) {
-            showErrorSnackBar(getString(R.string.permission_storage_required))
-        } else {
-            // If it has not been denied then request, directly ask for the permission.
-            // The registered ActivityResultCallback gets the result of this request.
-            requestPermissionsLauncher.launch(
-                arrayOf(
-                    Manifest.permission.READ_MEDIA_IMAGES
-                )
-            )
-        }
-    }
-
-    // Method to request notification permission
-    private fun requestNotificationPermission(view: View) {
-        // Check if the permission was denied and show rationale
-        if (
-            ActivityCompat.shouldShowRequestPermissionRationale(
-                this,
-                Manifest.permission.POST_NOTIFICATIONS
-            )
-        ) {
-            showErrorSnackBar(getString(R.string.permission_notification_required))
-        } else {
-            // If it has not been denied then request, directly ask for the permission.
-            // The registered ActivityResultCallback gets the result of this request.
-            requestPermissionsLauncher.launch(
-                arrayOf(
-                    Manifest.permission.POST_NOTIFICATIONS
-                )
-            )
-        }
-    }
 
     // Method to get the extension of selected image.
     private fun getFileExtension(uri: Uri?): String? {
@@ -522,6 +453,11 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
 
             // define map for user reminder
             val userReminderMap: MutableMap<String, Timestamp> = mutableMapOf()
+            // don't pass it to update because it has already been updated
+            if (reminderTimestamp != null) {
+                val currentUserID = FirestoreClass().getCurrentUserID()
+                userReminderMap[currentUserID] = reminderTimestamp!!
+            }
 
             // 1. edit existing event
             if (eventDetails != null) {
@@ -540,13 +476,6 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                     eventHashMap[Constants.EVENT_IMAGE_URL] = eventImageUrl
                 }
 
-                // set reminder for user using a map<userid, reminder timestamp>
-                if (reminderTimestamp != null) {
-                    val currentUserID = FirestoreClass().getCurrentUserID()
-                    userReminderMap[currentUserID] = reminderTimestamp!!
-                    eventHashMap[Constants.REMINDER] = userReminderMap
-                }
-
                 eventHashMap[Constants.TAGS] = eventTagsList
 
                 FirestoreClass().updateEvent(
@@ -555,7 +484,6 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                     eventDetails!!.documentId
                 )
             } else {
-                // if pending intent exists then the event has a reminder
                 // 2. create event
                 val event = Event(
                     title,
@@ -656,9 +584,10 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun addReminderInView(reminderMap: Map<String, Timestamp?>) {
+        Log.d(TAG, "reminderinview()... remindermap.size = ${reminderMap.size}")
         var reminderTS: Timestamp? = null
         for (key in reminderMap.keys) {
-            if (key == FirestoreClass().getCurrentUserID()) {
+            if (key == getCurrentUserID()) {
                 reminderTS = reminderMap[key]
             }
         }
