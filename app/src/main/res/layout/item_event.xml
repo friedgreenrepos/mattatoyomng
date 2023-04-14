@@ -4,7 +4,6 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<data>
-
 		<variable
 			name="event"
 			type="com.example.mattatoyomng.models.Event" />
@@ -30,7 +29,6 @@
 				android:layout_height="match_parent"
 				android:padding="5dp">
 
-<!--					app:eventImgURL="@{event.eventImgURL}"-->
 				<ImageView
 					android:id="@+id/eventImageIV"
 					android:src="@drawable/image_red_transparency4"
@@ -46,19 +44,29 @@
 					android:id="@+id/eventTitleTV"
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
-					android:layout_marginStart="16dp"
 					android:text="@{event.title}"
 					android:textColor="@android:color/black"
 					android:textSize="18sp"
+					android:layout_marginStart="16dp"
+					android:layout_marginTop="16dp"
+					android:layout_marginEnd="50dp"
 					app:layout_constraintEnd_toEndOf="parent"
 					app:layout_constraintStart_toEndOf="@+id/eventImageIV"
-					app:layout_constraintTop_toTopOf="parent"
-					android:layout_marginTop="16dp"
-					android:layout_marginEnd="50dp"/>
+					app:layout_constraintTop_toTopOf="parent" />
+
+				<com.google.android.material.chip.ChipGroup
+					android:id="@+id/eventItemTagsCG"
+					android:layout_width="240dp"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="8dp"
+					android:layout_marginStart="@dimen/default_margin"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintStart_toEndOf="@id/eventImageIV"
+					app:layout_constraintTop_toBottomOf="@+id/eventTitleTV"/>
 
 				<TextView
 					android:id="@+id/eventDescriptionTV"
-					android:text="@{event.description}"
+					android:text=""
 					android:textSize="14sp"
 					android:maxLength="200"
 					android:layout_width="0dp"
@@ -69,13 +77,12 @@
 					android:layout_marginTop="8dp"
 					app:layout_constraintEnd_toEndOf="parent"
 					app:layout_constraintStart_toEndOf="@+id/eventImageIV"
-					app:layout_constraintTop_toBottomOf="@+id/eventTitleTV" />
+					app:layout_constraintTop_toBottomOf="@+id/eventItemTagsCG" />
 
 				<TextView
 					android:id="@+id/cardEventDateTV"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:text="01/01/2001"
 					android:textSize="@dimen/default_text_size"
 					android:textStyle="bold"
 					android:textColor="@color/black"
@@ -88,7 +95,6 @@
 					android:id="@+id/cardEventTimeTV"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:text="00:00"
 					android:textSize="@dimen/default_text_size"
 					android:textStyle="bold"
 					android:textColor="@color/black"

@@ -2,7 +2,7 @@
 #+AUTHOR: Giulia
 * UI
 - [ ] hide keyboard when clicking outside an =EditText=
-- [ ] add detailview for event
+- [X] add detailview for event
 - [X] update date/time formatter to use =applicationContext= (in =Utils.kt=)
 - [X] swipe to delete
 - [X] show user info in drawer (username, profile pic)
@@ -23,8 +23,8 @@
 - [ ] fix search feature
 - [ ] add people/shifts to event
 - [ ] add delete dialog
-- [ ] can't delete tags in detail view
-- [ ] add tags in =EventsFragment= card item
+- [X] add tags in =EventsFragment= card item
+- [X] can't delete tags in detail view
 - [X] add =profileUpdateFail()= method to handle errors (like =eventUploadFail()=)
 - [X] add reminder feature
 - [X] add tags in create/edit event
