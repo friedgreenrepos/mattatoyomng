@@ -2,8 +2,6 @@ package com.example.mattatoyomng.firebase
 
 import android.app.Activity
 import android.util.Log
-import android.view.View
-import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.activities.CreateEventActivity
@@ -15,9 +13,12 @@ import com.example.mattatoyomng.fragments.UpdateProfileFragment
 import com.example.mattatoyomng.models.Event
 import com.example.mattatoyomng.models.User
 import com.example.mattatoyomng.utils.Constants
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import java.util.Calendar
+
 
 class FirestoreClass {
 
@@ -172,9 +173,16 @@ class FirestoreClass {
     }
 
     fun getEventsList(fragment: EventsFragment) {
-        // get events ordered by date
-        val docRef = dbFirestore.collection(Constants.EVENTS).orderBy("date")
-        docRef.get()
+        // define today
+        val cal = Calendar.getInstance()
+        cal.set(Calendar.HOUR_OF_DAY, 0)
+        cal.set(Calendar.MINUTE, 0)
+        val today = Timestamp(cal.time)
+        // get events after today (included) and order them by date
+        val storageRef = dbFirestore.collection(Constants.EVENTS)
+            .whereGreaterThanOrEqualTo("date", today)
+            .orderBy("date")
+        storageRef.get()
             .addOnSuccessListener { documents ->
                 Log.d(TAG, "n.of events in db = ${documents.size()}")
                 val eventList: ArrayList<Event> = ArrayList()
