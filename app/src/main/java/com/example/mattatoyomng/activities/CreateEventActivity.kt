@@ -60,6 +60,8 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
     private var eventCal = Calendar.getInstance()
     private lateinit var dateSetListener: DatePickerDialog.OnDateSetListener
     private lateinit var timeSetListener: TimePickerDialog.OnTimeSetListener
+    private var hasEditedDate = false
+    private var hasEditedTime = false
 
     // calendar for reminder
     private var reminderCal = Calendar.getInstance()
@@ -88,6 +90,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
             eventCal.set(Calendar.YEAR, year)
             eventCal.set(Calendar.MONTH, month)
             eventCal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+            hasEditedDate = true
             updateDateInView()
         }
 
@@ -95,6 +98,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
         timeSetListener = TimePickerDialog.OnTimeSetListener { view, hourOfDay, minute ->
             eventCal.set(Calendar.HOUR_OF_DAY, hourOfDay)
             eventCal.set(Calendar.MINUTE, minute)
+            hasEditedTime = true
             updateTimeInView()
         }
 
@@ -525,7 +529,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 if (description.isNotEmpty() && description != eventDetails!!.description) {
                     eventHashMap[Constants.DESCRIPTION] = description
                 }
-                if (date != eventDetails!!.date) {
+                if ((hasEditedDate || hasEditedTime) && date != eventDetails!!.date) {
                     eventHashMap[Constants.DATE] = date
                 }
                 if (eventImageUrl.isNotEmpty() && eventImageUrl != eventDetails!!.eventImgURL) {
