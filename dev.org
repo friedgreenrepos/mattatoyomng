@@ -15,13 +15,16 @@
 - [X] swipe to edit instead of clicking edit icon
 
 * Functionalities
+- [ ] reminder DOES NOT have to be linked to event!! otherwise everybody will have a reminder!! use a tuple <user, reminder>
 - [ ] change password in =ProfileUpdate=
 - [ ] forgot password
 - [ ] hide past events (show past events option in settings??)
 - [ ] load images with multi-threading
-- [ ] add search feature
+- [ ] fix search feature
 - [ ] add people/shifts to event
 - [ ] add delete dialog
+- [ ] can't delete tags in detail view
+- [ ] add tags in =EventsFragment= card item
 - [X] add =profileUpdateFail()= method to handle errors (like =eventUploadFail()=)
 - [X] add reminder feature
 - [X] add tags in create/edit event

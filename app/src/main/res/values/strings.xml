@@ -83,5 +83,7 @@
 	<string name="chip">Chip</string>
 	<string name="permission_notification_required">Notification permission required. Enable it from settings.</string>
 	<string name="search">Search</string>
+	<string name="tags">Tags</string>
+	<string name="no_description">No description available…</string>
 
 </resources>

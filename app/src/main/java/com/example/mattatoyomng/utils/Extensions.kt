@@ -7,9 +7,9 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.*
 import androidx.core.content.ContextCompat
+import com.example.mattatoyomng.R
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
-import com.example.mattatoyomng.R
 
 fun Context.createDialog(layout: Int, cancelable: Boolean): Dialog {
     val dialog = Dialog(this, android.R.style.Theme_Dialog)
@@ -30,15 +30,27 @@ fun ChipGroup.addChip(
     isTouchTargetSize: Boolean = false,
     closeIconListener: View.OnClickListener? = null
 ) {
-    val chip: Chip = LayoutInflater.from(context).inflate(R.layout.item_chip,null,false) as Chip
-    chip.text = if (text.length > 9) text.substring(0,9) + "..." else text
+    val chip: Chip = LayoutInflater.from(context).inflate(R.layout.item_chip, null, false) as Chip
+    chip.text = if (text.length > 9) text.substring(0, 9) + "..." else text
     chip.isClickable = false
     chip.setEnsureMinTouchTargetSize(isTouchTargetSize)
-    if (closeIconListener != null){
+    if (closeIconListener != null) {
         chip.closeIcon = ContextCompat.getDrawable(context, R.drawable.ic_cancel)
         chip.isCloseIconVisible = true
         chip.setOnCloseIconClickListener(closeIconListener)
     }
+    addView(chip)
+}
+
+fun ChipGroup.addChipNoClose(
+    text: String,
+    isTouchTargetSize: Boolean = false,
+    closeIconListener: View.OnClickListener? = null
+) {
+    val chip: Chip = LayoutInflater.from(context).inflate(R.layout.item_chip, null, false) as Chip
+    chip.text = if (text.length > 9) text.substring(0, 9) + "..." else text
+    chip.isClickable = false
+    chip.setEnsureMinTouchTargetSize(isTouchTargetSize)
     addView(chip)
 }
 

@@ -13,6 +13,7 @@ import androidx.appcompat.widget.SearchView
 import com.example.mattatoyomng.EventRecyclerAdapter
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.activities.CreateEventActivity
+import com.example.mattatoyomng.activities.EventDetailActivity
 import com.example.mattatoyomng.databinding.FragmentEventsBinding
 import com.example.mattatoyomng.firebase.FirestoreClass
 import com.example.mattatoyomng.models.Event
@@ -107,6 +108,16 @@ class EventsFragment : BaseFragment() {
             eventAdapter = EventRecyclerAdapter(requireContext(), eventList)
             eventRecyclerView.adapter = eventAdapter
             eventAdapter.notifyDataSetChanged()
+
+            // click on item to see detail activity
+            eventAdapter.setOnClickListener(object : EventRecyclerAdapter.OnClickListener{
+                override fun onClick(position: Int, model: Event) {
+                    val intent = Intent(requireContext(), EventDetailActivity::class.java)
+                    intent.putExtra(EVENT_DETAILS, model)
+                    startActivity(intent)
+                }
+            })
+
             // setup swipe left to edit
             val editSwipeHandler = object : SwipeToEditCallback(this.requireContext()) {
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {

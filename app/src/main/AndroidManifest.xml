@@ -6,9 +6,6 @@
 	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 	<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 	<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-	<!--	TODO: remove permissions if unused-->
-	<uses-permission android:name="android.permission.CAMERA" />
-	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
 	<application
 		android:allowBackup="true"
@@ -52,6 +49,10 @@
 			android:name=".activities.CreateEventActivity"
 			android:exported="false"
 			android:theme="@style/AppTheme.NoActionBar" />
+		<activity
+			android:name=".activities.EventDetailActivity"
+			android:exported="false"
+			android:theme="@style/AppTheme.NoActionBar"/>
 	</application>
 
 </manifest>

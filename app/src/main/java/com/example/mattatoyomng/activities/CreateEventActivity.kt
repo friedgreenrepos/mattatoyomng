@@ -78,7 +78,6 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
     // tag list
     private var eventTagsList: MutableList<String> = arrayListOf()
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -181,7 +180,6 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onClick(v: View?) {
         when (v!!.id) {
             R.id.eventDateTV -> {
@@ -332,7 +330,6 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
     }
 
     // update reminder date time in view
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun updateReminderInView() {
         val reminderTs = Timestamp(reminderCal.time)
         val reminderString = dateFormatter(reminderTs, applicationContext) +
@@ -426,7 +423,6 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
         }
 
     // Method to request storage permission
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun requestStoragePermission(view: View) {
         // Check if the permission was denied and show rationale
         if (
@@ -448,7 +444,6 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
     }
 
     // Method to request notification permission
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun requestNotificationPermission(view: View) {
         // Check if the permission was denied and show rationale
         if (

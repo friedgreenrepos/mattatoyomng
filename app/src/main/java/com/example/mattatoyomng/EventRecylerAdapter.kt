@@ -62,6 +62,13 @@ class EventRecyclerAdapter(private val context: Context, private val eventList: 
         binding.cardEventDateTV.text = dateFormatter(event.date, context)
         binding.cardEventTimeTV.text = timeFormatter(event.date, context)
 
+        // click on item
+        holder.itemView.setOnClickListener{
+            if (onClickListener != null) {
+                onClickListener!!.onClick(position, event)
+            }
+        }
+
     }
 
     interface OnClickListener {

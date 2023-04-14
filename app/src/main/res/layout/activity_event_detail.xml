@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:orientation="vertical"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
@@ -12,7 +11,7 @@
 		android:theme="@style/AppTheme.AppBarOverlay">
 
 		<androidx.appcompat.widget.Toolbar
-			android:id="@+id/toolbarCreateEvent"
+			android:id="@+id/toolbarEventDetail"
 			android:layout_width="match_parent"
 			android:layout_height="?attr/actionBarSize" />
 	</com.google.android.material.appbar.AppBarLayout>
@@ -25,12 +24,12 @@
 		android:scrollbars="none">
 
 		<androidx.constraintlayout.widget.ConstraintLayout
-			android:id="@+id/createEventLayout"
+			android:id="@+id/eventDetailLayout"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent">
 
 			<ImageView
-				android:id="@+id/showEventImageIV"
+				android:id="@+id/eventDetailImageIV"
 				android:src="@drawable/image_red_transparency4"
 				android:minHeight="200dp"
 				android:minWidth="200dp"
@@ -45,34 +44,43 @@
 				app:layout_constraintStart_toStartOf="parent"
 				android:contentDescription="@string/event_image" />
 
-			<EditText
-				android:id="@+id/eventTitleET"
+			<TextView
+				android:id="@+id/eventDetailTitleTV"
 				android:hint="@string/title"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:minEms="20"
 				android:textCursorDrawable="@null"
-				android:textSize="@dimen/default_text_size"
-				android:inputType="textCapSentences|textMultiLine"
+				android:textSize="20sp"
+				android:textColor="@color/black"
+				android:textStyle="bold"
 				android:layout_marginStart="@dimen/default_margin"
 				android:layout_marginTop="@dimen/default_margin"
 				android:layout_marginEnd="@dimen/default_margin"
-				app:layout_constraintTop_toBottomOf="@+id/showEventImageIV"
+				app:layout_constraintTop_toBottomOf="@+id/eventDetailImageIV"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent" />
 
-			<EditText
-				android:id="@+id/eventDescriptionET"
+			<ImageView
+				android:id="@+id/eventTitleDivider"
+				android:layout_width="0dp"
+				android:layout_height="@dimen/default_divider_height"
+				android:layout_marginTop="@dimen/default_margin"
+				android:background="@color/inactive_text_color"
+				android:importantForAccessibility="no"
+				app:layout_constraintTop_toBottomOf="@+id/eventDetailTitleTV"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent" />
+
+			<TextView
+				android:id="@+id/eventDetailDescriptionTV"
 				android:hint="@string/description"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:minEms="20"
 				android:textCursorDrawable="@null"
-				android:drawableStart="@drawable/description"
 				android:drawablePadding="@dimen/default_drawable_padding"
-				android:drawableTint="@color/red_grey"
 				android:textSize="@dimen/default_text_size"
-				android:inputType="textCapSentences|textMultiLine"
 				android:autoLink="all"
 				android:gravity="top"
 				android:linksClickable="true"
@@ -80,8 +88,10 @@
 				android:layout_marginTop="@dimen/default_margin"
 				android:layout_marginEnd="@dimen/default_margin"
 				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/eventTitleET"
-				app:layout_constraintEnd_toEndOf="parent" />
+				app:layout_constraintTop_toBottomOf="@+id/eventTitleDivider"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:drawableStartCompat="@drawable/description"
+				app:drawableTint="@color/red_grey" />
 
 			<ImageView
 				android:id="@+id/eventImageDivider"
@@ -90,49 +100,20 @@
 				android:layout_marginTop="@dimen/default_margin"
 				android:background="@color/inactive_text_color"
 				android:importantForAccessibility="no"
-				app:layout_constraintTop_toBottomOf="@+id/eventDescriptionET"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintStart_toStartOf="parent" />
-
-			<TextView
-				android:id="@+id/addEventImageTV"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:text="@string/add_event_image"
-				android:textSize="@dimen/default_text_size"
-				android:background="?attr/selectableItemBackground"
-				android:drawablePadding="@dimen/default_drawable_padding"
-				app:drawableTint="@color/red_grey"
-				app:layout_constraintStart_toStartOf="parent"
-				android:layout_marginStart="20dp"
-				android:layout_marginTop="@dimen/default_margin"
-				android:layout_marginEnd="@dimen/default_margin"
-				app:layout_constraintTop_toBottomOf="@+id/eventImageDivider"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:drawableStartCompat="@drawable/add_photo" />
-
-
-			<ImageView
-				android:id="@+id/eventDescriptionDivider"
-				android:layout_width="0dp"
-				android:layout_height="@dimen/default_divider_height"
-				android:layout_marginTop="@dimen/default_margin"
-				android:background="@color/inactive_text_color"
-				android:importantForAccessibility="no"
-				app:layout_constraintTop_toBottomOf="@+id/addEventImageTV"
+				app:layout_constraintTop_toBottomOf="@+id/eventDetailDescriptionTV"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent" />
 
 
 			<TextView
-				android:id="@+id/eventDateTV"
+				android:id="@+id/eventDetailDateTV"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/date_placeholder"
 				android:textSize="@dimen/default_text_size"
 				android:background="?attr/selectableItemBackground"
 				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/eventDescriptionDivider"
+				app:layout_constraintTop_toBottomOf="@+id/eventImageDivider"
 				android:layout_marginStart="20dp"
 				android:layout_marginTop="@dimen/default_margin"
 				app:drawableLeftCompat="@drawable/event"
@@ -140,7 +121,7 @@
 				app:drawableTint="@color/red_grey" />
 
 			<TextView
-				android:id="@+id/eventTimeTV"
+				android:id="@+id/eventDetailTimeTV"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/time_placeholder"
@@ -149,7 +130,7 @@
 				android:layout_marginTop="@dimen/default_margin"
 				android:layout_marginEnd="20dp"
 				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/eventDescriptionDivider"
+				app:layout_constraintTop_toBottomOf="@+id/eventImageDivider"
 				app:drawableRightCompat="@drawable/time"
 				android:drawablePadding="@dimen/default_drawable_padding"
 				app:drawableTint="@color/red_grey" />
@@ -159,14 +140,14 @@
 				android:layout_width="0dp"
 				android:layout_height="@dimen/default_divider_height"
 				android:layout_marginTop="@dimen/default_margin"
-				app:layout_constraintTop_toBottomOf="@+id/eventTimeTV"
+				app:layout_constraintTop_toBottomOf="@+id/eventDetailTimeTV"
 				android:background="@color/inactive_text_color"
 				android:importantForAccessibility="no"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintEnd_toEndOf="parent" />
 
 			<TextView
-				android:id="@+id/addReminderTV"
+				android:id="@+id/addReminderDetailTV"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:text="@string/add_reminder"
@@ -182,7 +163,7 @@
 
 			<TextView
 				android:visibility="invisible"
-				android:id="@+id/reminderDateTV"
+				android:id="@+id/reminderDetailDateTV"
 				android:textSize="@dimen/default_text_size"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
@@ -196,14 +177,13 @@
 				app:layout_constraintStart_toStartOf="parent" />
 
 			<LinearLayout
-				android:id="@+id/addTagLL"
+				android:id="@+id/showTagsLL"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:orientation="horizontal"
 				android:layout_marginTop="@dimen/default_margin"
 				android:layout_marginStart="@dimen/default_margin_start"
 				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/addReminderTV">
+				app:layout_constraintTop_toBottomOf="@+id/addReminderDetailTV">
 
 				<TextView
 					android:layout_width="wrap_content"
@@ -213,115 +193,24 @@
 					android:drawablePadding="@dimen/default_drawable_padding"
 					android:textSize="@dimen/default_text_size"
 					app:layout_constraintStart_toStartOf="parent"
-					app:layout_constraintTop_toBottomOf="@+id/addReminderTV"
+					app:layout_constraintTop_toBottomOf="@+id/addReminderDetailTV"
 					app:layout_constraintEnd_toEndOf="parent"
 					android:layout_marginTop="@dimen/default_margin"
 					android:layout_marginBottom="@dimen/default_margin"
 					app:drawableLeftCompat="@drawable/label" />
 
-				<ImageView
-					android:id="@+id/addTagIV"
-					android:layout_width="26dp"
-					android:layout_height="26dp"
-					android:src="@drawable/add_circle_outline"
-					android:layout_marginTop="@dimen/default_margin"
-					android:layout_marginStart="8dp"
-					app:layout_constraintEnd_toStartOf="@+id/done"
-					app:layout_constraintTop_toTopOf="parent"
-					app:tint="@color/red_grey"
-					android:contentDescription="@string/add_tag" />
-
 			</LinearLayout>
 
 			<com.google.android.material.chip.ChipGroup
-				android:id="@+id/tagsCG"
+				android:id="@+id/tagsDetailCG"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_marginStart="@dimen/default_margin"
 				android:layout_marginTop="22dp"
-				app:layout_constraintStart_toEndOf="@id/addTagLL"
+				app:layout_constraintStart_toEndOf="@id/showTagsLL"
 				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/addReminderTV"/>
+				app:layout_constraintTop_toBottomOf="@+id/addReminderDetailTV" />
 
-			<TextView
-				android:id="@+id/addPeopleTV"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:text="@string/add_people"
-				android:textSize="@dimen/default_text_size"
-				android:background="?attr/selectableItemBackground"
-				app:layout_constraintStart_toStartOf="parent"
-				android:layout_marginStart="20dp"
-				android:layout_marginTop="64dp"
-				android:layout_marginEnd="@dimen/default_margin"
-				app:layout_constraintTop_toBottomOf="@+id/tagsCG"
-				app:layout_constraintEnd_toEndOf="parent"
-				android:drawablePadding="@dimen/default_drawable_padding"
-				app:drawableTint="@color/red_grey"
-				app:drawableStartCompat="@drawable/people" />
-
-			<ImageView
-				android:id="@+id/eventReminderDivider"
-				android:layout_width="0dp"
-				android:layout_height="@dimen/default_divider_height"
-				android:layout_marginTop="@dimen/default_margin"
-				app:layout_constraintTop_toBottomOf="@+id/addPeopleTV"
-				android:background="@color/inactive_text_color"
-				android:importantForAccessibility="no"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintEnd_toEndOf="parent" />
-
-			<TextView
-				android:id="@+id/ownerTV"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:text="@string/owner"
-				android:textSize="@dimen/default_text_size"
-				android:layout_marginStart="20dp"
-				android:layout_marginTop="@dimen/default_margin"
-				android:layout_marginEnd="@dimen/default_margin"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/eventReminderDivider"
-				app:layout_constraintEnd_toEndOf="parent"
-				android:drawablePadding="@dimen/default_drawable_padding"
-				app:drawableTint="@color/red_grey"
-				app:drawableStartCompat="@drawable/verified_user" />
-
-			<TextView
-				android:id="@+id/ownerNameTV"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:hint="@string/owner_name"
-				android:textSize="@dimen/default_text_size"
-				android:background="?attr/selectableItemBackground"
-				android:layout_marginTop="@dimen/default_margin"
-				android:layout_marginEnd="48dp"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/eventReminderDivider" />
-
-			<Button
-				android:id="@+id/saveEventBTN"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:text="@string/save"
-				android:layout_marginStart="10dp"
-				android:layout_marginEnd="10dp"
-				android:layout_marginBottom="@dimen/default_margin"
-				android:layout_marginTop="@dimen/default_margin"
-				app:layout_constraintTop_toBottomOf="@+id/ownerNameTV"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintEnd_toEndOf="parent" />
-
-			<ProgressBar
-				android:id="@+id/createEventPB"
-				style="?android:attr/progressBarStyle"
-				android:visibility="invisible"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				app:layout_constraintBottom_toBottomOf="parent"
-				app:layout_constraintTop_toTopOf="parent"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintEnd_toEndOf="parent" />
 
 		</androidx.constraintlayout.widget.ConstraintLayout>
 	</androidx.core.widget.NestedScrollView>
