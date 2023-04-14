@@ -46,6 +46,8 @@ class EventsFragment : BaseFragment() {
         binding.addEventBTN.setOnClickListener {
             val intent = Intent(this.context, CreateEventActivity::class.java)
             startActivity(intent)
+            // finish to prevent going back to create view
+            activity?.finish()
         }
 
         // initialize recycler view

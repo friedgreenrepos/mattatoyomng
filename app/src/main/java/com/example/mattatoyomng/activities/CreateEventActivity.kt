@@ -565,6 +565,8 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
         showInfoSnackBar(msg)
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
+        // this way we can't go back to create event >:)
+        finish()
     }
 
     // Function to call when event upload fails:
