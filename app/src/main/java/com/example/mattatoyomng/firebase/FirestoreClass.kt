@@ -17,7 +17,9 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
-import java.util.Calendar
+import kotlinx.coroutines.*
+import kotlinx.coroutines.tasks.await
+import java.util.*
 
 
 class FirestoreClass {
@@ -138,38 +140,36 @@ class FirestoreClass {
             }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     fun createEvent(activity: CreateEventActivity, event: Event) {
-        dbFirestore.collection(Constants.EVENTS)
-            .document()
-            .set(event, SetOptions.merge())
-            .addOnSuccessListener {
+        GlobalScope.launch(Dispatchers.IO) {
+            dbFirestore.collection(Constants.EVENTS)
+                .document()
+                .set(event, SetOptions.merge())
+                .await()
+            withContext(Dispatchers.Main) {
                 val msg = activity.resources.getString(R.string.create_event_success)
                 activity.eventUploadSuccess(msg)
             }
-            .addOnFailureListener {
-                val msg = activity.resources.getString(R.string.create_event_fail) +
-                        "ERROR: ${it.message.toString()}"
-                activity.eventUploadFail(msg)
-            }
+        }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     fun updateEvent(
         activity: CreateEventActivity,
         eventHashMap: HashMap<String, Any?>,
         documentId: String
     ) {
-        dbFirestore.collection(Constants.EVENTS)
-            .document(documentId)
-            .update(eventHashMap)
-            .addOnSuccessListener {
+        GlobalScope.launch(Dispatchers.IO) {
+            dbFirestore.collection(Constants.EVENTS)
+                .document(documentId)
+                .update(eventHashMap)
+                .await()
+            withContext(Dispatchers.Main) {
                 val msg = activity.resources.getString(R.string.update_event_success)
                 activity.eventUploadSuccess(msg)
             }
-            .addOnFailureListener {
-                val msg = activity.resources.getString(R.string.update_event_fail) +
-                        "ERROR: ${it.message.toString()}"
-                activity.eventUploadFail(msg)
-            }
+        }
     }
 
     fun getEventsList(fragment: EventsFragment) {
@@ -185,7 +185,7 @@ class FirestoreClass {
         storageRef.get()
             .addOnSuccessListener { documents ->
                 Log.d(TAG, "n.of events in db = ${documents.size()}")
-                val eventList: ArrayList<Event> = ArrayList()
+                val eventList: MutableList<Event> = mutableListOf()
                 if (!documents.isEmpty) {
                     documents.forEach {
                         // convert snapshots to Event objects
@@ -203,18 +203,17 @@ class FirestoreClass {
             }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     fun deleteEvent(fragment: EventsFragment, documentId: String) {
-        dbFirestore.collection(Constants.EVENTS)
-            .document(documentId)
-            .delete()
-            .addOnSuccessListener {
+        GlobalScope.launch(Dispatchers.IO) {
+            dbFirestore.collection(Constants.EVENTS)
+                .document(documentId)
+                .delete()
+                .await()
+            withContext(Dispatchers.Main) {
                 fragment.showInfoSnackBar(fragment.resources.getString(R.string.delete_event_success))
             }
-            .addOnFailureListener { e ->
-                fragment.showErrorSnackBar(
-                    fragment.resources.getString(R.string.delete_event_fail) + ":" + e
-                )
-            }
+        }
     }
 
     fun searchInFirestore(fragment: EventsFragment, searchText: String) {

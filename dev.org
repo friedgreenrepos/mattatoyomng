@@ -15,14 +15,15 @@
 - [X] swipe to edit instead of clicking edit icon
 
 * Functionalities
+- [ ] load images with multi-threading
+- [ ] remove unused stuff from =build.grade(:app)=
+- [ ] add delete dialog
 - [ ] reminder DOES NOT have to be linked to event!! otherwise everybody will have a reminder!! use a tuple <user, reminder>
 - [ ] change password in =ProfileUpdate=
 - [ ] forgot password
 - [ ] hide past events (show past events option in settings??)
-- [ ] load images with multi-threading
 - [ ] fix search feature
 - [ ] add people/shifts to event
-- [ ] add delete dialog
 - [X] add tags in =EventsFragment= card item
 - [X] can't delete tags in detail view
 - [X] add =profileUpdateFail()= method to handle errors (like =eventUploadFail()=)
@@ -40,3 +41,31 @@
 - [X] load event image programmatically in event card
 - [X] fix ERROR when saving event without image
 - [X] make Event model =Parcelable= instead of =Serializable=
+
+
+* Co-routines in Kotlin
+For getting events...
+#+begin_src kotlin
+  GlobalScope.launch(Dispatchers.IO){
+      val eventList = storageRef.get().await().toObjects(Event::class.java)
+      withContext(Dispatchers.Main){
+	  fragment.setupEventsRecyclerView(eventList)
+      }
+  }
+#+end_src
+For loading image to storage...
+#+begin_src kotlin
+  GlobalScope.launch(Dispatchers.IO) {
+      delay(3000L)
+      eventImageUrl = sRef.putFile(eventImageUri!!).await()
+	  .metadata!!.reference!!.downloadUrl.result.toString()
+      Log.d(TAG, "event image URL = $eventImageUrl")
+      withContext(Dispatchers.Main){
+	  // hide progress bar
+	  binding.createEventPB.visibility = View.INVISIBLE
+	  // save event
+	  saveEvent()
+      }
+  }
+
+#+end_src

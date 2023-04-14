@@ -96,8 +96,8 @@ class EventsFragment : BaseFragment() {
     }
 
 
-    fun setupEventsRecyclerView(eventList: ArrayList<Event>) {
-        if (eventList.size == 0) {
+    fun setupEventsRecyclerView(eventList: MutableList<Event>) {
+        if (eventList.isEmpty()) {
             // show "no events" textview if event list is empty
             binding.noEventsTV.visibility = View.VISIBLE
         } else {

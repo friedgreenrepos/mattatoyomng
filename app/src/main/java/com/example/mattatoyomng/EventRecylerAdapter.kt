@@ -19,7 +19,7 @@ import com.example.mattatoyomng.utils.hide
 import com.example.mattatoyomng.utils.timeFormatter
 import java.io.IOException
 
-class EventRecyclerAdapter(private val context: Context, private val eventList: ArrayList<Event>) :
+class EventRecyclerAdapter(private val context: Context, private val eventList: MutableList<Event>) :
     RecyclerView.Adapter<EventRecyclerAdapter.EventViewHolder>() {
 
     private var TAG = "EventRecyclerAdapter"
