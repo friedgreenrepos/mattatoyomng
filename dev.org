@@ -20,6 +20,7 @@
 - [X] swipe to edit instead of clicking edit icon
 
 * Functionalities
+- [ ] try catch in globalscope() co-routines stuff
 - [ ] add todo list for event
 - [ ] move =setupactionbar= in =BaseActivity=
 - [ ] add people/shifts to event

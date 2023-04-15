@@ -16,6 +16,7 @@ import com.example.mattatoyomng.R
 import com.example.mattatoyomng.databinding.ActivityMainBinding
 import com.example.mattatoyomng.firebase.FirestoreClass
 import com.example.mattatoyomng.fragments.EventsFragment
+import com.example.mattatoyomng.fragments.UpdatePasswordFragment
 import com.example.mattatoyomng.fragments.UpdateProfileFragment
 import com.example.mattatoyomng.models.User
 import com.google.android.material.navigation.NavigationView
@@ -65,6 +66,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     private fun replaceFragment(fragment: Fragment, title: String) {
+        Log.d(TAG, "replace fragment: $title")
         val fragmentManager = supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
         fragmentTransaction.replace(R.id.fragment_container, fragment)
@@ -86,18 +88,11 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             R.id.eventsItem -> {
                 replaceFragment(EventsFragment(), item.title.toString())
             }
-            R.id.searchItem -> {
-                Toast.makeText(this@MainActivity, "search Item Clicked", Toast.LENGTH_SHORT)
-                    .show()
-            }
-            R.id.todoItem -> {
-                Toast.makeText(this@MainActivity, "todo Item Clicked", Toast.LENGTH_SHORT)
-                    .show()
-            }
-            R.id.profileItem -> {
+            R.id.updateProfileItem -> {
                 replaceFragment(UpdateProfileFragment(), item.title.toString())
-//                val intent = Intent(this@MainActivity, UpdateProfileActivity::class.java)
-//                startActivity(intent)
+            }
+            R.id.updatePasswordItem -> {
+                replaceFragment(UpdatePasswordFragment(), item.title.toString())
             }
             R.id.logoutItem -> {
                 FirebaseAuth.getInstance().signOut()

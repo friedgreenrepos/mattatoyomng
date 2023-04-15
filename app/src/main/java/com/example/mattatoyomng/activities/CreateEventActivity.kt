@@ -501,7 +501,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
 
     private fun validateEventForm(name: String, date: Timestamp): Boolean {
         return when {
-            TextUtils.isEmpty(name) -> {
+            name.isEmpty() -> {
                 showErrorSnackBar(resources.getString(R.string.event_title_no_empty))
                 false
             }

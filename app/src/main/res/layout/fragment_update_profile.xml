@@ -7,19 +7,6 @@
 	android:orientation="vertical"
 	tools:context=".fragments.UpdateProfileFragment">
 
-<!--	<com.google.android.material.appbar.AppBarLayout-->
-<!--		android:layout_width="match_parent"-->
-<!--		android:layout_height="wrap_content"-->
-<!--		android:theme="@style/AppTheme.AppBarOverlay">-->
-
-<!--		<androidx.appcompat.widget.Toolbar-->
-<!--			android:id="@+id/toolbarProfileActivity"-->
-<!--			android:layout_width="match_parent"-->
-<!--			android:layout_height="?attr/actionBarSize"-->
-<!--			android:background="?attr/colorPrimary"-->
-<!--			app:popupTheme="@style/AppTheme.PopupOverlay" />-->
-<!--	</com.google.android.material.appbar.AppBarLayout>-->
-
 	<de.hdodenhof.circleimageview.CircleImageView
 		android:id="@+id/userUpdateProfilePicIV"
 		android:src="@drawable/user_white_80"
@@ -91,7 +78,33 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:hint="@string/email"
-						android:inputType="textEmailAddress"
+						android:focusable="false"
+						android:focusableInTouchMode="false"
+						android:inputType="none"
+						android:textSize="@dimen/default_text_size" />
+				</com.google.android.material.textfield.TextInputLayout>
+
+				<TextView
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:text="@string/update_password"
+					android:textAllCaps="true"
+					android:textSize="@dimen/default_text_size"
+					android:textColor="@color/red_grey"
+					android:textStyle="bold"
+					android:layout_marginTop="30dp"
+					android:gravity="center"/>
+
+				<com.google.android.material.textfield.TextInputLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content">
+
+					<androidx.appcompat.widget.AppCompatEditText
+						android:id="@+id/currentPasswordET"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:hint="@string/current_password"
+						android:inputType="textPassword"
 						android:textSize="@dimen/default_text_size" />
 				</com.google.android.material.textfield.TextInputLayout>
 
@@ -103,7 +116,7 @@
 						android:id="@+id/profilePasswordET"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:hint="New password"
+						android:hint="@string/new_password"
 						android:inputType="textPassword"
 						android:textSize="@dimen/default_text_size" />
 				</com.google.android.material.textfield.TextInputLayout>
@@ -116,7 +129,7 @@
 						android:id="@+id/profileRepeatPasswordET"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:hint="Repeat password"
+						android:hint="@string/confirm_new_password"
 						android:inputType="textPassword"
 						android:textSize="@dimen/default_text_size" />
 				</com.google.android.material.textfield.TextInputLayout>

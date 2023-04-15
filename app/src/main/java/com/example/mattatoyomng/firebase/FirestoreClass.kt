@@ -6,11 +6,13 @@ import androidx.fragment.app.Fragment
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.activities.*
 import com.example.mattatoyomng.fragments.EventsFragment
+import com.example.mattatoyomng.fragments.UpdatePasswordFragment
 import com.example.mattatoyomng.fragments.UpdateProfileFragment
 import com.example.mattatoyomng.models.Event
 import com.example.mattatoyomng.models.User
 import com.example.mattatoyomng.utils.Constants
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -240,6 +242,25 @@ class FirestoreClass {
                 }
             }
 
+    }
+
+    fun updateUserPassword(fragment: UpdatePasswordFragment, currentPassword: String, newPassword: String) {
+        val currentUser = FirebaseAuth.getInstance().currentUser!!
+        val credential = EmailAuthProvider.getCredential(currentUser.email.toString(), currentPassword)
+        currentUser.reauthenticate(credential)
+            .addOnSuccessListener {
+                fragment.authenticationSuccess()
+                currentUser.updatePassword(newPassword)
+                    .addOnSuccessListener {
+                        fragment.updatePasswordSuccess()
+                    }
+                    .addOnFailureListener {e ->
+                        fragment.updatePasswordFail(e)
+                    }
+            }
+            .addOnFailureListener {e ->
+                fragment.authenticationFail(e)
+            }
     }
 
 }

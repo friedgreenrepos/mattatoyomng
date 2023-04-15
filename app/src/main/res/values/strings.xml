@@ -13,7 +13,6 @@
 	<string name="email_address">Email address</string>
 	<string name="password">Password</string>
 	<string name="login">Login</string>
-	<string name="forgot_password">Forgot Password?</string>
 	<string name="register">Register</string>
 	<string name="email">Email</string>
 	<string name="already_registered">Already registered?</string>
@@ -86,5 +85,19 @@
 	<string name="tags">Tags</string>
 	<string name="no_description">No description available…</string>
 	<string name="reminder_delete_success">Reminder successfully deleted</string>
+	<string name="new_password">New password</string>
+	<string name="confirm_new_password">Confirm new password</string>
+	<string name="password_not_match">Passwords don\'t match</string>
+	<string name="current_password">Current password</string>
+	<string name="enter_current_password">Enter current password</string>
+	<string name="enter_new_password">"Please enter new password"</string>
+	<string name="enter_confirm_password">"Please repeat new password"</string>
+	<string name="update_password_success">Password updated successfully!</string>
+	<string name="update_password_fail">Password update failed.</string>
+	<string name="user_details">User details</string>
+	<string name="update_password">Update password</string>
+	<string name="update_profile">Update profile</string>
+	<string name="management">Management</string>
+	<string name="todo">Todo</string>
 
 </resources>
