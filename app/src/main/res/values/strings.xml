@@ -85,5 +85,6 @@
 	<string name="search">Search</string>
 	<string name="tags">Tags</string>
 	<string name="no_description">No description available…</string>
+	<string name="reminder_delete_success">Reminder successfully deleted</string>
 
 </resources>

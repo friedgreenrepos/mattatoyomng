@@ -112,8 +112,9 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
         reminderTimeSetListener = TimePickerDialog.OnTimeSetListener { view, hourOfDay, minute ->
             reminderCal.set(Calendar.HOUR_OF_DAY, hourOfDay)
             reminderCal.set(Calendar.MINUTE, minute)
-            scheduleNotification()
             updateReminderInView()
+            // update global variable to save to event
+            reminderTimestamp = Timestamp(reminderCal.time)
         }
 
         // check if event is passed in intent, if so we're in edit mode
@@ -254,21 +255,6 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
             time,
             pendingIntent
         )
-        reminderTimestamp = Timestamp(reminderCal.time)
-        // update event document with reminder if documents already exists
-        if (eventDetails != null) {
-            val eventHashMap = HashMap<String, Any?>()
-            val userReminderMap: MutableMap<String, Timestamp> = mutableMapOf()
-            val currentUserID = getCurrentUserID()
-            userReminderMap[currentUserID] = reminderTimestamp!!
-            eventHashMap[Constants.REMINDER] = userReminderMap
-            FirestoreClass().updateEvent(
-                this@CreateEventActivity,
-                eventHashMap,
-                eventDetails!!.documentId,
-                false
-            )
-        }
         showAlert(time, title, message)
     }
 
@@ -284,19 +270,11 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
 
         // cancel notification by passing same intent of its creation
         alarmManager.cancel(pendingIntent)
+        // reset reminder global variable
+        reminderTimestamp = null
+        // update layout
         deleteReminderInView()
-
-        // update event document with reminder
-        val eventHashMap = HashMap<String, Any?>()
-        val userReminderMap: MutableMap<String, Timestamp> = mutableMapOf()
-        eventHashMap[Constants.REMINDER] = userReminderMap
-        FirestoreClass().updateEvent(
-            this@CreateEventActivity,
-            eventHashMap,
-            eventDetails!!.documentId,
-            false
-        )
-        showInfoSnackBar("Reminder successfully deleted")
+        showInfoSnackBar(resources.getString(R.string.reminder_delete_success))
     }
 
     // update view after reminder deletion
@@ -453,10 +431,12 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
 
             // define map for user reminder
             val userReminderMap: MutableMap<String, Timestamp> = mutableMapOf()
-            // don't pass it to update because it has already been updated
+            // check if reminder has been set:
+            // update Event document consequently and only now schedule notification
             if (reminderTimestamp != null) {
-                val currentUserID = FirestoreClass().getCurrentUserID()
+                val currentUserID = getCurrentUserID()
                 userReminderMap[currentUserID] = reminderTimestamp!!
+                scheduleNotification()
             }
 
             // 1. edit existing event
@@ -475,6 +455,8 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 if (eventImageUrl.isNotEmpty() && eventImageUrl != eventDetails!!.eventImgURL) {
                     eventHashMap[Constants.EVENT_IMAGE_URL] = eventImageUrl
                 }
+
+                eventHashMap[Constants.REMINDER] = userReminderMap
 
                 eventHashMap[Constants.TAGS] = eventTagsList
 
@@ -584,7 +566,6 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun addReminderInView(reminderMap: Map<String, Timestamp?>) {
-        Log.d(TAG, "reminderinview()... remindermap.size = ${reminderMap.size}")
         var reminderTS: Timestamp? = null
         for (key in reminderMap.keys) {
             if (key == getCurrentUserID()) {
