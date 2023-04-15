@@ -44,7 +44,7 @@ class EventDetailActivity : BaseActivity(), View.OnClickListener {
     private lateinit var reminderDateSetListener: DatePickerDialog.OnDateSetListener
     private lateinit var reminderTimeSetListener: TimePickerDialog.OnTimeSetListener
 
-    // reminder timestamp
+    // reminder timestamp global variable
     private var reminderTimestamp: Timestamp? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,7 +75,9 @@ class EventDetailActivity : BaseActivity(), View.OnClickListener {
             TimePickerDialog.OnTimeSetListener { _, hourOfDay, minute ->
                 reminderCal.set(Calendar.HOUR_OF_DAY, hourOfDay)
                 reminderCal.set(Calendar.MINUTE, minute)
-                scheduleNotification()
+                reminderTimestamp
+                // update global variable to save to event
+                reminderTimestamp = Timestamp(reminderCal.time)
                 updateReminderInView()
             }
 
@@ -88,6 +90,8 @@ class EventDetailActivity : BaseActivity(), View.OnClickListener {
             addReminderDetail.setOnClickListener(this@EventDetailActivity)
             // delete reminder listener
             reminderDetailDate.setOnClickListener(this@EventDetailActivity)
+            // save event listener
+            saveDetailEventBTN.setOnClickListener(this@EventDetailActivity)
 
             if (eventDetails != null) {
                 eventDetailTitleTV.text = eventDetails!!.title
@@ -99,9 +103,15 @@ class EventDetailActivity : BaseActivity(), View.OnClickListener {
                 eventDetailDateTV.text = dateFormatter(eventDetails!!.date, applicationContext)
                 eventDetailTimeTV.text = timeFormatter(eventDetails!!.date, applicationContext)
 
-                // tags setup
+                // show reminders
+                val reminderMap = eventDetails!!.userReminderMap
+                addReminderInView(reminderMap)
+
+                // show tags
                 eventTagsList = eventDetails!!.tags
                 addTagsInView(eventTagsList)
+
+                // load event image
                 try {
                     Glide
                         .with(this@EventDetailActivity)
@@ -117,28 +127,62 @@ class EventDetailActivity : BaseActivity(), View.OnClickListener {
         }
     }
 
-    override fun onResume() {
-        // check if event is passed in intent, if so we're in edit mode
-        if (intent.hasExtra(EventsFragment.EVENT_DETAILS)) {
-            eventDetails =
-                intent.getParcelableExtra(EventsFragment.EVENT_DETAILS, Event::class.java)
-        }
-        Log.d(TAG, "on resume...")
-        Log.d(TAG, "eventdetails = $eventDetails")
-        val reminderMap = eventDetails!!.userReminderMap
-        addReminderInView(reminderMap)
-        super.onResume()
-    }
-
     override fun onClick(v: View?) {
         when (v!!.id) {
             R.id.addReminderDetail -> {
+                showSaveBtn()
                 requestNotificationPermission(v)
             }
+
+            // clicked to remove reminder
             R.id.reminderDetailDate -> {
-                deleteReminder()
+                deleteReminderInView()
+                reminderTimestamp = null
+                showSaveBtn()
+            }
+
+            R.id.saveDetailEventBTN -> {
+                saveEvent()
             }
         }
+    }
+
+    private fun saveEvent() {
+        // make progress bar visible
+        binding.eventDetailPB.visibility = View.VISIBLE
+        // define map for user reminder
+        val userReminderMap: MutableMap<String, Timestamp> = mutableMapOf()
+        // check if reminder has been set:
+        // update Event document consequently and only now schedule notification
+        if (reminderTimestamp != null) {
+            val currentUserID = getCurrentUserID()
+            userReminderMap[currentUserID] = reminderTimestamp!!
+            scheduleNotification()
+        } else {
+            deleteNotification()
+        }
+
+        val eventHashMap = HashMap<String, Any?>()
+        eventHashMap[Constants.REMINDER] = userReminderMap
+
+        FirestoreClass().updateEvent(
+            this@EventDetailActivity,
+            eventHashMap,
+            eventDetails!!.documentId
+        )
+    }
+
+    // Function to call when event upload is successful:
+    // hide progress bar and go to main activity
+    fun eventUploadSuccess() {
+        binding.eventDetailPB.visibility = View.INVISIBLE
+        showInfoSnackBar(resources.getString(R.string.update_event_success))
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun showSaveBtn() {
+        binding.saveDetailEventBTN.visibility = View.VISIBLE
     }
 
     private fun setupActionBar() {
@@ -172,14 +216,12 @@ class EventDetailActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun addReminderInView(reminderMap: Map<String, Timestamp?>) {
-        Log.d(TAG, "addReminderInView...")
         var reminderTS: Timestamp? = null
         for (key in reminderMap.keys) {
             if (key == getCurrentUserID()) {
                 reminderTS = reminderMap[key]
             }
         }
-        Log.d(TAG, "reminderTS = $reminderTS")
         if (reminderTS != null) {
             val reminderString = dateFormatter(reminderTS, applicationContext) +
                     " " + timeFormatter(reminderTS, applicationContext)
@@ -223,7 +265,7 @@ class EventDetailActivity : BaseActivity(), View.OnClickListener {
         binding.reminderDetailDate.text = reminderString
     }
 
-    private fun deleteReminder() {
+    private fun deleteNotification() {
         val intent = Intent(applicationContext, NotificationReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
             applicationContext,
@@ -233,25 +275,13 @@ class EventDetailActivity : BaseActivity(), View.OnClickListener {
         )
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmManager.cancel(pendingIntent)
-        deleteReminderInView()
-        // update global var containing reminder timestamp
-        reminderTimestamp = null
-        // update event document with reminder
-        val eventHashMap = HashMap<String, Any?>()
-        val userReminderMap: MutableMap<String, Timestamp> = mutableMapOf()
-        eventHashMap[Constants.REMINDER] = userReminderMap
-        FirestoreClass().updateEvent(
-            this@EventDetailActivity,
-            eventHashMap,
-            eventDetails!!.documentId
-        )
-        showInfoSnackBar("Reminder successfully deleted")
     }
 
     // update view after reminder deletion
     private fun deleteReminderInView() {
         binding.addReminderDetail.visibility = View.VISIBLE
         binding.reminderDetailDate.visibility = View.INVISIBLE
+        showInfoSnackBar(resources.getString(R.string.reminder_delete_success))
     }
 
     private fun createNotificationChannel() {
@@ -268,10 +298,7 @@ class EventDetailActivity : BaseActivity(), View.OnClickListener {
         val intent = Intent(applicationContext, NotificationReceiver::class.java)
         val title = resources.getString(R.string.app_name)
         val eventTitle = eventDetails!!.title
-        var message = "Reminder for event"
-        if (!TextUtils.isEmpty(eventTitle)) {
-            message += ": $eventTitle"
-        }
+        val message = "Reminder for event: $eventTitle"
         intent.putExtra(titleExtra, title)
         intent.putExtra(messageExtra, message)
 
@@ -291,20 +318,6 @@ class EventDetailActivity : BaseActivity(), View.OnClickListener {
             time,
             pendingIntent
         )
-        // update global variable to save to event
-        reminderTimestamp = Timestamp(reminderCal.time)
-        // update event document with reminder
-        val eventHashMap = HashMap<String, Any?>()
-        val userReminderMap: MutableMap<String, Timestamp> = mutableMapOf()
-        val currentUserID = getCurrentUserID()
-        userReminderMap[currentUserID] = reminderTimestamp!!
-        eventHashMap[Constants.REMINDER] = userReminderMap
-        FirestoreClass().updateEvent(
-            this@EventDetailActivity,
-            eventHashMap,
-            eventDetails!!.documentId
-        )
-        showAlert(time, title, message)
     }
 
 }

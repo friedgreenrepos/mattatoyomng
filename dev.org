@@ -1,6 +1,11 @@
 #+TITLE: MattatoyoMNG DEV TODO
 #+AUTHOR: Giulia
 * UI
+- [ ] differentiate normal user from admin view:
+  - noob user can access detail, update profile, search
+  - admin can acces detail, edit, delete, update profile, search
+- [ ] make alert for notification prettier -> remove title and message keywords
+- [ ] add delete dialog
 - [ ] hide keyboard when clicking outside an =EditText=
 - [X] add detailview for event
 - [X] update date/time formatter to use =applicationContext= (in =Utils.kt=)
@@ -15,16 +20,16 @@
 - [X] swipe to edit instead of clicking edit icon
 
 * Functionalities
+- [ ] add todo list for event
 - [ ] move =setupactionbar= in =BaseActivity=
-- [ ] add delete dialog
 - [ ] add people/shifts to event
 - [ ] change password in =ProfileUpdate=
 - [ ] forgot password
-- [ ] load +images+ *something* with multi-threading (coroutines??!?)
+- [ ] load +images+ *something* with multi-threading (co-routines??!?)
 - [ ] paginate query of event list?!
 - [ ] fix search feature
 - [ ] show past events option in settings??
-- [ ] =EventDetail= has to update onResume!!!!!!!!!! Event details isnt' showing update data... Need to update stuff on BACK button. Even in edit event, if you set a reminder without saving it doesn't reload the list and therefore the info passed to the intent is outdated...
+- [ ] =EventDetail= has to update =onResume=!!!!!!!!!! Event details isn't showing update data... Need to update stuff on BACK button. Even in edit event, if you set a reminder without saving it does not reload the list and therefore the info passed to the intent is outdated...
 - [X] add add reminder in event detail
 - [X] update event when setting reminder in detail view
 - [X] reminder DOES NOT have to be linked to event!! otherwise everybody will have a reminder!! use a tuple <user, reminder>

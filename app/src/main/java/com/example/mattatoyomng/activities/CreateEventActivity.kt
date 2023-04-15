@@ -112,9 +112,9 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
         reminderTimeSetListener = TimePickerDialog.OnTimeSetListener { view, hourOfDay, minute ->
             reminderCal.set(Calendar.HOUR_OF_DAY, hourOfDay)
             reminderCal.set(Calendar.MINUTE, minute)
-            updateReminderInView()
             // update global variable to save to event
             reminderTimestamp = Timestamp(reminderCal.time)
+            updateReminderInView()
         }
 
         // check if event is passed in intent, if so we're in edit mode
@@ -213,7 +213,8 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 requestNotificationPermission(v)
             }
             R.id.reminderDateTV -> {
-                deleteReminder()
+                deleteReminderInView()
+                reminderTimestamp = null
             }
         }
     }
@@ -255,10 +256,10 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
             time,
             pendingIntent
         )
-        showAlert(time, title, message)
+//        showAlert(time, title, message)
     }
 
-    private fun deleteReminder() {
+    private fun deleteNotification() {
         val intent = Intent(applicationContext, NotificationReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
             applicationContext,
@@ -270,17 +271,13 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
 
         // cancel notification by passing same intent of its creation
         alarmManager.cancel(pendingIntent)
-        // reset reminder global variable
-        reminderTimestamp = null
-        // update layout
-        deleteReminderInView()
-        showInfoSnackBar(resources.getString(R.string.reminder_delete_success))
     }
 
     // update view after reminder deletion
     private fun deleteReminderInView() {
         binding.addReminderTV.visibility = View.VISIBLE
         binding.reminderDateTV.visibility = View.INVISIBLE
+        showInfoSnackBar(resources.getString(R.string.reminder_delete_success))
     }
 
     private fun updateDateInView() {
@@ -437,6 +434,8 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 val currentUserID = getCurrentUserID()
                 userReminderMap[currentUserID] = reminderTimestamp!!
                 scheduleNotification()
+            } else {
+                deleteNotification()
             }
 
             // 1. edit existing event
@@ -484,9 +483,9 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
 
     // Function to call when event upload is successful:
     // hide progress bar and go to main activity
-    fun eventUploadSuccess(msg: String) {
+    fun eventUploadSuccess() {
         binding.createEventPB.visibility = View.INVISIBLE
-        showInfoSnackBar(msg)
+        showInfoSnackBar(resources.getString(R.string.update_event_success))
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         // this way we can't go back to create event >:)

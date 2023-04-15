@@ -145,8 +145,7 @@ class FirestoreClass {
                 .set(event, SetOptions.merge())
                 .await()
             withContext(Dispatchers.Main) {
-                val msg = activity.resources.getString(R.string.create_event_success)
-                activity.eventUploadSuccess(msg)
+                activity.eventUploadSuccess()
             }
         }
     }
@@ -167,14 +166,12 @@ class FirestoreClass {
             withContext(Dispatchers.Main) {
                 when (activity) {
                     is EventDetailActivity -> {
-                        Log.d(activity.TAG, "Reminder set and event updated correctly.")
+                        activity.eventUploadSuccess()
                     }
                     is CreateEventActivity -> {
                         if (showMessage){
-                            val msg = activity.resources.getString(R.string.update_event_success)
-                            activity.eventUploadSuccess(msg)
+                            activity.eventUploadSuccess()
                         }
-                        Log.d(activity.TAG, "Reminder set and event updated correctly.")
                     }
                 }
             }
