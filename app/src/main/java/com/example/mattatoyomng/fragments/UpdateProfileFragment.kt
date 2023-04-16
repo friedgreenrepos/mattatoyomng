@@ -28,7 +28,8 @@ import java.io.IOException
 import kotlin.Exception
 
 
-class UpdateProfileFragment : BaseFragment(), FirestoreClass.GetUserDataCallback {
+class UpdateProfileFragment : BaseFragment(), FirestoreClass.GetUserDataCallback,
+    FirestoreClass.UpdateProfileCallback {
     private val TAG: String = "UpdateProfileFragment"
 
     private lateinit var binding: FragmentUpdateProfileBinding
@@ -59,7 +60,7 @@ class UpdateProfileFragment : BaseFragment(), FirestoreClass.GetUserDataCallback
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // load user data
-        FirestoreClass().loadUserData(this@UpdateProfileFragment)
+        FirestoreClass().getUserData(this@UpdateProfileFragment)
 
         binding.userUpdateProfilePicIV.setOnClickListener {
             requestStoragePermission(view = it)
@@ -205,7 +206,7 @@ class UpdateProfileFragment : BaseFragment(), FirestoreClass.GetUserDataCallback
         FirestoreClass().updateUserProfileData(this, userHashMap)
     }
 
-    fun profileUpdateSuccess() {
+    private fun profileUpdateSuccess() {
         binding.profilePB.visibility = View.INVISIBLE
         showInfoSnackBar(resources.getString(R.string.update_profile_success))
         // re-launch main activity so that the navigation drawer updates
@@ -213,7 +214,7 @@ class UpdateProfileFragment : BaseFragment(), FirestoreClass.GetUserDataCallback
         startActivity(intent)
     }
 
-    fun profileUpdateFail(e: Exception) {
+    private fun profileUpdateFail(e: Exception) {
         binding.profilePB.visibility = View.INVISIBLE
         showErrorSnackBar(resources.getString(R.string.update_profile_error) + e)
     }
@@ -248,5 +249,13 @@ class UpdateProfileFragment : BaseFragment(), FirestoreClass.GetUserDataCallback
 
     override fun onGetUserDataFail(e: Exception) {
         getUserDataFail(e)
+    }
+
+    override fun onUpdateProfileSuccess() {
+        profileUpdateSuccess()
+    }
+
+    override fun onUpdateProfileFail(e: Exception) {
+        profileUpdateFail(e)
     }
 }

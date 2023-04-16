@@ -93,7 +93,9 @@ class UpdatePasswordFragment : BaseFragment(), FirebaseAuthClass.ReAuthenticateC
     private fun updatePasswordSuccess() {
         binding.passwordPB.visibility = View.INVISIBLE
         showInfoSnackBar(resources.getString(R.string.update_password_success))
-        activity?.finish()
+        // re-launch main activity so that the navigation drawer updates
+        val intent = Intent(this.context, MainActivity::class.java)
+        startActivity(intent)
     }
 
     private fun updatePasswordFail(e: Exception) {

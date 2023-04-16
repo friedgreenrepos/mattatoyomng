@@ -180,7 +180,7 @@ class EventCreateUpdateActivity : BaseActivity(), View.OnClickListener,
                 updateDateInView()
                 updateTimeInView()
                 // set event owner to current user
-                FirestoreClass().loadUserData(this@EventCreateUpdateActivity)
+                FirestoreClass().getUserData(this@EventCreateUpdateActivity)
             }
         }
 

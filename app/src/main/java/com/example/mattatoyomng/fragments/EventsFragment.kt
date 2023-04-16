@@ -3,18 +3,23 @@ package com.example.mattatoyomng.fragments
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.appcompat.widget.SearchView
-import com.example.mattatoyomng.adapters.EventRecyclerAdapter
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.activities.EventCreateUpdateActivity
 import com.example.mattatoyomng.activities.EventDetailActivity
+import com.example.mattatoyomng.adapters.EventRecyclerAdapter
 import com.example.mattatoyomng.databinding.FragmentEventsBinding
 import com.example.mattatoyomng.firebase.FirestoreClass
 import com.example.mattatoyomng.models.Event
@@ -22,7 +27,8 @@ import com.example.mattatoyomng.utils.SwipeToDeleteCallback
 import com.example.mattatoyomng.utils.SwipeToEditCallback
 import com.example.mattatoyomng.utils.getTodayTimestamp
 
-class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback {
+class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback,
+    FirestoreClass.IsUserAdminCallback {
 
     private val TAG = "EventsFragment"
 
@@ -30,12 +36,18 @@ class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback {
     private var eventRecyclerView: RecyclerView? = null
     private var eventAdapter: EventRecyclerAdapter? = null
 
+    private var isUserAdmin: Boolean = false
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
         binding = FragmentEventsBinding.inflate(inflater, container, false)
+
+        if (savedInstanceState == null) {
+            FirestoreClass().isCurrentUserAdmin(this)
+        }
 
         binding.addEventBTN.setOnClickListener {
             val intent = Intent(this.context, EventCreateUpdateActivity::class.java)
@@ -120,27 +132,29 @@ class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback {
             }
         })
 
-        // setup swipe left to edit
-        val editSwipeHandler = object : SwipeToEditCallback(this.requireContext()) {
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                eventAdapter!!.notifyEditItem(
-                    this@EventsFragment,
-                    viewHolder.absoluteAdapterPosition,
-                    EDIT_EVENT_REQUEST_CODE
-                )
+        if (isUserAdmin) {
+            // setup swipe left to edit
+            val editSwipeHandler = object : SwipeToEditCallback(this.requireContext()) {
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    eventAdapter!!.notifyEditItem(
+                        this@EventsFragment,
+                        viewHolder.absoluteAdapterPosition,
+                        EDIT_EVENT_REQUEST_CODE
+                    )
+                }
             }
-        }
-        val editItemTouchHelper = ItemTouchHelper(editSwipeHandler)
-        editItemTouchHelper.attachToRecyclerView(eventRecyclerView)
+            val editItemTouchHelper = ItemTouchHelper(editSwipeHandler)
+            editItemTouchHelper.attachToRecyclerView(eventRecyclerView)
 
-        // setup swipe right to delete
-        val deleteSwipeHandler = object : SwipeToDeleteCallback(this.requireContext()) {
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                eventAdapter!!.removeAt(viewHolder.absoluteAdapterPosition)
+            // setup swipe right to delete
+            val deleteSwipeHandler = object : SwipeToDeleteCallback(this.requireContext()) {
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    eventAdapter!!.removeAt(viewHolder.absoluteAdapterPosition)
+                }
             }
+            val deleteItemTouchHelper = ItemTouchHelper(deleteSwipeHandler)
+            deleteItemTouchHelper.attachToRecyclerView(eventRecyclerView)
         }
-        val deleteItemTouchHelper = ItemTouchHelper(deleteSwipeHandler)
-        deleteItemTouchHelper.attachToRecyclerView(eventRecyclerView)
 
     }
 
@@ -151,5 +165,13 @@ class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback {
     companion object {
         internal const val EVENT_DETAILS = "event_details"
         private const val EDIT_EVENT_REQUEST_CODE = 1
+    }
+
+    override fun isUserAdminSuccess(isAdmin: Boolean) {
+        isUserAdmin = isAdmin
+    }
+
+    override fun isUserAdminFail(e: Exception) {
+        Log.d(TAG, e.message!!)
     }
 }

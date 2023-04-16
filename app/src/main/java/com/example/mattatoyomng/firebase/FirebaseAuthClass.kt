@@ -14,14 +14,14 @@ class FirebaseAuthClass {
 
     private val firebaseAuth = FirebaseAuth.getInstance()
 
-    fun getCurrentUser(): FirebaseUser? {
+    private fun getCurrentFirebaseUser(): FirebaseUser? {
         return firebaseAuth.currentUser
     }
 
     // Function to get the userid of current logged user.
     // Return empty string if no user is logged in.
     fun getCurrentUserID(): String {
-        val currentUser = getCurrentUser()
+        val currentUser = getCurrentFirebaseUser()
         var currentUserID = ""
         if (currentUser != null) {
             currentUserID = currentUser.uid
@@ -89,7 +89,7 @@ class FirebaseAuthClass {
         newPassword: String
     ) {
         CoroutineScopes.IO.launch {
-            val currentUser = getCurrentUser()!!
+            val currentUser = getCurrentFirebaseUser()!!
             val credential =
                 EmailAuthProvider.getCredential(currentUser.email.toString(), password)
             currentUser.reauthenticate(credential)

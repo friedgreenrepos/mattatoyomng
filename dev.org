@@ -20,14 +20,15 @@
 - [X] swipe to edit instead of clicking edit icon
 
 * Functionality
-- [ ] =HashMap= to =MutableMap= in =EventCreateUpdateActivity=
-- [ ] add general todo list
 - [ ] add todo list for event
 - [ ] add people/shifts to event
-  - [ ] send notifications to people added to events
+- [ ] send notifications to people added to events
 - [ ] move =setupactionbar= in =BaseActivity=
 - [ ] show past events option in settings??
 - [ ] forgot password
+- [ ] in main activity line 61: swap string 'Events' for menu item title. How to access title from item?
+- [X] add general todo list
+- [X] =HashMap= to =MutableMap= in =EventCreateUpdateActivity=
 - [X] load +images+ *something* with multi-threading (co-routines??!?)
 - [X] fix search feature
 - [X] =EventDetail= has to update =onResume=!!!!!!!!!! Event details isn't showing update data... Need to update stuff on BACK button. Even in edit event, if you set a reminder without saving it does not reload the list and therefore the info passed to the intent is outdated...

@@ -2,7 +2,6 @@ package com.example.mattatoyomng.firebase
 
 import android.util.Log
 import com.example.mattatoyomng.coroutines.CoroutineScopes
-import com.example.mattatoyomng.fragments.UpdateProfileFragment
 import com.example.mattatoyomng.models.Event
 import com.example.mattatoyomng.models.Todo
 import com.example.mattatoyomng.models.User
@@ -20,6 +19,30 @@ class FirestoreClass {
     private val TAG = "FirestoreClass"
 
     private val dbFirestore = FirebaseFirestore.getInstance()
+
+    interface IsUserAdminCallback {
+        fun isUserAdminSuccess(isAdmin: Boolean)
+        fun isUserAdminFail(e: Exception)
+    }
+    fun isCurrentUserAdmin(callback: IsUserAdminCallback) {
+        CoroutineScopes.IO.launch {
+            dbFirestore.collection(Constants.USERS)
+                .document(FirebaseAuthClass().getCurrentUserID())
+                .get()
+                .addOnSuccessListener { document ->
+                    // Convert document to User object.
+                    val loggedInUser = document.toObject(User::class.java)!!
+                    val isAdmin = loggedInUser.admin
+
+                    Log.d(TAG, "is user ${loggedInUser.username} admin?? $isAdmin")
+                    callback.isUserAdminSuccess(isAdmin)
+                }
+                .addOnFailureListener { e ->
+                    callback.isUserAdminFail(e)
+                }
+        }
+    }
+
 
     interface RegisterUserCallback {
         fun onRegisterUserSuccess()
@@ -47,7 +70,7 @@ class FirestoreClass {
         fun onGetUserDataFail(e: Exception)
     }
 
-    fun loadUserData(callback: GetUserDataCallback) {
+    fun getUserData(callback: GetUserDataCallback) {
         CoroutineScopes.IO.launch {
             dbFirestore.collection(Constants.USERS)
                 .document(FirebaseAuthClass().getCurrentUserID())
@@ -63,19 +86,24 @@ class FirestoreClass {
         }
     }
 
+    interface UpdateProfileCallback {
+        fun onUpdateProfileSuccess()
+        fun onUpdateProfileFail(e: Exception)
+    }
+
     // Function to update user profile using hashmap
-    fun updateUserProfileData(fragment: UpdateProfileFragment, userHashMap: HashMap<String, Any>) {
-        dbFirestore.collection(Constants.USERS)
-            .document(FirebaseAuthClass().getCurrentUserID())
-            .update(userHashMap)
-            .addOnSuccessListener {
-                // User profile has been successfully update.
-                fragment.profileUpdateSuccess()
-            }
-            .addOnFailureListener { e ->
-                // hide progress bar and show error
-                fragment.profileUpdateFail(e)
-            }
+    fun updateUserProfileData(callback: UpdateProfileCallback, userHashMap: HashMap<String, Any>) {
+        CoroutineScopes.IO.launch {
+            dbFirestore.collection(Constants.USERS)
+                .document(FirebaseAuthClass().getCurrentUserID())
+                .update(userHashMap)
+                .addOnSuccessListener {
+                    callback.onUpdateProfileSuccess()
+                }
+                .addOnFailureListener { e ->
+                    callback.onUpdateProfileFail(e)
+                }
+        }
     }
 
     interface CreateEventCallback {
@@ -160,11 +188,6 @@ class FirestoreClass {
                             val event = it.toObject(Event::class.java)
                             event.documentId = it.id
                             eventList.add(event)
-                            Log.d(
-                                TAG, "position = $index, " +
-                                        "id = ${event.documentId}, " +
-                                        "title = ${event.title}"
-                            )
                         }
                     }
                     callback.onGetEventListResult(eventList)
@@ -221,7 +244,7 @@ class FirestoreClass {
                 .addOnSuccessListener {
                     callback.onUpdatePasswordSuccess()
                 }
-                .addOnFailureListener {e ->
+                .addOnFailureListener { e ->
                     callback.onUpdatePasswordFail(e)
                 }
         }
@@ -282,10 +305,8 @@ class FirestoreClass {
                             // assign id to each todo item
                             todo.documentId = it.id
                             todoList.add(todo)
-                            Log.d(TAG, "todo id = ${todo.documentId}")
                         }
                     }
-                    Log.d(TAG, "todo list size = ${todoList.size}")
                     callback.onGetTodoListResult(todoList)
                 }
                 .addOnFailureListener { e ->
@@ -301,14 +322,14 @@ class FirestoreClass {
     }
 
     fun updateTodoStatus(callback: UpdateTodoCallback, documentId: String, isChecked: Boolean) {
-        CoroutineScopes.IO.launch  {
+        CoroutineScopes.IO.launch {
             dbFirestore.collection(Constants.TODOS)
                 .document(documentId)
                 .update("done", isChecked)
                 .addOnSuccessListener {
                     callback.onUpdateTodoSuccess()
                 }
-                .addOnFailureListener {e ->
+                .addOnFailureListener { e ->
                     callback.onUpdateTodoFail(e)
                 }
         }

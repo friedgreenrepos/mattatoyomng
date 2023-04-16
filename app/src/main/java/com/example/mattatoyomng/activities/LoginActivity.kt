@@ -1,22 +1,16 @@
 package com.example.mattatoyomng.activities
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
-import android.util.Log
 import android.view.View
 import android.view.WindowInsets
-import android.view.WindowManager
 import androidx.appcompat.widget.Toolbar
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.databinding.ActivityLoginBinding
 import com.example.mattatoyomng.firebase.FirebaseAuthClass
 import com.example.mattatoyomng.firebase.FirestoreClass
 import com.example.mattatoyomng.models.User
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 
 class LoginActivity : BaseActivity(), FirebaseAuthClass.LoginUserCallback,
     FirestoreClass.GetUserDataCallback {
@@ -113,7 +107,7 @@ class LoginActivity : BaseActivity(), FirebaseAuthClass.LoginUserCallback,
     }
 
     override fun onLoginSuccess() {
-        FirestoreClass().loadUserData(this)
+        FirestoreClass().getUserData(this)
     }
 
 
