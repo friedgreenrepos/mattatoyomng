@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.appcompat.widget.SearchView
-import com.example.mattatoyomng.EventRecyclerAdapter
+import com.example.mattatoyomng.adapters.EventRecyclerAdapter
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.activities.EventCreateUpdateActivity
 import com.example.mattatoyomng.activities.EventDetailActivity
@@ -21,7 +21,6 @@ import com.example.mattatoyomng.models.Event
 import com.example.mattatoyomng.utils.SwipeToDeleteCallback
 import com.example.mattatoyomng.utils.SwipeToEditCallback
 import com.example.mattatoyomng.utils.getTodayTimestamp
-import com.google.firebase.firestore.FirebaseFirestore
 
 class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback {
 
@@ -99,15 +98,12 @@ class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback {
 
 
     override fun onResume() {
-        Log.d(TAG, "onResume()")
         super.onResume()
-        // get event list from firestore
+        // get event list from db
         FirestoreClass().getEventsList(this)
     }
 
-    fun setupEventsRecyclerView(eventList: MutableList<Event>) {
-        Log.d(TAG, "setupEventsRecyclerView()")
-        Log.d(TAG, "event list to pass to adapter size ${eventList.size}")
+    private fun setupEventsRecyclerView(eventList: MutableList<Event>) {
         // setup event adapter using event list from firestore
         eventRecyclerView?.setHasFixedSize(true)
         eventRecyclerView?.layoutManager = LinearLayoutManager(activity)
@@ -140,7 +136,6 @@ class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback {
         // setup swipe right to delete
         val deleteSwipeHandler = object : SwipeToDeleteCallback(this.requireContext()) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                Log.d(TAG, "onDelete Swiped position: ${viewHolder.absoluteAdapterPosition}")
                 eventAdapter!!.removeAt(viewHolder.absoluteAdapterPosition)
             }
         }

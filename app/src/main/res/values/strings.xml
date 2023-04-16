@@ -99,5 +99,10 @@
 	<string name="management">Management</string>
 	<string name="todo">Todo</string>
 	<string name="add_event">Add event</string>
+	<string name="checkbox">checkbox</string>
+	<string name="add_todo">Add todo item</string>
+	<string name="add_new_todo">Add new todo</string>
+	<string name="todo_create_success">Todo item successfully added</string>
+	<string name="todo_create_fail">Couldn\'t add todo</string>
 
 </resources>

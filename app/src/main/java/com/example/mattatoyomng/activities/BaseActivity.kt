@@ -137,7 +137,7 @@ open class BaseActivity : AppCompatActivity() {
     }
 
     // function to show and alert for notification
-    fun showAlert(time: Long, title: String, message: String) {
+    fun showNotificationAlert(time: Long, title: String, message: String) {
         val date = Date(time)
         val dateFormat = DateFormat.getLongDateFormat(applicationContext)
         val timeFormat = DateFormat.getTimeFormat(applicationContext)

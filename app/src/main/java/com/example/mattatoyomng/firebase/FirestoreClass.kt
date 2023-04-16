@@ -1,21 +1,18 @@
 package com.example.mattatoyomng.firebase
 
-import android.app.Activity
 import android.util.Log
-import androidx.fragment.app.Fragment
-import com.example.mattatoyomng.activities.EventCreateUpdateActivity
-import com.example.mattatoyomng.activities.LoginActivity
-import com.example.mattatoyomng.activities.MainActivity
 import com.example.mattatoyomng.coroutines.CoroutineScopes
 import com.example.mattatoyomng.fragments.UpdatePasswordFragment
 import com.example.mattatoyomng.fragments.UpdateProfileFragment
 import com.example.mattatoyomng.models.Event
+import com.example.mattatoyomng.models.Todo
 import com.example.mattatoyomng.models.User
 import com.example.mattatoyomng.utils.Constants
 import com.example.mattatoyomng.utils.getTodayTimestamp
 import com.example.mattatoyomng.utils.logThread
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.launch
 
@@ -232,6 +229,74 @@ class FirestoreClass {
             .addOnFailureListener { e ->
                 fragment.authenticationFail(e)
             }
+    }
+
+    interface CreateTodoCallback {
+        fun onCreateTodoSuccess()
+        fun onCreateTodoError(e: Exception)
+    }
+
+    fun createTodo(callback: CreateTodoCallback, todo: Todo) {
+        CoroutineScopes.IO.launch {
+            dbFirestore.collection(Constants.TODOS)
+                .document()
+                .set(todo, SetOptions.merge())
+                .addOnSuccessListener {
+                    callback.onCreateTodoSuccess()
+                }
+                .addOnFailureListener { e ->
+                    callback.onCreateTodoError(e)
+                }
+        }
+    }
+
+    interface DeleteTodoCallback {
+        fun onDeleteTodoSuccess(position: Int)
+        fun onDeleteTodoFail(e: Exception)
+    }
+
+    fun deleteTodo(callback: DeleteTodoCallback, documentId: String, position: Int) {
+        CoroutineScopes.IO.launch {
+            dbFirestore.collection(Constants.TODOS)
+                .document(documentId)
+                .delete()
+                .addOnSuccessListener {
+                    callback.onDeleteTodoSuccess(position)
+                }
+                .addOnFailureListener { e ->
+                    callback.onDeleteTodoFail(e)
+                }
+        }
+    }
+
+    interface GetTodoListCallback {
+        fun onGetTodoListResult(todoList: MutableList<Todo>)
+    }
+
+    fun getTodoList(callback: GetTodoListCallback) {
+        CoroutineScopes.IO.launch {
+            dbFirestore.collection(Constants.TODOS)
+                .orderBy("dateAdded", Query.Direction.DESCENDING)
+                .get()
+                .addOnSuccessListener { documents ->
+                    val todoList: MutableList<Todo> = mutableListOf()
+                    if (!documents.isEmpty) {
+                        documents.forEach {
+                            val todo = it.toObject(Todo::class.java)
+                            // assign id to each todo item
+                            todo.documentId = it.id
+                            todoList.add(todo)
+                            Log.d(TAG, "todo id = ${todo.documentId}")
+                        }
+                    }
+                    Log.d(TAG, "todo list size = ${todoList.size}")
+                    callback.onGetTodoListResult(todoList)
+                }
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "ERROR GETTING TODO LIST: $e")
+                    callback.onGetTodoListResult(mutableListOf())
+                }
+        }
     }
 
 }

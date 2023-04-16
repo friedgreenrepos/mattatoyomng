@@ -1,4 +1,4 @@
-package com.example.mattatoyomng
+package com.example.mattatoyomng.adapters
 
 import android.content.Context
 import android.content.Intent
@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.mattatoyomng.R
 import com.example.mattatoyomng.activities.EventCreateUpdateActivity
 import com.example.mattatoyomng.databinding.ItemEventBinding
 import com.example.mattatoyomng.firebase.FirestoreClass
@@ -116,20 +117,14 @@ class EventRecyclerAdapter(
         FirestoreClass().deleteEvent(this, documentId, position)
     }
 
-    interface DeleteEventCallback2 {
-        fun onDeleteEventSuccess()
-    }
-
     override fun onDeleteEventSuccess(position: Int) {
-        Log.d(TAG, "eventList size = ${eventList.size}")
-        Log.d(TAG, "remove at position = $position")
         eventList.removeAt(position)
         notifyItemRemoved(position)
     }
 
     override fun onDeleteEventFail(e: Exception) {
-        // TODO: add callback to avoid creating fragment
-        Log.d(TAG, "EVENT DELETE FAIL")
+        // TODO: avoid creating fragment
+        Log.d(TAG, "EVENT DELETE FAIL: $e")
         val fragment = EventsFragment()
         fragment.showErrorSnackBar(fragment.resources.getString(R.string.delete_event_fail))
     }

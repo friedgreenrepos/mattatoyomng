@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
+
+	<data>
+		<variable
+			name="todo"
+			type="com.example.mattatoyomng.models.Todo" />
+	</data>
+
+	<androidx.cardview.widget.CardView
+		android:id="@+id/todoCard"
+		android:layout_width="match_parent"
+		android:layout_height="80dp"
+		app:cardCornerRadius="5dp"
+		android:layout_margin="5dp">
+
+		<LinearLayout
+			android:orientation="horizontal"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent">
+
+			<ImageButton
+				android:id="@+id/checkboxBTN"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:scaleY="1.5"
+				android:scaleX="1.5"
+				android:contentDescription="@string/checkbox"
+				android:layout_marginHorizontal="15dp"
+				android:src="@drawable/unchecked_box"
+				android:backgroundTint="@android:color/transparent"
+				app:tint="@color/matta_blue" />
+
+			<TextView
+				android:id="@+id/todoTV"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:text="@{todo.text}"
+				style="@style/TextAppearance.AppCompat.Title"
+				android:layout_gravity="center"
+				android:layout_weight="1" />
+
+			<ImageButton
+				android:id="@+id/deleteTodoBTN"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:scaleY="1.2"
+				android:scaleX="1.2"
+				android:contentDescription="@string/delete"
+				android:layout_marginHorizontal="15dp"
+				android:src="@drawable/ic_close"
+				android:backgroundTint="@android:color/transparent"
+				app:tint="@color/matta_blue" />
+
+		</LinearLayout>
+
+	</androidx.cardview.widget.CardView>
+</layout>

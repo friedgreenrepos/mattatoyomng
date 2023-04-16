@@ -17,6 +17,7 @@ import com.example.mattatoyomng.databinding.ActivityMainBinding
 import com.example.mattatoyomng.firebase.FirebaseAuthClass
 import com.example.mattatoyomng.firebase.FirestoreClass
 import com.example.mattatoyomng.fragments.EventsFragment
+import com.example.mattatoyomng.fragments.TodoListFragment
 import com.example.mattatoyomng.fragments.UpdatePasswordFragment
 import com.example.mattatoyomng.fragments.UpdateProfileFragment
 import com.example.mattatoyomng.models.User
@@ -89,6 +90,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         when (item.itemId) {
             R.id.eventsItem -> {
                 replaceFragment(EventsFragment(), item.title.toString())
+            }
+            R.id.todoItem -> {
+                replaceFragment(TodoListFragment(), item.title.toString())
             }
 
             R.id.updateProfileItem -> {
