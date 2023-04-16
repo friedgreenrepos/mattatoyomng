@@ -3,7 +3,6 @@ package com.example.mattatoyomng.firebase
 import android.app.Activity
 import android.util.Log
 import androidx.fragment.app.Fragment
-import com.example.mattatoyomng.R
 import com.example.mattatoyomng.activities.*
 import com.example.mattatoyomng.coroutines.CoroutineScopes
 import com.example.mattatoyomng.fragments.EventsFragment
@@ -18,7 +17,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.*
-import kotlinx.coroutines.tasks.await
 import java.util.*
 
 class FirestoreClass {
@@ -220,19 +218,22 @@ class FirestoreClass {
     }
 
     interface DeleteEventCallback {
-        fun onDeleteEventSuccess()
-        fun onDeleteEventFail()
+        fun onDeleteEventSuccess(documentId: String)
+        fun onDeleteEventFail(e: Exception)
     }
 
-    fun deleteEvent(fragment: EventsFragment, documentId: String) {
+    fun deleteEvent(callback: DeleteEventCallback, documentId: String) {
         CoroutineScopes.IO.launch {
             dbFirestore.collection(Constants.EVENTS)
                 .document(documentId)
                 .delete()
-                .await()
-            withContext(Dispatchers.Main) {
-                fragment.showInfoSnackBar(fragment.resources.getString(R.string.delete_event_success))
-            }
+                .addOnSuccessListener {
+                    callback.onDeleteEventSuccess(documentId)
+                }
+                .addOnFailureListener { e ->
+                    callback.onDeleteEventFail(e)
+                }
+
         }
     }
 

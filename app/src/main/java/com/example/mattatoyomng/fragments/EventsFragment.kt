@@ -30,9 +30,6 @@ class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback {
     private var eventRecyclerView: RecyclerView? = null
     private var eventAdapter: EventRecyclerAdapter? = null
 
-    // Firebase references
-    private var db = FirebaseFirestore.getInstance()
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -60,6 +57,7 @@ class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.event_menu, menu)
             }
+
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 // Handle the menu selection
                 val searchView = menuItem.actionView as SearchView
@@ -117,7 +115,7 @@ class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback {
                 it.notifyDataSetChanged()
 
                 // click on item to see detail activity
-                it.setOnClickListener(object : EventRecyclerAdapter.OnClickListener{
+                it.setOnClickListener(object : EventRecyclerAdapter.OnClickListener {
                     override fun onClick(position: Int, model: Event) {
                         val intent = Intent(requireContext(), EventDetailActivity::class.java)
                         intent.putExtra(EVENT_DETAILS, model)
@@ -141,11 +139,7 @@ class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback {
                 // setup swipe right to delete
                 val deleteSwipeHandler = object : SwipeToDeleteCallback(this.requireContext()) {
                     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                        it.removeAt(
-                            this@EventsFragment,
-                            viewHolder.absoluteAdapterPosition
-                        )
-                        FirestoreClass().getEventsList(this@EventsFragment)
+                        it.removeAt(viewHolder.absoluteAdapterPosition)
                     }
                 }
                 val deleteItemTouchHelper = ItemTouchHelper(deleteSwipeHandler)

@@ -19,8 +19,12 @@ import com.example.mattatoyomng.utils.hide
 import com.example.mattatoyomng.utils.timeFormatter
 import java.io.IOException
 
-class EventRecyclerAdapter(private val context: Context, private val eventList: MutableList<Event>) :
-    RecyclerView.Adapter<EventRecyclerAdapter.EventViewHolder>() {
+class EventRecyclerAdapter(
+    private val context: Context,
+    private val eventList: MutableList<Event>
+) :
+    RecyclerView.Adapter<EventRecyclerAdapter.EventViewHolder>(),
+    FirestoreClass.DeleteEventCallback {
 
     private var TAG = "EventRecyclerAdapter"
 
@@ -107,12 +111,27 @@ class EventRecyclerAdapter(private val context: Context, private val eventList: 
         notifyItemChanged(position)
     }
 
-    fun removeAt(fragment: EventsFragment, position: Int) {
+    fun removeAt(position: Int) {
         val documentId = eventList[position].documentId
-        FirestoreClass().deleteEvent(fragment, documentId)
-        // TODO: what if delete is not successful???
-        eventList.removeAt(position)
-        notifyItemRemoved(position)
+        FirestoreClass().deleteEvent(this, documentId)
+    }
 
+    override fun onDeleteEventSuccess(documentId: String) {
+        var position: Int? = null
+        eventList.forEachIndexed { index, event ->
+            if (event.documentId == documentId) {
+                position = index
+            }
+        }
+        if (position != null) {
+            eventList.removeAt(position!!)
+            notifyItemRemoved(position!!)
+        }
+    }
+
+    override fun onDeleteEventFail(e: Exception) {
+        Log.d(TAG, "EVENT DELETE FAIL")
+        val fragment = EventsFragment()
+        fragment.showErrorSnackBar(fragment.resources.getString(R.string.delete_event_fail))
     }
 }
