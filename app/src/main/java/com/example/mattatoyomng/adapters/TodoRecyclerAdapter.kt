@@ -15,7 +15,8 @@ class TodoRecyclerAdapter(
     private val context: Context,
     private val todoList: MutableList<Todo>
 ) : RecyclerView.Adapter<TodoRecyclerAdapter.TodoViewHolder>(),
-    FirestoreClass.DeleteTodoCallback {
+    FirestoreClass.DeleteTodoCallback,
+    FirestoreClass.UpdateTodoCallback {
 
     private var TAG = "TodoRecyclerAdapter"
 
@@ -42,6 +43,10 @@ class TodoRecyclerAdapter(
         holder.bind(todo)
         binding.deleteTodoBTN.setOnClickListener {
             removeAt(position)
+        }
+        binding.todoCheckbox.setOnCheckedChangeListener { _, isChecked ->
+            val documentId = todoList[position].documentId
+            FirestoreClass().updateTodoStatus(this, documentId, isChecked)
         }
     }
 
@@ -71,5 +76,13 @@ class TodoRecyclerAdapter(
         Log.d(TAG, "TODO DELETE FAIL: $e")
         val fragment = TodoListFragment()
         fragment.showErrorSnackBar(fragment.resources.getString(R.string.delete_event_fail))
+    }
+
+    override fun onUpdateTodoSuccess() {
+        Log.d(TAG, "Todo updated successfully")
+    }
+
+    override fun onUpdateTodoFail(e: Exception) {
+        Log.d(TAG, "Todo update failed")
     }
 }

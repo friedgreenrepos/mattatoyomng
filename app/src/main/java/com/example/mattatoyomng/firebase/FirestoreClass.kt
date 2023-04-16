@@ -299,4 +299,23 @@ class FirestoreClass {
         }
     }
 
+    interface UpdateTodoCallback {
+        fun onUpdateTodoSuccess()
+        fun onUpdateTodoFail(e: Exception)
+    }
+
+    fun updateTodoStatus(callback: UpdateTodoCallback, documentId: String, isChecked: Boolean) {
+        CoroutineScopes.IO.launch  {
+            dbFirestore.collection(Constants.TODOS)
+                .document(documentId)
+                .update("done", isChecked)
+                .addOnSuccessListener {
+                    callback.onUpdateTodoSuccess()
+                }
+                .addOnFailureListener {e ->
+                    callback.onUpdateTodoFail(e)
+                }
+        }
+    }
+
 }

@@ -3,6 +3,7 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<data>
+
 		<variable
 			name="todo"
 			type="com.example.mattatoyomng.models.Todo" />
@@ -20,18 +21,13 @@
 			android:layout_width="match_parent"
 			android:layout_height="match_parent">
 
-			<ImageButton
-				android:id="@+id/checkboxBTN"
-				android:layout_width="wrap_content"
+			<com.google.android.material.checkbox.MaterialCheckBox
+				android:id="@+id/todoCheckbox"
 				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"
 				android:layout_gravity="center"
-				android:scaleY="1.5"
-				android:scaleX="1.5"
-				android:contentDescription="@string/checkbox"
-				android:layout_marginHorizontal="15dp"
-				android:src="@drawable/unchecked_box"
-				android:backgroundTint="@android:color/transparent"
-				app:tint="@color/matta_blue" />
+				android:layout_marginStart="10dp"
+				android:checked="@{todo.done}"/>
 
 			<TextView
 				android:id="@+id/todoTV"
@@ -47,13 +43,13 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_gravity="center"
-				android:scaleY="1.2"
-				android:scaleX="1.2"
+				android:scaleY="1"
+				android:scaleX="1"
 				android:contentDescription="@string/delete"
 				android:layout_marginHorizontal="15dp"
 				android:src="@drawable/ic_close"
 				android:backgroundTint="@android:color/transparent"
-				app:tint="@color/matta_blue" />
+				app:tint="@color/colorSecondary" />
 
 		</LinearLayout>
 

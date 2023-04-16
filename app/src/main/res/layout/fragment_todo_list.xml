@@ -20,7 +20,7 @@
 		android:layout_gravity="end|bottom"
 		android:layout_margin="20dp"
 		app:tint="@color/white"
-		app:backgroundTint="@color/matta_blue"
+		app:backgroundTint="@color/colorSecondary"
 		app:srcCompat="@drawable/ic_add"
 		android:contentDescription="@string/add_todo" />
 
