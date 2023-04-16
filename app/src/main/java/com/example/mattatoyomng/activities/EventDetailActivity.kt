@@ -23,7 +23,8 @@ import com.google.firebase.Timestamp
 import java.io.IOException
 import java.util.*
 
-class EventDetailActivity : BaseActivity(), View.OnClickListener {
+class EventDetailActivity : BaseActivity(), View.OnClickListener,
+    FirestoreClass.UpdateEventCallback {
 
     val TAG: String = "EventDetailActivity"
 
@@ -147,6 +148,7 @@ class EventDetailActivity : BaseActivity(), View.OnClickListener {
         }
     }
 
+
     private fun saveEvent() {
         // make progress bar visible
         binding.eventDetailPB.visibility = View.VISIBLE
@@ -166,19 +168,10 @@ class EventDetailActivity : BaseActivity(), View.OnClickListener {
         eventHashMap[Constants.REMINDER] = userReminderMap
 
         FirestoreClass().updateEvent(
-            this@EventDetailActivity,
+            this,
             eventHashMap,
             eventDetails!!.documentId
         )
-    }
-
-    // Function to call when event upload is successful:
-    // hide progress bar and go to main activity
-    fun eventUploadSuccess() {
-        binding.eventDetailPB.visibility = View.INVISIBLE
-        showInfoSnackBar(resources.getString(R.string.update_event_success))
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
     }
 
     private fun showSaveBtn() {
@@ -318,6 +311,31 @@ class EventDetailActivity : BaseActivity(), View.OnClickListener {
             time,
             pendingIntent
         )
+    }
+
+    // Function to call when event upload is successful:
+    // hide progress bar and go to main activity
+    private fun eventUpdateSuccess() {
+        binding.eventDetailPB.visibility = View.INVISIBLE
+        showInfoSnackBar(resources.getString(R.string.update_event_success))
+        finish()
+    }
+
+    // Function to call when event update fails:
+    // hide progress bar and show error
+    private fun eventUpdateFail(e: Exception) {
+        binding.eventDetailPB.visibility = View.INVISIBLE
+        val msg = resources.getString(R.string.update_event_fail) + ": " + e
+        showErrorSnackBar(msg)
+        finish()
+    }
+
+    override fun onUpdateEventSuccess() {
+        eventUpdateSuccess()
+    }
+
+    override fun onUpdateEventError(e: Exception) {
+        eventUpdateFail(e)
     }
 
 }

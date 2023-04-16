@@ -19,7 +19,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import com.bumptech.glide.Glide
 import com.example.mattatoyomng.R
-import com.example.mattatoyomng.databinding.ActivityCreateEventBinding
+import com.example.mattatoyomng.databinding.ActivityEventCreateUpdateBinding
 import com.example.mattatoyomng.firebase.FirestoreClass
 import com.example.mattatoyomng.fragments.EventsFragment
 import com.example.mattatoyomng.models.*
@@ -31,17 +31,20 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import java.io.IOException
 import java.util.*
+import kotlin.Exception
 
 
-class CreateEventActivity : BaseActivity(), View.OnClickListener {
+class EventCreateUpdateActivity : BaseActivity(), View.OnClickListener,
+    FirestoreClass.UpdateEventCallback, FirestoreClass.CreateEventCallback {
 
     val TAG: String = "CreateEventActivity"
 
     // binding
-    private lateinit var binding: ActivityCreateEventBinding
+    private lateinit var binding: ActivityEventCreateUpdateBinding
 
     // Toolbar
     private lateinit var toolbar: Toolbar
+    private var toolbarTitle: String = ""
 
     // Firebase
     private lateinit var auth: FirebaseAuth
@@ -77,7 +80,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityCreateEventBinding.inflate(layoutInflater)
+        binding = ActivityEventCreateUpdateBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
@@ -130,23 +133,26 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
         // if eventDetails exists -> create event
         // else -> edit event
         binding.apply {
+            // toolbar
             toolbar = toolbarCreateEvent
-            eventDateTV.setOnClickListener(this@CreateEventActivity)
-            eventTimeTV.setOnClickListener(this@CreateEventActivity)
+            toolbarTitle = "Create event"
+            // event date and time picker listeners
+            eventDateTV.setOnClickListener(this@EventCreateUpdateActivity)
+            eventTimeTV.setOnClickListener(this@EventCreateUpdateActivity)
             // upload image listener
-            addEventImageTV.setOnClickListener(this@CreateEventActivity)
+            addEventImageTV.setOnClickListener(this@EventCreateUpdateActivity)
             // save/update event listener
-            saveEventBTN.setOnClickListener(this@CreateEventActivity)
+            saveEventBTN.setOnClickListener(this@EventCreateUpdateActivity)
             // add tags listener
-            addTagLL.setOnClickListener(this@CreateEventActivity)
+            addTagLL.setOnClickListener(this@EventCreateUpdateActivity)
             // set reminder listener
-            addReminderTV.setOnClickListener(this@CreateEventActivity)
+            addReminderTV.setOnClickListener(this@EventCreateUpdateActivity)
             // delete reminder listener
-            reminderDateTV.setOnClickListener(this@CreateEventActivity)
+            reminderDateTV.setOnClickListener(this@EventCreateUpdateActivity)
 
             // load event data if event details is passed in intent
             if (eventDetails != null) {
-                setupActionBarEdit()
+                toolbarTitle = "Edit event"
                 eventTitleET.setText(eventDetails!!.title)
                 eventDescriptionET.setText(eventDetails!!.description)
                 eventDateTV.text = dateFormatter(eventDetails!!.date, applicationContext)
@@ -159,7 +165,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 saveEventBTN.text = resources.getString(R.string.update)
                 try {
                     Glide
-                        .with(this@CreateEventActivity)
+                        .with(this@EventCreateUpdateActivity)
                         .load(eventDetails!!.eventImgURL)
                         .centerCrop()
                         .placeholder(R.drawable.image_red_transparency4)
@@ -169,21 +175,22 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                     Log.e(TAG, "Error loading event image: ${e.message}")
                 }
             } else {
-                setupActionBarCreate()
                 // populate date TV with today's date and time TV with current time
                 updateDateInView()
                 updateTimeInView()
                 // set event owner to current user
-                FirestoreClass().loadUserData(this@CreateEventActivity)
+                FirestoreClass().loadUserData(this@EventCreateUpdateActivity)
             }
         }
+
+        setupActionBar(toolbarTitle)
     }
 
     override fun onClick(v: View?) {
         when (v!!.id) {
             R.id.eventDateTV -> {
                 DatePickerDialog(
-                    this@CreateEventActivity,
+                    this@EventCreateUpdateActivity,
                     dateSetListener,
                     eventCal.get(Calendar.YEAR),
                     eventCal.get(Calendar.MONTH),
@@ -192,11 +199,11 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
             }
             R.id.eventTimeTV -> {
                 TimePickerDialog(
-                    this@CreateEventActivity,
+                    this@EventCreateUpdateActivity,
                     timeSetListener,
                     eventCal.get(Calendar.HOUR_OF_DAY),
                     eventCal.get(Calendar.MINUTE),
-                    DateFormat.is24HourFormat(this@CreateEventActivity)
+                    DateFormat.is24HourFormat(this@EventCreateUpdateActivity)
                 ).show()
             }
             R.id.addEventImageTV -> {
@@ -217,6 +224,19 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 reminderTimestamp = null
             }
         }
+    }
+
+    private fun setupActionBar(toolbarTitle: String) {
+        setSupportActionBar(toolbar)
+        val actionBar = supportActionBar
+
+        // add back button and back navigation functionality and remove title
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true)
+            actionBar.setHomeAsUpIndicator(R.drawable.arrow_back_white)
+            actionBar.title = toolbarTitle
+        }
+        toolbar.setNavigationOnClickListener { onBackPressed() }
     }
 
     private fun createNotificationChannel() {
@@ -290,7 +310,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
 
     override fun showReminderDatePicker() {
         DatePickerDialog(
-            this@CreateEventActivity,
+            this@EventCreateUpdateActivity,
             reminderDateSetListener,
             reminderCal.get(Calendar.YEAR),
             reminderCal.get(Calendar.MONTH),
@@ -301,11 +321,11 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
     // show time picker
     private fun showReminderTimePicker() {
         TimePickerDialog(
-            this@CreateEventActivity,
+            this@EventCreateUpdateActivity,
             reminderTimeSetListener,
             reminderCal.get(Calendar.HOUR_OF_DAY),
             reminderCal.get(Calendar.MINUTE),
-            DateFormat.is24HourFormat(this@CreateEventActivity)
+            DateFormat.is24HourFormat(this@EventCreateUpdateActivity)
         ).show()
     }
 
@@ -317,32 +337,6 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
         binding.addReminderTV.visibility = View.INVISIBLE
         binding.reminderDateTV.visibility = View.VISIBLE
         binding.reminderDateTV.text = reminderString
-    }
-
-    private fun setupActionBarCreate() {
-        setSupportActionBar(toolbar)
-        val actionBar = supportActionBar
-
-        // add back button and back navigation functionality and remove title
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true)
-            actionBar.setHomeAsUpIndicator(R.drawable.arrow_back_white)
-            actionBar.title = "Create event"
-        }
-        toolbar.setNavigationOnClickListener { onBackPressed() }
-    }
-
-    private fun setupActionBarEdit() {
-        setSupportActionBar(toolbar)
-        val actionBar = supportActionBar
-
-        // add back button and back navigation functionality and remove title
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true)
-            actionBar.setHomeAsUpIndicator(R.drawable.arrow_back_white)
-            actionBar.title = "Edit event"
-        }
-        toolbar.setNavigationOnClickListener { onBackPressed() }
     }
 
     // ActivityResultLauncher to open gallery
@@ -357,7 +351,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 // show selected image
                 try {
                     Glide
-                        .with(this@CreateEventActivity)
+                        .with(this@EventCreateUpdateActivity)
                         .load(Uri.parse(eventImageUri.toString()))
                         .centerCrop()
                         .placeholder(R.drawable.user_white_80)
@@ -460,7 +454,7 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                 eventHashMap[Constants.TAGS] = eventTagsList
 
                 FirestoreClass().updateEvent(
-                    this@CreateEventActivity,
+                    this,
                     eventHashMap,
                     eventDetails!!.documentId
                 )
@@ -476,27 +470,9 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
                     title.lowercase(),
                     userReminderMap,
                 )
-                FirestoreClass().createEvent(this@CreateEventActivity, event)
+                FirestoreClass().createEvent(this, event)
             }
         }
-    }
-
-    // Function to call when event upload is successful:
-    // hide progress bar and go to main activity
-    fun eventUploadSuccess() {
-        binding.createEventPB.visibility = View.INVISIBLE
-        showInfoSnackBar(resources.getString(R.string.update_event_success))
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
-        // this way we can't go back to create event >:)
-        finish()
-    }
-
-    // Function to call when event upload fails:
-    // hide progress bar and show error
-    fun eventUploadFail(msg: String) {
-        binding.createEventPB.visibility = View.INVISIBLE
-        showErrorSnackBar(msg)
     }
 
     private fun validateEventForm(name: String, date: Timestamp): Boolean {
@@ -578,6 +554,55 @@ class CreateEventActivity : BaseActivity(), View.OnClickListener {
             binding.reminderDateTV.visibility = View.VISIBLE
             binding.reminderDateTV.text = reminderString
         }
+    }
+
+        // Function to call when event update is successful:
+    // hide progress bar and go to main activity
+    private fun eventUpdateSuccess() {
+        binding.createEventPB.visibility = View.INVISIBLE
+        showInfoSnackBar(resources.getString(R.string.update_event_success))
+        finish()
+    }
+
+    // Function to call when event update fails:
+    // hide progress bar and show error
+    private fun eventUpdateFail(e: Exception) {
+        binding.createEventPB.visibility = View.INVISIBLE
+        val msg = resources.getString(R.string.update_event_fail) + ": " + e
+        showErrorSnackBar(msg)
+        finish()
+    }
+
+    // Function to call when event create is successful:
+    // hide progress bar and go to main activity
+    private fun eventCreateSuccess() {
+        binding.createEventPB.visibility = View.INVISIBLE
+        showInfoSnackBar(resources.getString(R.string.create_event_success))
+        finish()
+    }
+
+    // Function to call when event create fails:
+    // hide progress bar and show error
+    private fun eventCreateFail(e: Exception) {
+        binding.createEventPB.visibility = View.INVISIBLE
+        val msg = resources.getString(R.string.create_event_fail) + ": " + e
+        showErrorSnackBar(msg)
+        finish()
+    }
+
+    override fun onUpdateEventSuccess() {
+        eventUpdateSuccess()
+    }
+    override fun onUpdateEventError(e: Exception) {
+        eventUpdateFail(e)
+    }
+
+    override fun onCreateEventError(e: Exception) {
+        eventCreateFail(e)
+    }
+
+    override fun onCreateEventSuccess() {
+        eventCreateSuccess()
     }
 
 }

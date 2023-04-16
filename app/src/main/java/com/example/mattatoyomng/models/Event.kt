@@ -15,4 +15,5 @@ data class Event(
     val keywords: String = "",
     val userReminderMap: MutableMap<String, Timestamp> = mutableMapOf(),
     var documentId: String = "",
+    val staff: MutableList<String> = arrayListOf(),
 ) : Parcelable

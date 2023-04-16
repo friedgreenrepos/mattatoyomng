@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.fragment.app.Fragment
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.activities.*
+import com.example.mattatoyomng.coroutines.CoroutineScopes
 import com.example.mattatoyomng.fragments.EventsFragment
 import com.example.mattatoyomng.fragments.UpdatePasswordFragment
 import com.example.mattatoyomng.fragments.UpdateProfileFragment
@@ -19,7 +20,6 @@ import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
 import java.util.*
-
 
 class FirestoreClass {
 
@@ -56,6 +56,7 @@ class FirestoreClass {
     }
 
     fun loadUserData(activity: Activity? = null, fragment: Fragment? = null) {
+
         // Here we pass the collection name from which we wants the data.
         dbFirestore.collection(Constants.USERS)
             // The document id to get the Fields of user.
@@ -75,7 +76,7 @@ class FirestoreClass {
                         is MainActivity -> {
                             activity.updateNavigationUserDetails(loggedInUser)
                         }
-                        is CreateEventActivity -> {
+                        is EventCreateUpdateActivity -> {
                             activity.setEventOwner(loggedInUser)
                         }
                     }
@@ -104,7 +105,7 @@ class FirestoreClass {
                         is MainActivity -> {
                             activity.showErrorSnackBar("Error loading user data")
                         }
-                        is CreateEventActivity -> {
+                        is EventCreateUpdateActivity -> {
                             activity.showErrorSnackBar("Error loading user data")
                         }
                     }
@@ -139,81 +140,92 @@ class FirestoreClass {
             }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
-    fun createEvent(activity: CreateEventActivity, event: Event) {
-        GlobalScope.launch(Dispatchers.IO) {
+    interface CreateEventCallback {
+        fun onCreateEventSuccess()
+        fun onCreateEventError(e: Exception)
+    }
+
+    fun createEvent(callback: CreateEventCallback, event: Event) {
+        CoroutineScopes.IO.launch {
             dbFirestore.collection(Constants.EVENTS)
                 .document()
                 .set(event, SetOptions.merge())
-                .await()
-            withContext(Dispatchers.Main) {
-                activity.eventUploadSuccess()
-            }
+                .addOnSuccessListener {
+                    callback.onCreateEventSuccess()
+                }
+                .addOnFailureListener{e ->
+                    callback.onCreateEventError(e)
+                }
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
+    interface UpdateEventCallback {
+        fun onUpdateEventSuccess()
+        fun onUpdateEventError(e: Exception)
+    }
+
+
     fun updateEvent(
-        activity: Activity,
+        callback: UpdateEventCallback,
         eventHashMap: HashMap<String, Any?>,
         documentId: String,
-        showMessage: Boolean = true
     ) {
-
-        GlobalScope.launch(Dispatchers.IO) {
+        CoroutineScopes.IO.launch {
             dbFirestore.collection(Constants.EVENTS)
                 .document(documentId)
                 .update(eventHashMap)
-                .await()
-            withContext(Dispatchers.Main) {
-                when (activity) {
-                    is EventDetailActivity -> {
-                        activity.eventUploadSuccess()
-                    }
-                    is CreateEventActivity -> {
-                        if (showMessage){
-                            activity.eventUploadSuccess()
-                        }
-                    }
+                .addOnSuccessListener {
+                    callback.onUpdateEventSuccess()
                 }
-            }
+                .addOnFailureListener {e ->
+                    callback.onUpdateEventError(e)
+                }
         }
     }
 
-    fun getEventsList(fragment: EventsFragment) {
-        // define today
-        val cal = Calendar.getInstance()
-        cal.set(Calendar.HOUR_OF_DAY, 0)
-        cal.set(Calendar.MINUTE, 0)
-        val today = Timestamp(cal.time)
-        // get events after today (included) and order them by date
-        val storageRef = dbFirestore.collection(Constants.EVENTS)
-            .whereGreaterThanOrEqualTo("date", today)
-            .orderBy("date")
-        storageRef.get()
-            .addOnSuccessListener { documents ->
-                Log.d(TAG, "n.of events in db = ${documents.size()}")
-                val eventList: MutableList<Event> = mutableListOf()
-                if (!documents.isEmpty) {
-                    documents.forEach {
-                        // convert snapshots to Event objects
-                        val event = it.toObject(Event::class.java)
-                        event.documentId = it.id
-                        eventList.add(event)
-                    }
-                }
-                fragment.setupEventsRecyclerView(eventList)
-            }
-            .addOnFailureListener {
-                val msg = "ERROR: ${it.message}"
-                Log.e(TAG, msg)
-                fragment.showErrorSnackBar(msg)
-            }
+    interface GetEventListCallback {
+        fun onGetEventListResult(eventList: MutableList<Event>)
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
+    fun getEventsList(callback: GetEventListCallback) {
+        CoroutineScopes.IO.launch {
+            // define today
+            val cal = Calendar.getInstance()
+            cal.set(Calendar.HOUR_OF_DAY, 0)
+            cal.set(Calendar.MINUTE, 0)
+            val today = Timestamp(cal.time)
+            // get events after today (included) and order them by date
+            val storageRef = dbFirestore.collection(Constants.EVENTS)
+                .whereGreaterThanOrEqualTo("date", today)
+                .orderBy("date")
+            storageRef.get()
+                .addOnSuccessListener { documents ->
+                    val eventList: MutableList<Event> = mutableListOf()
+                    if (!documents.isEmpty) {
+                        documents.forEach {
+                            // convert snapshots to Event objects
+                            val event = it.toObject(Event::class.java)
+                            event.documentId = it.id
+                            eventList.add(event)
+                        }
+                    }
+                    callback.onGetEventListResult(eventList)
+                }
+                .addOnFailureListener {
+                    val msg = "ERROR: ${it.message}"
+                    Log.e(TAG, msg)
+                    callback.onGetEventListResult(mutableListOf())
+                }
+        }
+    }
+
+    interface DeleteEventCallback {
+        fun onDeleteEventSuccess()
+        fun onDeleteEventFail()
+    }
+
     fun deleteEvent(fragment: EventsFragment, documentId: String) {
-        GlobalScope.launch(Dispatchers.IO) {
+        CoroutineScopes.IO.launch {
             dbFirestore.collection(Constants.EVENTS)
                 .document(documentId)
                 .delete()

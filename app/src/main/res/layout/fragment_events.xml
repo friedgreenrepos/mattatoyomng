@@ -42,6 +42,6 @@
 		app:tint="@color/white"
 		app:backgroundTint="@color/colorPrimary"
 		app:srcCompat="@drawable/ic_add"
-		android:contentDescription="Add event" />
+		android:contentDescription="@string/add_event" />
 
 </FrameLayout>
