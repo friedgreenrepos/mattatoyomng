@@ -113,23 +113,22 @@ class EventRecyclerAdapter(
 
     fun removeAt(position: Int) {
         val documentId = eventList[position].documentId
-        FirestoreClass().deleteEvent(this, documentId)
+        FirestoreClass().deleteEvent(this, documentId, position)
     }
 
-    override fun onDeleteEventSuccess(documentId: String) {
-        var position: Int? = null
-        eventList.forEachIndexed { index, event ->
-            if (event.documentId == documentId) {
-                position = index
-            }
-        }
-        if (position != null) {
-            eventList.removeAt(position!!)
-            notifyItemRemoved(position!!)
-        }
+    interface DeleteEventCallback2 {
+        fun onDeleteEventSuccess()
+    }
+
+    override fun onDeleteEventSuccess(position: Int) {
+        Log.d(TAG, "eventList size = ${eventList.size}")
+        Log.d(TAG, "remove at position = $position")
+        eventList.removeAt(position)
+        notifyItemRemoved(position)
     }
 
     override fun onDeleteEventFail(e: Exception) {
+        // TODO: add callback to avoid creating fragment
         Log.d(TAG, "EVENT DELETE FAIL")
         val fragment = EventsFragment()
         fragment.showErrorSnackBar(fragment.resources.getString(R.string.delete_event_fail))

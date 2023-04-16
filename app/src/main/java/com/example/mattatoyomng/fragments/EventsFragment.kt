@@ -51,7 +51,6 @@ class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         // setup search view in menu
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(object : MenuProvider {
@@ -89,11 +88,9 @@ class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback {
                     }
 
                     override fun onGetEventListSearch(eventList: MutableList<Event>) {
-                        eventList.removeAll{ it.date!! < getTodayTimestamp()}
+                        eventList.removeAll { it.date!! < getTodayTimestamp() }
                         setupEventsRecyclerView(eventList)
                     }
-
-
                 })
                 return false
             }
@@ -102,51 +99,53 @@ class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback {
 
 
     override fun onResume() {
+        Log.d(TAG, "onResume()")
         super.onResume()
         // get event list from firestore
         FirestoreClass().getEventsList(this)
     }
 
     fun setupEventsRecyclerView(eventList: MutableList<Event>) {
+        Log.d(TAG, "setupEventsRecyclerView()")
+        Log.d(TAG, "event list to pass to adapter size ${eventList.size}")
         // setup event adapter using event list from firestore
         eventRecyclerView?.setHasFixedSize(true)
         eventRecyclerView?.layoutManager = LinearLayoutManager(activity)
-        eventAdapter = EventRecyclerAdapter(requireContext(), eventList)
+        eventAdapter = EventRecyclerAdapter(this.requireContext(), eventList)
         eventRecyclerView?.adapter = eventAdapter
-        eventAdapter?.let {
-            it.notifyDataSetChanged()
+        eventAdapter!!.notifyDataSetChanged()
 
-            // click on item to see detail activity
-            it.setOnClickListener(object : EventRecyclerAdapter.OnClickListener {
-                override fun onClick(position: Int, model: Event) {
-                    val intent = Intent(requireContext(), EventDetailActivity::class.java)
-                    intent.putExtra(EVENT_DETAILS, model)
-                    startActivity(intent)
-                }
-            })
-
-            // setup swipe left to edit
-            val editSwipeHandler = object : SwipeToEditCallback(this.requireContext()) {
-                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                    it.notifyEditItem(
-                        this@EventsFragment,
-                        viewHolder.absoluteAdapterPosition,
-                        EDIT_EVENT_REQUEST_CODE
-                    )
-                }
+        // click on item to see detail activity
+        eventAdapter!!.setOnClickListener(object : EventRecyclerAdapter.OnClickListener {
+            override fun onClick(position: Int, model: Event) {
+                val intent = Intent(requireContext(), EventDetailActivity::class.java)
+                intent.putExtra(EVENT_DETAILS, model)
+                startActivity(intent)
             }
-            val editItemTouchHelper = ItemTouchHelper(editSwipeHandler)
-            editItemTouchHelper.attachToRecyclerView(eventRecyclerView)
+        })
 
-            // setup swipe right to delete
-            val deleteSwipeHandler = object : SwipeToDeleteCallback(this.requireContext()) {
-                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                    it.removeAt(viewHolder.absoluteAdapterPosition)
-                }
+        // setup swipe left to edit
+        val editSwipeHandler = object : SwipeToEditCallback(this.requireContext()) {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                eventAdapter!!.notifyEditItem(
+                    this@EventsFragment,
+                    viewHolder.absoluteAdapterPosition,
+                    EDIT_EVENT_REQUEST_CODE
+                )
             }
-            val deleteItemTouchHelper = ItemTouchHelper(deleteSwipeHandler)
-            deleteItemTouchHelper.attachToRecyclerView(eventRecyclerView)
         }
+        val editItemTouchHelper = ItemTouchHelper(editSwipeHandler)
+        editItemTouchHelper.attachToRecyclerView(eventRecyclerView)
+
+        // setup swipe right to delete
+        val deleteSwipeHandler = object : SwipeToDeleteCallback(this.requireContext()) {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                Log.d(TAG, "onDelete Swiped position: ${viewHolder.absoluteAdapterPosition}")
+                eventAdapter!!.removeAt(viewHolder.absoluteAdapterPosition)
+            }
+        }
+        val deleteItemTouchHelper = ItemTouchHelper(deleteSwipeHandler)
+        deleteItemTouchHelper.attachToRecyclerView(eventRecyclerView)
 
     }
 

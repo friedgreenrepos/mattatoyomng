@@ -187,17 +187,17 @@ class FirestoreClass {
     }
 
     interface DeleteEventCallback {
-        fun onDeleteEventSuccess(documentId: String)
+        fun onDeleteEventSuccess(position: Int)
         fun onDeleteEventFail(e: Exception)
     }
 
-    fun deleteEvent(callback: DeleteEventCallback, documentId: String) {
+    fun deleteEvent(callback: DeleteEventCallback, documentId: String, position: Int) {
         CoroutineScopes.IO.launch {
             dbFirestore.collection(Constants.EVENTS)
                 .document(documentId)
                 .delete()
                 .addOnSuccessListener {
-                    callback.onDeleteEventSuccess(documentId)
+                    callback.onDeleteEventSuccess(position)
                 }
                 .addOnFailureListener { e ->
                     callback.onDeleteEventFail(e)
@@ -220,16 +220,21 @@ class FirestoreClass {
                 .addOnSuccessListener { documents ->
                     val eventList: MutableList<Event> = mutableListOf()
                     if (!documents.isEmpty) {
-                        documents.forEach {
+                        documents.forEachIndexed { index, it ->
                             // convert snapshots to Event objects
                             val event = it.toObject(Event::class.java)
                             event.documentId = it.id
                             eventList.add(event)
+                            Log.d(
+                                TAG, "position = $index, " +
+                                        "id = ${event.documentId}, " +
+                                        "title = ${event.title}"
+                            )
                         }
                     }
                     callback.onGetEventListResult(eventList)
                 }
-                .addOnFailureListener {e ->
+                .addOnFailureListener { e ->
                     Log.e(TAG, "ERROR GETTING EVENTS LIST: $e")
                     callback.onGetEventListResult(mutableListOf())
                 }
