@@ -3,10 +3,10 @@ package com.example.mattatoyomng.firebase
 import com.example.mattatoyomng.coroutines.CoroutineScopes
 import com.example.mattatoyomng.models.User
 import com.example.mattatoyomng.utils.logThread
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class FirebaseAuthClass {
 
@@ -77,22 +77,28 @@ class FirebaseAuthClass {
                 }
         }
     }
+
+    interface ReAuthenticateCallback {
+        fun onReAuthenticateSuccess(currentUser: FirebaseUser, newPassword: String)
+        fun onReAuthenticateFail(e: Exception)
+    }
+
+    fun reAuthenticateUser(
+        callback: ReAuthenticateCallback,
+        password: String,
+        newPassword: String
+    ) {
+        CoroutineScopes.IO.launch {
+            val currentUser = getCurrentUser()!!
+            val credential =
+                EmailAuthProvider.getCredential(currentUser.email.toString(), password)
+            currentUser.reauthenticate(credential)
+                .addOnSuccessListener {
+                    callback.onReAuthenticateSuccess(currentUser, newPassword)
+                }
+                .addOnFailureListener {e ->
+                    callback.onReAuthenticateFail(e)
+                }
+        }
+    }
 }
-//        firebaseAuth.signInWithEmailAndPassword(email, password)
-//            .addOnCompleteListener(this) { task ->
-//                if (task.isSuccessful) {
-//                    // Sign in success, update UI with the signed-in user's information
-//                    Log.d(TAG, "signInWithEmail:success")
-//                    FirestoreClass()
-//                        .loadUserData(this@LoginActivity)
-//                } else {
-//                    // If sign in fails, display a message to the user.
-//                    Log.w(TAG, "signInWithEmail:failure", task.exception)
-//                    showErrorSnackBar(
-//                        "${resources.getString(R.string.auth_failed)}: " +
-//                                "${task.exception!!.message}"
-//                    )
-//
-//                }
-//
-//            }

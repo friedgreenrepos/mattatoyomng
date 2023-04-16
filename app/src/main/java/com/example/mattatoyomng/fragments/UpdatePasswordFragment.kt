@@ -9,9 +9,12 @@ import android.view.ViewGroup
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.activities.MainActivity
 import com.example.mattatoyomng.databinding.FragmentUpdatePasswordBinding
+import com.example.mattatoyomng.firebase.FirebaseAuthClass
 import com.example.mattatoyomng.firebase.FirestoreClass
+import com.google.firebase.auth.FirebaseUser
 
-class UpdatePasswordFragment : BaseFragment() {
+class UpdatePasswordFragment : BaseFragment(), FirebaseAuthClass.ReAuthenticateCallback,
+    FirestoreClass.UpdateUserPasswordCallback {
 
     private val TAG: String = "UpdatePasswordFragment"
 
@@ -45,57 +48,73 @@ class UpdatePasswordFragment : BaseFragment() {
 
         if (validateUserForm(currentPassword, newPassword, repeatPassword)) {
             binding.passwordPB.visibility = View.VISIBLE
-            FirestoreClass().updateUserPassword(
-                this@UpdatePasswordFragment,
-                currentPassword,
-                newPassword)
+            FirebaseAuthClass().reAuthenticateUser(this, currentPassword, newPassword)
         }
     }
 
-    private fun validateUserForm(currentPassword: String, newPassword: String, repeatPassword: String): Boolean {
+    private fun validateUserForm(
+        currentPassword: String,
+        newPassword: String,
+        repeatPassword: String
+    ): Boolean {
         return when {
-             currentPassword.isEmpty()-> {
+            currentPassword.isEmpty() -> {
                 showErrorSnackBar(resources.getString(R.string.enter_current_password))
                 false
             }
+
             newPassword.isEmpty() -> {
                 showErrorSnackBar(resources.getString(R.string.enter_new_password))
                 false
             }
-            repeatPassword.isEmpty()-> {
+
+            repeatPassword.isEmpty() -> {
                 showErrorSnackBar(resources.getString(R.string.enter_confirm_password))
                 false
             }
+
             newPassword != repeatPassword -> {
                 showErrorSnackBar(resources.getString(R.string.password_not_match))
                 false
             }
+
             else -> {
                 true
             }
         }
     }
 
-    fun authenticationSuccess(){
-        Log.d(TAG, "RE-AUTH SUCCESS")
-    }
-
-    fun authenticationFail(e: Exception){
+    private fun authenticationFail(e: Exception) {
         binding.passwordPB.visibility = View.INVISIBLE
         Log.d(TAG, "RE-AUTH FAIL: $e")
         showErrorSnackBar(resources.getString(R.string.auth_failed) + ": " + e)
     }
 
-    fun updatePasswordSuccess() {
+    private fun updatePasswordSuccess() {
         binding.passwordPB.visibility = View.INVISIBLE
         showInfoSnackBar(resources.getString(R.string.update_password_success))
-        // re-launch main activity so that the navigation drawer updates
-        val intent = Intent(this.context, MainActivity::class.java)
-        startActivity(intent)
+        activity?.finish()
     }
 
-    fun updatePasswordFail(e: Exception) {
+    private fun updatePasswordFail(e: Exception) {
         binding.passwordPB.visibility = View.INVISIBLE
         showErrorSnackBar(resources.getString(R.string.update_password_fail) + ": " + e.message)
+    }
+
+    override fun onReAuthenticateSuccess(currentUser: FirebaseUser, newPassword: String) {
+        Log.d(TAG, "RE-AUTH SUCCESS")
+        FirestoreClass().updateUserPassword(this, currentUser, newPassword)
+    }
+
+    override fun onReAuthenticateFail(e: Exception) {
+        authenticationFail(e)
+    }
+
+    override fun onUpdatePasswordSuccess() {
+        updatePasswordSuccess()
+    }
+
+    override fun onUpdatePasswordFail(e: Exception) {
+        updatePasswordFail(e)
     }
 }

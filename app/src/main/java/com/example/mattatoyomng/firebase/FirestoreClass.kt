@@ -2,7 +2,6 @@ package com.example.mattatoyomng.firebase
 
 import android.util.Log
 import com.example.mattatoyomng.coroutines.CoroutineScopes
-import com.example.mattatoyomng.fragments.UpdatePasswordFragment
 import com.example.mattatoyomng.fragments.UpdateProfileFragment
 import com.example.mattatoyomng.models.Event
 import com.example.mattatoyomng.models.Todo
@@ -10,7 +9,7 @@ import com.example.mattatoyomng.models.User
 import com.example.mattatoyomng.utils.Constants
 import com.example.mattatoyomng.utils.getTodayTimestamp
 import com.example.mattatoyomng.utils.logThread
-import com.google.firebase.auth.EmailAuthProvider
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
@@ -207,28 +206,25 @@ class FirestoreClass {
         }
     }
 
+    interface UpdateUserPasswordCallback {
+        fun onUpdatePasswordSuccess()
+        fun onUpdatePasswordFail(e: Exception)
+    }
+
     fun updateUserPassword(
-        fragment: UpdatePasswordFragment,
-        currentPassword: String,
+        callback: UpdateUserPasswordCallback,
+        currentUser: FirebaseUser,
         newPassword: String
     ) {
-        val currentUser = FirebaseAuthClass().getCurrentUser()!!
-        val credential =
-            EmailAuthProvider.getCredential(currentUser.email.toString(), currentPassword)
-        currentUser.reauthenticate(credential)
-            .addOnSuccessListener {
-                fragment.authenticationSuccess()
-                currentUser.updatePassword(newPassword)
-                    .addOnSuccessListener {
-                        fragment.updatePasswordSuccess()
-                    }
-                    .addOnFailureListener { e ->
-                        fragment.updatePasswordFail(e)
-                    }
-            }
-            .addOnFailureListener { e ->
-                fragment.authenticationFail(e)
-            }
+        CoroutineScopes.IO.launch {
+            currentUser.updatePassword(newPassword)
+                .addOnSuccessListener {
+                    callback.onUpdatePasswordSuccess()
+                }
+                .addOnFailureListener {e ->
+                    callback.onUpdatePasswordFail(e)
+                }
+        }
     }
 
     interface CreateTodoCallback {
