@@ -35,7 +35,8 @@ import kotlin.Exception
 
 
 class EventCreateUpdateActivity : BaseActivity(), View.OnClickListener,
-    FirestoreClass.UpdateEventCallback, FirestoreClass.CreateEventCallback {
+    FirestoreClass.UpdateEventCallback, FirestoreClass.CreateEventCallback,
+    FirestoreClass.GetUserDataCallback {
 
     val TAG: String = "CreateEventActivity"
 
@@ -197,6 +198,7 @@ class EventCreateUpdateActivity : BaseActivity(), View.OnClickListener,
                     eventCal.get(Calendar.DAY_OF_MONTH)
                 ).show()
             }
+
             R.id.eventTimeTV -> {
                 TimePickerDialog(
                     this@EventCreateUpdateActivity,
@@ -206,19 +208,24 @@ class EventCreateUpdateActivity : BaseActivity(), View.OnClickListener,
                     DateFormat.is24HourFormat(this@EventCreateUpdateActivity)
                 ).show()
             }
+
             R.id.addEventImageTV -> {
                 requestStoragePermission(v)
             }
+
             R.id.saveEventBTN -> {
                 if (eventImageUri != null) uploadEventImage()
                 else saveEvent()
             }
+
             R.id.addTagLL -> {
                 showAddTagDialog()
             }
+
             R.id.addReminderTV -> {
                 requestNotificationPermission(v)
             }
+
             R.id.reminderDateTV -> {
                 deleteReminderInView()
                 reminderTimestamp = null
@@ -481,6 +488,7 @@ class EventCreateUpdateActivity : BaseActivity(), View.OnClickListener,
                 showErrorSnackBar(resources.getString(R.string.event_title_no_empty))
                 false
             }
+
             else -> {
                 true
             }
@@ -556,7 +564,7 @@ class EventCreateUpdateActivity : BaseActivity(), View.OnClickListener,
         }
     }
 
-        // Function to call when event update is successful:
+    // Function to call when event update is successful:
     // hide progress bar and go to main activity
     private fun eventUpdateSuccess() {
         binding.createEventPB.visibility = View.INVISIBLE
@@ -590,9 +598,14 @@ class EventCreateUpdateActivity : BaseActivity(), View.OnClickListener,
         finish()
     }
 
+    private fun getUserDataFail(e: Exception) {
+        showErrorSnackBar(e.message!!)
+    }
+
     override fun onUpdateEventSuccess() {
         eventUpdateSuccess()
     }
+
     override fun onUpdateEventError(e: Exception) {
         eventUpdateFail(e)
     }
@@ -603,6 +616,14 @@ class EventCreateUpdateActivity : BaseActivity(), View.OnClickListener,
 
     override fun onCreateEventSuccess() {
         eventCreateSuccess()
+    }
+
+    override fun onGetUserDataSuccess(user: User) {
+        setEventOwner(user)
+    }
+
+    override fun onGetUserDataFail(e: Exception) {
+        getUserDataFail(e)
     }
 
 }

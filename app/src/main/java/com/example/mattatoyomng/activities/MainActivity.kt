@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.databinding.ActivityMainBinding
+import com.example.mattatoyomng.firebase.FirebaseAuthClass
 import com.example.mattatoyomng.firebase.FirestoreClass
 import com.example.mattatoyomng.fragments.EventsFragment
 import com.example.mattatoyomng.fragments.UpdatePasswordFragment
@@ -23,7 +24,8 @@ import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 
 
-class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener,
+    FirestoreClass.GetUserDataCallback {
 
     private val TAG: String = "MainActivity"
 
@@ -88,12 +90,15 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             R.id.eventsItem -> {
                 replaceFragment(EventsFragment(), item.title.toString())
             }
+
             R.id.updateProfileItem -> {
                 replaceFragment(UpdateProfileFragment(), item.title.toString())
             }
+
             R.id.updatePasswordItem -> {
                 replaceFragment(UpdatePasswordFragment(), item.title.toString())
             }
+
             R.id.logoutItem -> {
                 FirebaseAuth.getInstance().signOut()
                 val intent = Intent(this@MainActivity, IntroActivity::class.java)
@@ -105,7 +110,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     // Function to update the navigation bar with user detail.
-    fun updateNavigationUserDetails(user: User) {
+    private fun updateNavigationUserDetails(user: User) {
         val headerView = binding.navView.getHeaderView(0)
         // Set user profile picture in nav header
         val navUserProfilePic = headerView.findViewById<ImageView>(R.id.navUserProfilePic)
@@ -115,9 +120,20 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             .centerCrop()
             .placeholder(R.drawable.user_white_80)
             .into(navUserProfilePic)
-
         // Set user username in nav header
         val navUsername = headerView.findViewById<TextView>(R.id.usernameTV)
         navUsername.text = user.username
+    }
+
+    private fun getUserDataFail(e: Exception){
+        showErrorSnackBar(e.message!!)
+    }
+
+    override fun onGetUserDataSuccess(user: User) {
+        updateNavigationUserDetails(user)
+    }
+
+    override fun onGetUserDataFail(e: Exception) {
+        getUserDataFail(e)
     }
 }

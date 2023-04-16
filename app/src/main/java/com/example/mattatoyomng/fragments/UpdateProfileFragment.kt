@@ -25,10 +25,10 @@ import com.example.mattatoyomng.utils.Constants
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import java.io.IOException
-import java.lang.Exception
+import kotlin.Exception
 
 
-class UpdateProfileFragment : BaseFragment() {
+class UpdateProfileFragment : BaseFragment(), FirestoreClass.GetUserDataCallback {
     private val TAG: String = "UpdateProfileFragment"
 
     private lateinit var binding: FragmentUpdateProfileBinding
@@ -38,6 +38,7 @@ class UpdateProfileFragment : BaseFragment() {
 
     // Global variable for URI of a selected image from phone storage.
     private var profilePicUri: Uri? = null
+
     // Global variable for URL of a selected image from phone storage.
     private var profilePicUrl: String = ""
 
@@ -58,7 +59,7 @@ class UpdateProfileFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // load user data
-        FirestoreClass().loadUserData(fragment = this@UpdateProfileFragment)
+        FirestoreClass().loadUserData(this@UpdateProfileFragment)
 
         binding.userUpdateProfilePicIV.setOnClickListener {
             requestStoragePermission(view = it)
@@ -70,26 +71,6 @@ class UpdateProfileFragment : BaseFragment() {
                 updateUserInfo()
             }
         }
-    }
-
-    // Function to populate user profile with user info
-    fun setUserDataInUI(user: User) {
-        userInfo = user
-        try {
-            Glide
-                .with(this@UpdateProfileFragment)
-                .load(user.profilePic)
-                .centerCrop()
-                .placeholder(R.drawable.user_white_80)
-                .into(binding.userUpdateProfilePicIV)
-        } catch (e: IOException) {
-            e.printStackTrace()
-            Log.e(TAG, "Error loading profile pic in nav drawer: ${e.message}")
-        }
-
-        binding.profileNameET.setText(user.name)
-        binding.profileUsernameET.setText(user.username)
-        binding.profileEmailET.setText(user.email)
     }
 
     // ActivityResultLauncher to open gallery
@@ -235,5 +216,37 @@ class UpdateProfileFragment : BaseFragment() {
     fun profileUpdateFail(e: Exception) {
         binding.profilePB.visibility = View.INVISIBLE
         showErrorSnackBar(resources.getString(R.string.update_profile_error) + e)
+    }
+
+    // Function to populate user profile with user info
+    private fun setUserDataInUI(user: User) {
+        userInfo = user
+        try {
+            Glide
+                .with(this@UpdateProfileFragment)
+                .load(user.profilePic)
+                .centerCrop()
+                .placeholder(R.drawable.user_white_80)
+                .into(binding.userUpdateProfilePicIV)
+        } catch (e: IOException) {
+            e.printStackTrace()
+            Log.e(TAG, "Error loading profile pic in nav drawer: ${e.message}")
+        }
+
+        binding.profileNameET.setText(user.name)
+        binding.profileUsernameET.setText(user.username)
+        binding.profileEmailET.setText(user.email)
+    }
+
+    private fun getUserDataFail(e: Exception) {
+        showErrorSnackBar(e.message!!)
+    }
+
+    override fun onGetUserDataSuccess(user: User) {
+        setUserDataInUI(user)
+    }
+
+    override fun onGetUserDataFail(e: Exception) {
+        getUserDataFail(e)
     }
 }

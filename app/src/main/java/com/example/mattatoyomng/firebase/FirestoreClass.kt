@@ -47,82 +47,24 @@ class FirestoreClass {
     }
 
     interface GetUserDataCallback {
-        fun onGetUserDataSuccess()
-        fun onGetUserDataFail()
+        fun onGetUserDataSuccess(user: User)
+        fun onGetUserDataFail(e: Exception)
     }
 
-    fun loadUserData(activity: Activity? = null, fragment: Fragment? = null) {
-
-        // Here we pass the collection name from which we wants the data.
-        dbFirestore.collection(Constants.USERS)
-            // The document id to get the Fields of user.
-            .document(FirebaseAuthClass().getCurrentUserID())
-            .get()
-            .addOnSuccessListener { document ->
-                // Convert document to User object.
-                val loggedInUser = document.toObject(User::class.java)!!
-
-                if (activity != null) {
-                    Log.i(activity.javaClass.simpleName, document.toString())
-                    // Here call a function of base activity for transferring the result to it.
-                    when (activity) {
-                        is LoginActivity -> {
-                            activity.userLoginSuccess(loggedInUser)
-                        }
-
-                        is MainActivity -> {
-                            activity.updateNavigationUserDetails(loggedInUser)
-                        }
-
-                        is EventCreateUpdateActivity -> {
-                            activity.setEventOwner(loggedInUser)
-                        }
-                    }
+    fun loadUserData(callback: GetUserDataCallback) {
+        CoroutineScopes.IO.launch {
+            dbFirestore.collection(Constants.USERS)
+                .document(FirebaseAuthClass().getCurrentUserID())
+                .get()
+                .addOnSuccessListener { document ->
+                    // Convert document to User object.
+                    val loggedInUser = document.toObject(User::class.java)!!
+                    callback.onGetUserDataSuccess(loggedInUser)
                 }
-                if (fragment != null) {
-                    Log.i(fragment.javaClass.simpleName, document.toString())
-                    when (fragment) {
-                        is UpdateProfileFragment -> {
-                            fragment.setUserDataInUI(loggedInUser)
-                        }
-                    }
+                .addOnFailureListener { e ->
+                    callback.onGetUserDataFail(e)
                 }
-            }
-            .addOnFailureListener { e ->
-                // Here call a function of base activity for transferring the result to it.
-                if (activity != null) {
-                    Log.e(
-                        activity.javaClass.simpleName,
-                        "Error while getting loggedIn user details",
-                        e
-                    )
-                    when (activity) {
-                        is LoginActivity -> {
-                            activity.showErrorSnackBar("Error loading user data")
-                        }
-
-                        is MainActivity -> {
-                            activity.showErrorSnackBar("Error loading user data")
-                        }
-
-                        is EventCreateUpdateActivity -> {
-                            activity.showErrorSnackBar("Error loading user data")
-                        }
-                    }
-                }
-                if (fragment != null) {
-                    Log.e(
-                        fragment.javaClass.simpleName,
-                        "Error while getting loggedIn user details",
-                        e
-                    )
-                    when (fragment) {
-                        is UpdateProfileFragment -> {
-                            fragment.showErrorSnackBar("Error loading user data")
-                        }
-                    }
-                }
-            }
+        }
     }
 
     // Function to update user profile using hashmap

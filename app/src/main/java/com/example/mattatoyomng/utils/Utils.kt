@@ -1,6 +1,7 @@
 package com.example.mattatoyomng.utils
 
 import android.content.Context
+import android.util.Log
 import android.view.View
 import com.google.firebase.Timestamp
 import java.util.Calendar
@@ -32,14 +33,6 @@ fun getTodayTimestamp(): Timestamp {
     return Timestamp(cal.time)
 }
 
-fun getNeverTimestamp(): Timestamp {
-    // define today
-    val cal = Calendar.getInstance()
-    cal.set(Calendar.YEAR, 2100)
-    // cast Date to Timestamp
-    return Timestamp(cal.time)
-}
-
-fun stripSpaces(s: String): String {
-    return s.replace(" ", "")
+fun logThread(method: String){
+    Log.d("DEBUG", "method = $method, current thread = ${Thread.currentThread().name}")
 }

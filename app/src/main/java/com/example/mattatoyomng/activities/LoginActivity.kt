@@ -11,18 +11,17 @@ import android.view.WindowManager
 import androidx.appcompat.widget.Toolbar
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.databinding.ActivityLoginBinding
+import com.example.mattatoyomng.firebase.FirebaseAuthClass
 import com.example.mattatoyomng.firebase.FirestoreClass
 import com.example.mattatoyomng.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
-class LoginActivity : BaseActivity() {
+class LoginActivity : BaseActivity(), FirebaseAuthClass.LoginUserCallback,
+    FirestoreClass.GetUserDataCallback {
     // binding
     private lateinit var binding: ActivityLoginBinding
-
-    // firebase auth
-    private lateinit var auth: FirebaseAuth
 
     // toolbar
     private lateinit var toolbarLoginActivity: Toolbar
@@ -40,9 +39,6 @@ class LoginActivity : BaseActivity() {
         // toolbar setup
         toolbarLoginActivity = binding.toolbarLoginActivity
         setupActionBar()
-
-        // Initialize Firebase Auth
-        auth = Firebase.auth
 
         binding.apply {
             loginBTN.setOnClickListener() {
@@ -79,22 +75,7 @@ class LoginActivity : BaseActivity() {
             binding.loginPB.visibility = View.VISIBLE
 
             // sign-in user with Firebase Auth
-            auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this) { task ->
-                    if (task.isSuccessful) {
-                        // Sign in success, update UI with the signed-in user's information
-                        Log.d(TAG, "signInWithEmail:success")
-                        FirestoreClass()
-                            .loadUserData(this@LoginActivity)
-                    } else {
-                        // If sign in fails, display a message to the user.
-                        Log.w(TAG, "signInWithEmail:failure", task.exception)
-                        showErrorSnackBar(
-                            "${resources.getString(R.string.auth_failed)}: " +
-                                    "${task.exception!!.message}"
-                        )
-                    }
-                }
+            FirebaseAuthClass().loginUser(this, email, password)
         }
     }
 
@@ -105,27 +86,46 @@ class LoginActivity : BaseActivity() {
                 showErrorSnackBar("Please enter email.")
                 false
             }
+
             TextUtils.isEmpty(password) -> {
                 showErrorSnackBar("Please enter password.")
                 false
             }
+
             else -> {
                 true
             }
         }
     }
 
-    // Function to call when user successfully logs in:
-    // 1. Hide progress bar
-    // 2. Go to MainActivity and finish current activity
-    fun userLoginSuccess(user: User) {
-        // hide progress bar
+    // Function to call when user successfully logs in
+    private fun userLoginSuccess() {
         binding.loginPB.visibility = View.INVISIBLE
         showInfoSnackBar(resources.getString(R.string.login_successfully))
-        // go to MainActivity
         val intent = Intent(this@LoginActivity, MainActivity::class.java)
         startActivity(intent)
-        // finish activity so the user can't go back to login page
         finish()
+    }
+
+    private fun userLoginFail(e: Exception) {
+        binding.loginPB.visibility = View.INVISIBLE
+        showErrorSnackBar(e.message!!)
+    }
+
+    override fun onLoginSuccess() {
+        FirestoreClass().loadUserData(this)
+    }
+
+
+    override fun onLoginFail(e: Exception) {
+        userLoginFail(e)
+    }
+
+    override fun onGetUserDataSuccess(user: User) {
+        userLoginSuccess()
+    }
+
+    override fun onGetUserDataFail(e: Exception) {
+        userLoginFail(e)
     }
 }
