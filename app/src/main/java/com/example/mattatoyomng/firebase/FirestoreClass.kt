@@ -6,7 +6,6 @@ import androidx.fragment.app.Fragment
 import com.example.mattatoyomng.activities.EventCreateUpdateActivity
 import com.example.mattatoyomng.activities.LoginActivity
 import com.example.mattatoyomng.activities.MainActivity
-import com.example.mattatoyomng.activities.RegisterActivity
 import com.example.mattatoyomng.coroutines.CoroutineScopes
 import com.example.mattatoyomng.fragments.UpdatePasswordFragment
 import com.example.mattatoyomng.fragments.UpdateProfileFragment
@@ -14,8 +13,8 @@ import com.example.mattatoyomng.models.Event
 import com.example.mattatoyomng.models.User
 import com.example.mattatoyomng.utils.Constants
 import com.example.mattatoyomng.utils.getTodayTimestamp
+import com.example.mattatoyomng.utils.logThread
 import com.google.firebase.auth.EmailAuthProvider
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.launch
@@ -26,32 +25,30 @@ class FirestoreClass {
 
     private val dbFirestore = FirebaseFirestore.getInstance()
 
-    // Function to get the userid of current logged user. Return empty string if no user is logged in.
-    fun getCurrentUserID(): String {
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        var currentUserID = ""
-        if (currentUser != null) {
-            currentUserID = currentUser.uid
-        }
-        return currentUserID
+    interface RegisterUserCallback {
+        fun onRegisterUserSuccess()
+        fun onRegisterUserError(e: Exception)
     }
 
     // Register user by creating an entry in Firestore collection "users"
-    fun registerUser(activity: RegisterActivity, userInfo: User) {
+    fun registerUser(callback: RegisterUserCallback, userInfo: User) {
+        CoroutineScopes.IO.launch {
+            logThread("registerUser() in FirestoreClass")
+            dbFirestore.collection(Constants.USERS)
+                .document(FirebaseAuthClass().getCurrentUserID())
+                .set(userInfo, SetOptions.merge())
+                .addOnSuccessListener {
+                    callback.onRegisterUserSuccess()
+                }
+                .addOnFailureListener { e ->
+                    callback.onRegisterUserError(e)
+                }
+        }
+    }
 
-        dbFirestore.collection(Constants.USERS)
-            // Get document for current user
-            .document(getCurrentUserID())
-            // merge User info with user document
-            .set(userInfo, SetOptions.merge())
-            .addOnSuccessListener {
-                activity.userRegisteredSuccess()
-            }
-            .addOnFailureListener { e ->
-                val msg = "Error writing document: ${e.message}"
-                Log.e(activity.javaClass.simpleName, msg)
-                activity.showErrorSnackBar(msg)
-            }
+    interface GetUserDataCallback {
+        fun onGetUserDataSuccess()
+        fun onGetUserDataFail()
     }
 
     fun loadUserData(activity: Activity? = null, fragment: Fragment? = null) {
@@ -59,7 +56,7 @@ class FirestoreClass {
         // Here we pass the collection name from which we wants the data.
         dbFirestore.collection(Constants.USERS)
             // The document id to get the Fields of user.
-            .document(getCurrentUserID())
+            .document(FirebaseAuthClass().getCurrentUserID())
             .get()
             .addOnSuccessListener { document ->
                 // Convert document to User object.
@@ -131,7 +128,7 @@ class FirestoreClass {
     // Function to update user profile using hashmap
     fun updateUserProfileData(fragment: UpdateProfileFragment, userHashMap: HashMap<String, Any>) {
         dbFirestore.collection(Constants.USERS)
-            .document(getCurrentUserID())
+            .document(FirebaseAuthClass().getCurrentUserID())
             .update(userHashMap)
             .addOnSuccessListener {
                 // User profile has been successfully update.
@@ -276,7 +273,7 @@ class FirestoreClass {
         currentPassword: String,
         newPassword: String
     ) {
-        val currentUser = FirebaseAuth.getInstance().currentUser!!
+        val currentUser = FirebaseAuthClass().getCurrentUser()!!
         val credential =
             EmailAuthProvider.getCredential(currentUser.email.toString(), currentPassword)
         currentUser.reauthenticate(credential)

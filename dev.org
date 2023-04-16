@@ -7,7 +7,7 @@
 - [ ] make alert for notification prettier -> remove title and message keywords
 - [ ] add delete dialog
 - [ ] hide keyboard when clicking outside an =EditText=
-- [X] add detailview for event
+- [X] add =detailview= for event
 - [X] update date/time formatter to use =applicationContext= (in =Utils.kt=)
 - [X] swipe to delete
 - [X] show user info in drawer (username, profile pic)
@@ -19,18 +19,19 @@
 - [X] show default image if no image is supplied for =Event=
 - [X] swipe to edit instead of clicking edit icon
 
-* Functionalities
-- [ ] try catch in globalscope() co-routines stuff
+* Functionality
+- [ ] =HashMap= to =MutableMap= in =EventCreateUpdateActivity=
+- [ ] add general todo list
 - [ ] add todo list for event
-- [ ] move =setupactionbar= in =BaseActivity=
 - [ ] add people/shifts to event
-- [ ] change password in =ProfileUpdate=
-- [ ] forgot password
-- [ ] load +images+ *something* with multi-threading (co-routines??!?)
-- [ ] paginate query of event list?!
-- [ ] fix search feature
+  - [ ] send notifications to people added to events
+- [ ] move =setupactionbar= in =BaseActivity=
 - [ ] show past events option in settings??
-- [ ] =EventDetail= has to update =onResume=!!!!!!!!!! Event details isn't showing update data... Need to update stuff on BACK button. Even in edit event, if you set a reminder without saving it does not reload the list and therefore the info passed to the intent is outdated...
+- [ ] forgot password
+- [X] load +images+ *something* with multi-threading (co-routines??!?)
+- [X] fix search feature
+- [X] =EventDetail= has to update =onResume=!!!!!!!!!! Event details isn't showing update data... Need to update stuff on BACK button. Even in edit event, if you set a reminder without saving it does not reload the list and therefore the info passed to the intent is outdated...
+- [X] change password in =ProfileUpdate=
 - [X] add add reminder in event detail
 - [X] update event when setting reminder in detail view
 - [X] reminder DOES NOT have to be linked to event!! otherwise everybody will have a reminder!! use a tuple <user, reminder>

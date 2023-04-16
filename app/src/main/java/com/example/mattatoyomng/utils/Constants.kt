@@ -8,9 +8,13 @@ object Constants {
     const val EVENTS: String = "events"
 
     // Firestore db field names
-    const val PROFILE_PIC: String = "profilePic"
+    // User class
+    const val USERID: String = "userid"
     const val NAME: String = "name"
     const val USERNAME: String = "username"
+    const val EMAIL: String = "email"
+    const val PROFILE_PIC: String = "profilePic"
+    // Event class
     const val TITLE: String = "title"
     const val DESCRIPTION: String = "description"
     const val DATE: String = "date"
@@ -18,7 +22,4 @@ object Constants {
     const val TAGS: String = "tags"
     const val REMINDER: String = "userReminderMap"
     const val KEYWORDS: String = "keywords"
-    // date formatting
-    const val DATE_FORMAT: String = "dd MMMM yyyy"
-    const val TIME_FORMAT: String = "hh:mm"
 }
