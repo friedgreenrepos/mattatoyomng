@@ -3,21 +3,22 @@ package com.example.mattatoyomng.firebase
 import android.app.Activity
 import android.util.Log
 import androidx.fragment.app.Fragment
-import com.example.mattatoyomng.activities.*
+import com.example.mattatoyomng.activities.EventCreateUpdateActivity
+import com.example.mattatoyomng.activities.LoginActivity
+import com.example.mattatoyomng.activities.MainActivity
+import com.example.mattatoyomng.activities.RegisterActivity
 import com.example.mattatoyomng.coroutines.CoroutineScopes
-import com.example.mattatoyomng.fragments.EventsFragment
 import com.example.mattatoyomng.fragments.UpdatePasswordFragment
 import com.example.mattatoyomng.fragments.UpdateProfileFragment
 import com.example.mattatoyomng.models.Event
 import com.example.mattatoyomng.models.User
 import com.example.mattatoyomng.utils.Constants
-import com.google.firebase.Timestamp
+import com.example.mattatoyomng.utils.getTodayTimestamp
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
-import kotlinx.coroutines.*
-import java.util.*
+import kotlinx.coroutines.launch
 
 class FirestoreClass {
 
@@ -71,9 +72,11 @@ class FirestoreClass {
                         is LoginActivity -> {
                             activity.userLoginSuccess(loggedInUser)
                         }
+
                         is MainActivity -> {
                             activity.updateNavigationUserDetails(loggedInUser)
                         }
+
                         is EventCreateUpdateActivity -> {
                             activity.setEventOwner(loggedInUser)
                         }
@@ -100,9 +103,11 @@ class FirestoreClass {
                         is LoginActivity -> {
                             activity.showErrorSnackBar("Error loading user data")
                         }
+
                         is MainActivity -> {
                             activity.showErrorSnackBar("Error loading user data")
                         }
+
                         is EventCreateUpdateActivity -> {
                             activity.showErrorSnackBar("Error loading user data")
                         }
@@ -151,7 +156,7 @@ class FirestoreClass {
                 .addOnSuccessListener {
                     callback.onCreateEventSuccess()
                 }
-                .addOnFailureListener{e ->
+                .addOnFailureListener { e ->
                     callback.onCreateEventError(e)
                 }
         }
@@ -175,44 +180,8 @@ class FirestoreClass {
                 .addOnSuccessListener {
                     callback.onUpdateEventSuccess()
                 }
-                .addOnFailureListener {e ->
+                .addOnFailureListener { e ->
                     callback.onUpdateEventError(e)
-                }
-        }
-    }
-
-    interface GetEventListCallback {
-        fun onGetEventListResult(eventList: MutableList<Event>)
-    }
-
-    fun getEventsList(callback: GetEventListCallback) {
-        CoroutineScopes.IO.launch {
-            // define today
-            val cal = Calendar.getInstance()
-            cal.set(Calendar.HOUR_OF_DAY, 0)
-            cal.set(Calendar.MINUTE, 0)
-            val today = Timestamp(cal.time)
-            // get events after today (included) and order them by date
-            val storageRef = dbFirestore.collection(Constants.EVENTS)
-                .whereGreaterThanOrEqualTo("date", today)
-                .orderBy("date")
-            storageRef.get()
-                .addOnSuccessListener { documents ->
-                    val eventList: MutableList<Event> = mutableListOf()
-                    if (!documents.isEmpty) {
-                        documents.forEach {
-                            // convert snapshots to Event objects
-                            val event = it.toObject(Event::class.java)
-                            event.documentId = it.id
-                            eventList.add(event)
-                        }
-                    }
-                    callback.onGetEventListResult(eventList)
-                }
-                .addOnFailureListener {
-                    val msg = "ERROR: ${it.message}"
-                    Log.e(TAG, msg)
-                    callback.onGetEventListResult(mutableListOf())
                 }
         }
     }
@@ -233,33 +202,78 @@ class FirestoreClass {
                 .addOnFailureListener { e ->
                     callback.onDeleteEventFail(e)
                 }
-
         }
     }
 
-    fun searchInFirestore(fragment: EventsFragment, searchText: String) {
-        dbFirestore.collection(Constants.EVENTS)
-            .orderBy(Constants.KEYWORDS)
-            .startAt(searchText)
-            .endAt("$searchText\uf8ff")
-            .get()
-            .addOnCompleteListener {
-                if (it.isSuccessful) {
-                    Log.d(TAG, "searchtext = $searchText")
-                    Log.d(TAG, "event list size ${it.result.size()}")
-                    val eventList: ArrayList<Event> =
-                        it.result!!.toObjects(Event::class.java) as ArrayList<Event>
-                    fragment.setupEventsRecyclerView(eventList)
-                } else {
-                    fragment.showErrorSnackBar("Error: ${it.exception!!.message}")
-                }
-            }
-
+    interface GetEventListCallback {
+        fun onGetEventListResult(eventList: MutableList<Event>)
     }
 
-    fun updateUserPassword(fragment: UpdatePasswordFragment, currentPassword: String, newPassword: String) {
+    fun getEventsList(callback: GetEventListCallback) {
+        CoroutineScopes.IO.launch {
+            val today = getTodayTimestamp()
+            // get events after today (included) and order them by date
+            val storageRef = dbFirestore.collection(Constants.EVENTS)
+                .whereGreaterThanOrEqualTo("date", today)
+                .orderBy("date")
+            storageRef.get()
+                .addOnSuccessListener { documents ->
+                    val eventList: MutableList<Event> = mutableListOf()
+                    if (!documents.isEmpty) {
+                        documents.forEach {
+                            // convert snapshots to Event objects
+                            val event = it.toObject(Event::class.java)
+                            event.documentId = it.id
+                            eventList.add(event)
+                        }
+                    }
+                    callback.onGetEventListResult(eventList)
+                }
+                .addOnFailureListener {e ->
+                    Log.e(TAG, "ERROR GETTING EVENTS LIST: $e")
+                    callback.onGetEventListResult(mutableListOf())
+                }
+        }
+    }
+
+    interface GetEventListSearchCallback {
+        fun onGetEventListSearch(eventList: MutableList<Event>)
+    }
+
+    fun searchInFirestore(callback: GetEventListSearchCallback, searchText: String) {
+        CoroutineScopes.IO.launch {
+            dbFirestore.collection(Constants.EVENTS)
+                .orderBy(Constants.KEYWORDS)
+                .startAt(searchText)
+                .endAt("$searchText\uf8ff")
+                .get()
+                .addOnSuccessListener { documents ->
+                    val eventList: MutableList<Event> = mutableListOf()
+                    if (!documents.isEmpty) {
+                        documents.forEach {
+                            // convert snapshots to Event objects
+                            val event = it.toObject(Event::class.java)
+                            event.documentId = it.id
+                            eventList.add(event)
+                        }
+                    }
+                    callback.onGetEventListSearch(eventList)
+                }
+                .addOnFailureListener { e ->
+                    Log.d(TAG, "ERROR SEARCHING FOR EVENTS: $e")
+                    callback.onGetEventListSearch(mutableListOf())
+                }
+        }
+    }
+
+    fun updateUserPassword(
+        fragment: UpdatePasswordFragment,
+        currentPassword: String,
+        newPassword: String
+    ) {
         val currentUser = FirebaseAuth.getInstance().currentUser!!
-        val credential = EmailAuthProvider.getCredential(currentUser.email.toString(), currentPassword)
+        val credential =
+            EmailAuthProvider.getCredential(currentUser.email.toString(), currentPassword)
         currentUser.reauthenticate(credential)
             .addOnSuccessListener {
                 fragment.authenticationSuccess()
@@ -267,11 +281,11 @@ class FirestoreClass {
                     .addOnSuccessListener {
                         fragment.updatePasswordSuccess()
                     }
-                    .addOnFailureListener {e ->
+                    .addOnFailureListener { e ->
                         fragment.updatePasswordFail(e)
                     }
             }
-            .addOnFailureListener {e ->
+            .addOnFailureListener { e ->
                 fragment.authenticationFail(e)
             }
     }

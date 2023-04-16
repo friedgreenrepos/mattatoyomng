@@ -20,6 +20,7 @@ import com.example.mattatoyomng.firebase.FirestoreClass
 import com.example.mattatoyomng.models.Event
 import com.example.mattatoyomng.utils.SwipeToDeleteCallback
 import com.example.mattatoyomng.utils.SwipeToEditCallback
+import com.example.mattatoyomng.utils.getTodayTimestamp
 import com.google.firebase.firestore.FirebaseFirestore
 
 class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback {
@@ -62,11 +63,11 @@ class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback {
                 // Handle the menu selection
                 val searchView = menuItem.actionView as SearchView
                 searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener,
-                    FirestoreClass.GetEventListCallback {
+                    FirestoreClass.GetEventListCallback, FirestoreClass.GetEventListSearchCallback {
                     override fun onQueryTextSubmit(query: String?): Boolean {
                         val searchText = query!!.lowercase()
                         if (searchText.isNotEmpty()) {
-                            FirestoreClass().searchInFirestore(this@EventsFragment, searchText)
+                            FirestoreClass().searchInFirestore(this, searchText)
                         } else {
                             FirestoreClass().getEventsList(this)
                         }
@@ -76,9 +77,9 @@ class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback {
                     override fun onQueryTextChange(newText: String?): Boolean {
                         val searchText = newText!!.lowercase()
                         if (searchText.isNotEmpty()) {
-                            FirestoreClass().searchInFirestore(this@EventsFragment, searchText)
+                            FirestoreClass().searchInFirestore(this, searchText)
                         } else {
-                            FirestoreClass().getEventsList(this@EventsFragment)
+                            FirestoreClass().getEventsList(this)
                         }
                         return false
                     }
@@ -86,6 +87,12 @@ class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback {
                     override fun onGetEventListResult(eventList: MutableList<Event>) {
                         setupEventsRecyclerView(eventList)
                     }
+
+                    override fun onGetEventListSearch(eventList: MutableList<Event>) {
+                        eventList.removeAll{ it.date!! < getTodayTimestamp()}
+                        setupEventsRecyclerView(eventList)
+                    }
+
 
                 })
                 return false
@@ -101,51 +108,46 @@ class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback {
     }
 
     fun setupEventsRecyclerView(eventList: MutableList<Event>) {
-        if (eventList.isEmpty()) {
-            // show "no events" textview if event list is empty
-            binding.noEventsTV.visibility = View.VISIBLE
-        } else {
-            binding.noEventsTV.visibility = View.INVISIBLE
-            // setup event adapter using event list from firestore
-            eventRecyclerView?.setHasFixedSize(true)
-            eventRecyclerView?.layoutManager = LinearLayoutManager(activity)
-            eventAdapter = EventRecyclerAdapter(requireContext(), eventList)
-            eventRecyclerView?.adapter = eventAdapter
-            eventAdapter?.let {
-                it.notifyDataSetChanged()
+        // setup event adapter using event list from firestore
+        eventRecyclerView?.setHasFixedSize(true)
+        eventRecyclerView?.layoutManager = LinearLayoutManager(activity)
+        eventAdapter = EventRecyclerAdapter(requireContext(), eventList)
+        eventRecyclerView?.adapter = eventAdapter
+        eventAdapter?.let {
+            it.notifyDataSetChanged()
 
-                // click on item to see detail activity
-                it.setOnClickListener(object : EventRecyclerAdapter.OnClickListener {
-                    override fun onClick(position: Int, model: Event) {
-                        val intent = Intent(requireContext(), EventDetailActivity::class.java)
-                        intent.putExtra(EVENT_DETAILS, model)
-                        startActivity(intent)
-                    }
-                })
-
-                // setup swipe left to edit
-                val editSwipeHandler = object : SwipeToEditCallback(this.requireContext()) {
-                    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                        it.notifyEditItem(
-                            this@EventsFragment,
-                            viewHolder.absoluteAdapterPosition,
-                            EDIT_EVENT_REQUEST_CODE
-                        )
-                    }
+            // click on item to see detail activity
+            it.setOnClickListener(object : EventRecyclerAdapter.OnClickListener {
+                override fun onClick(position: Int, model: Event) {
+                    val intent = Intent(requireContext(), EventDetailActivity::class.java)
+                    intent.putExtra(EVENT_DETAILS, model)
+                    startActivity(intent)
                 }
-                val editItemTouchHelper = ItemTouchHelper(editSwipeHandler)
-                editItemTouchHelper.attachToRecyclerView(eventRecyclerView)
+            })
 
-                // setup swipe right to delete
-                val deleteSwipeHandler = object : SwipeToDeleteCallback(this.requireContext()) {
-                    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                        it.removeAt(viewHolder.absoluteAdapterPosition)
-                    }
+            // setup swipe left to edit
+            val editSwipeHandler = object : SwipeToEditCallback(this.requireContext()) {
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    it.notifyEditItem(
+                        this@EventsFragment,
+                        viewHolder.absoluteAdapterPosition,
+                        EDIT_EVENT_REQUEST_CODE
+                    )
                 }
-                val deleteItemTouchHelper = ItemTouchHelper(deleteSwipeHandler)
-                deleteItemTouchHelper.attachToRecyclerView(eventRecyclerView)
             }
+            val editItemTouchHelper = ItemTouchHelper(editSwipeHandler)
+            editItemTouchHelper.attachToRecyclerView(eventRecyclerView)
+
+            // setup swipe right to delete
+            val deleteSwipeHandler = object : SwipeToDeleteCallback(this.requireContext()) {
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    it.removeAt(viewHolder.absoluteAdapterPosition)
+                }
+            }
+            val deleteItemTouchHelper = ItemTouchHelper(deleteSwipeHandler)
+            deleteItemTouchHelper.attachToRecyclerView(eventRecyclerView)
         }
+
     }
 
     override fun onGetEventListResult(eventList: MutableList<Event>) {
@@ -156,5 +158,4 @@ class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback {
         internal const val EVENT_DETAILS = "event_details"
         private const val EDIT_EVENT_REQUEST_CODE = 1
     }
-
 }

@@ -19,18 +19,6 @@
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintEnd_toEndOf="parent" />
 
-		<TextView
-			android:id="@+id/noEventsTV"
-			android:visibility="invisible"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="@string/no_events_yet"
-			android:gravity="center"
-			android:textStyle="italic"
-			app:layout_constraintBottom_toBottomOf="@+id/eventRV"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toTopOf="parent" />
 	</androidx.constraintlayout.widget.ConstraintLayout>
 
 	<com.google.android.material.floatingactionbutton.FloatingActionButton
