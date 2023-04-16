@@ -243,29 +243,12 @@
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintTop_toBottomOf="@+id/addReminderTV"/>
 
-			<TextView
-				android:id="@+id/addPeopleTV"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:text="@string/add_people"
-				android:textSize="@dimen/default_text_size"
-				android:background="?attr/selectableItemBackground"
-				app:layout_constraintStart_toStartOf="parent"
-				android:layout_marginStart="20dp"
-				android:layout_marginTop="64dp"
-				android:layout_marginEnd="@dimen/default_margin"
-				app:layout_constraintTop_toBottomOf="@+id/tagsCG"
-				app:layout_constraintEnd_toEndOf="parent"
-				android:drawablePadding="@dimen/default_drawable_padding"
-				app:drawableTint="@color/red_grey"
-				app:drawableStartCompat="@drawable/people" />
-
 			<ImageView
 				android:id="@+id/eventReminderDivider"
 				android:layout_width="0dp"
 				android:layout_height="@dimen/default_divider_height"
-				android:layout_marginTop="@dimen/default_margin"
-				app:layout_constraintTop_toBottomOf="@+id/addPeopleTV"
+				android:layout_marginTop="64dp"
+				app:layout_constraintTop_toBottomOf="@+id/tagsCG"
 				android:background="@color/inactive_text_color"
 				android:importantForAccessibility="no"
 				app:layout_constraintStart_toStartOf="parent"
