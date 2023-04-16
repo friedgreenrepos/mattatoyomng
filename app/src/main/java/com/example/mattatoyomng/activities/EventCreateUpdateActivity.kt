@@ -1,6 +1,11 @@
 package com.example.mattatoyomng.activities
 
-import android.app.*
+import android.app.AlarmManager
+import android.app.DatePickerDialog
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -22,16 +27,25 @@ import com.example.mattatoyomng.R
 import com.example.mattatoyomng.databinding.ActivityEventCreateUpdateBinding
 import com.example.mattatoyomng.firebase.FirestoreClass
 import com.example.mattatoyomng.fragments.EventsFragment
-import com.example.mattatoyomng.models.*
-import com.example.mattatoyomng.utils.*
+import com.example.mattatoyomng.models.Event
+import com.example.mattatoyomng.models.NotificationReceiver
+import com.example.mattatoyomng.models.User
+import com.example.mattatoyomng.models.channelID
+import com.example.mattatoyomng.models.messageExtra
+import com.example.mattatoyomng.models.notificationID
+import com.example.mattatoyomng.models.titleExtra
+import com.example.mattatoyomng.utils.Constants
+import com.example.mattatoyomng.utils.addChip
+import com.example.mattatoyomng.utils.createDialog
+import com.example.mattatoyomng.utils.dateFormatter
+import com.example.mattatoyomng.utils.dpToPx
+import com.example.mattatoyomng.utils.timeFormatter
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.Timestamp
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import java.io.IOException
-import java.util.*
-import kotlin.Exception
+import java.util.Calendar
 
 
 class EventCreateUpdateActivity : BaseActivity(), View.OnClickListener,
@@ -48,7 +62,6 @@ class EventCreateUpdateActivity : BaseActivity(), View.OnClickListener,
     private var toolbarTitle: String = ""
 
     // Firebase
-    private lateinit var auth: FirebaseAuth
     private var storageReference = FirebaseStorage.getInstance().reference
 
     // Global variable for URI of a selected image from phone storage.
@@ -83,8 +96,6 @@ class EventCreateUpdateActivity : BaseActivity(), View.OnClickListener,
 
         binding = ActivityEventCreateUpdateBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        auth = FirebaseAuth.getInstance()
 
         // initialize date picker listener
         dateSetListener = DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->

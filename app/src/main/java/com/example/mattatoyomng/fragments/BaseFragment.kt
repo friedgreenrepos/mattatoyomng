@@ -13,10 +13,6 @@ open class BaseFragment : Fragment() {
         super.onCreate(savedInstanceState)
     }
 
-    fun getCurrentUserID(): String {
-        return FirebaseAuth.getInstance().currentUser!!.uid
-    }
-
     fun showInfoSnackBar(message: String) {
         val snackBar = Snackbar.make(
             requireActivity().findViewById(android.R.id.content),

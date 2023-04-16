@@ -153,29 +153,4 @@ open class BaseActivity : AppCompatActivity() {
             .show()
     }
 
-    // Function to handle pressing the back button twice
-    fun doubleBackToExit() {
-        // go back if pressed once
-        if (doubleBackToExitPressedOnce) {
-            super.onBackPressed()
-            return
-        }
-
-        // if pressed twice inform user with Toast
-        this.doubleBackToExitPressedOnce = true
-        Toast.makeText(
-            this,
-            resources.getString(R.string.please_click_back_again_to_exit),
-            Toast.LENGTH_SHORT
-        ).show()
-
-        // if user presses back twice within 2s close app
-        Handler(Looper.getMainLooper()).postDelayed(
-            {
-                doubleBackToExitPressedOnce = false
-            },
-            2000
-        )
-    }
-
 }

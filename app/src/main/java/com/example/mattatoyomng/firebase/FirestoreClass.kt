@@ -18,7 +18,7 @@ class FirestoreClass {
 
     private val TAG = "FirestoreClass"
 
-    private val dbFirestore = FirebaseFirestore.getInstance()
+    val dbFirestore = FirebaseFirestore.getInstance()
 
     interface IsUserAdminCallback {
         fun isUserAdminSuccess(isAdmin: Boolean)

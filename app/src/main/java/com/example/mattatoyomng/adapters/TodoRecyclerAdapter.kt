@@ -83,6 +83,6 @@ class TodoRecyclerAdapter(
     }
 
     override fun onUpdateTodoFail(e: Exception) {
-        Log.d(TAG, "Todo update failed")
+        Log.d(TAG, "Todo update failed: $e")
     }
 }
