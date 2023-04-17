@@ -19,17 +19,15 @@ import com.bumptech.glide.Glide
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.activities.MainActivity
 import com.example.mattatoyomng.databinding.FragmentUpdateProfileBinding
+import com.example.mattatoyomng.firebase.FirebaseStorageClass
 import com.example.mattatoyomng.firebase.FirestoreClass
 import com.example.mattatoyomng.models.User
 import com.example.mattatoyomng.utils.Constants
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 import java.io.IOException
-import kotlin.Exception
 
 
 class UpdateProfileFragment : BaseFragment(), FirestoreClass.GetUserDataCallback,
-    FirestoreClass.UpdateProfileCallback {
+    FirestoreClass.UpdateProfileCallback, FirebaseStorageClass.UploadImageCallback {
     private val TAG: String = "UpdateProfileFragment"
 
     private lateinit var binding: FragmentUpdateProfileBinding
@@ -157,33 +155,7 @@ class UpdateProfileFragment : BaseFragment(), FirestoreClass.GetUserDataCallback
         val imageFilename =
             "user_" + System.currentTimeMillis() + "." + getFileExtension(profilePicUri)
 
-        if (profilePicUri != null) {
-            // get storage reference
-            val sRef: StorageReference = FirebaseStorage.getInstance().reference
-                .child("user_profile_pics")
-                .child(imageFilename)
-
-            // save image to Firebase Storage "user_profile_pics" folder
-            sRef.putFile(profilePicUri!!)
-                .addOnSuccessListener { taskSnapshot ->
-                    // hide progress bar
-                    binding.profilePB.visibility = View.INVISIBLE
-                    // Get the downloadable url from the task snapshot
-                    // assign value to image URL global variable
-                    taskSnapshot.metadata!!.reference!!.downloadUrl
-                        .addOnSuccessListener { uri ->
-                            // save image URL
-                            profilePicUrl = uri.toString()
-                            updateUserInfo()
-                        }
-                }
-                .addOnFailureListener { exception ->
-                    // if operation fails hide progress bar and show Snackbar with error
-                    binding.profilePB.visibility = View.INVISIBLE
-                    Log.e(TAG, "ERROR: ${exception.message}")
-                    showErrorSnackBar("ERROR uploading user profile picture")
-                }
-        }
+        FirebaseStorageClass().uploadImage(this, imageFilename, profilePicUri!!)
     }
 
     private fun updateUserInfo() {
@@ -243,6 +215,11 @@ class UpdateProfileFragment : BaseFragment(), FirestoreClass.GetUserDataCallback
         showErrorSnackBar(e.message!!)
     }
 
+    private fun imageUploadFail(e: Exception) {
+        binding.profilePB.visibility = View.VISIBLE
+        showErrorSnackBar(e.message!!)
+    }
+
     override fun onGetUserDataSuccess(user: User) {
         setUserDataInUI(user)
     }
@@ -257,5 +234,14 @@ class UpdateProfileFragment : BaseFragment(), FirestoreClass.GetUserDataCallback
 
     override fun onUpdateProfileFail(e: Exception) {
         profileUpdateFail(e)
+    }
+
+    override fun onUploadImageSuccess(url: String) {
+        profilePicUrl = url
+        updateUserInfo()
+    }
+
+    override fun onUploadImageFail(e: Exception) {
+        imageUploadFail(e)
     }
 }

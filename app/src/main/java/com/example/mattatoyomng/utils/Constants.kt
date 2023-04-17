@@ -3,11 +3,14 @@ package com.example.mattatoyomng.utils
 object Constants {
 
     // Firebase Constants:
-    // 1. collection for users
-    // 2. collection for events
+    // collection for users
     const val USERS: String = "users"
+    // collection for events
     const val EVENTS: String = "events"
+    // collection for todos
     const val TODOS: String = "todos"
+    // storage folder name
+    const val USER_PICS_FOLDER: String = "user_profile_pics"
 
     // Firestore db field names
     // User class
