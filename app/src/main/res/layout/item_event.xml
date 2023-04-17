@@ -55,13 +55,18 @@
 
 				<com.google.android.material.chip.ChipGroup
 					android:id="@+id/eventItemTagsCG"
-					android:layout_width="240dp"
+					android:layout_width="220dp"
 					android:layout_height="wrap_content"
+					app:layout_constrainedWidth="true"
 					android:layout_marginTop="8dp"
 					android:layout_marginStart="@dimen/default_margin_start"
+					android:layout_marginEnd="@dimen/default_margin_start"
+					android:paddingStart="12dp"
+					android:paddingEnd="10dp"
 					app:layout_constraintEnd_toEndOf="parent"
 					app:layout_constraintStart_toEndOf="@id/eventImageIV"
-					app:layout_constraintTop_toBottomOf="@+id/eventTitleTV"/>
+					app:layout_constraintTop_toBottomOf="@+id/eventTitleTV">
+				</com.google.android.material.chip.ChipGroup>
 
 				<TextView
 					android:id="@+id/eventDescriptionTV"
