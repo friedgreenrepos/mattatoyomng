@@ -16,15 +16,17 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="matta_blue">#3F51B5</color>
+    <color name="matta_blue_dark">#283593</color>
     <color name="matta_red">#D30D3C</color>
+    <color name="matta_red_dark">#93092a</color>
     <color name="red_grey">#A77B86</color>
 
     <color name="colorPrimary">@color/matta_red</color>
-    <color name="colorSecondary">#cddc39</color>
+    <color name="colorSecondary">@color/matta_blue</color>
     <color name="colorPrimaryDark">#93092a</color>
-    <color name="colorSecondaryDark">#8ab200</color>
+    <color name="colorSecondaryDark">@color/matta_blue_dark</color>
     <color name="colorOnPrimary">@color/white</color>
-    <color name="colorOnSecondary">@color/black</color>
+    <color name="colorOnSecondary">#ccc</color>
 
     <color name="inactive_text_color">#BEBEBE</color>
 </resources>
