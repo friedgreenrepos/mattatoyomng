@@ -25,6 +25,7 @@ import androidx.appcompat.widget.Toolbar
 import com.bumptech.glide.Glide
 import com.example.mattatoyomng.R
 import com.example.mattatoyomng.databinding.ActivityEventCreateUpdateBinding
+import com.example.mattatoyomng.firebase.FirebaseStorageClass
 import com.example.mattatoyomng.firebase.FirestoreClass
 import com.example.mattatoyomng.fragments.EventsFragment
 import com.example.mattatoyomng.models.Event
@@ -42,15 +43,13 @@ import com.example.mattatoyomng.utils.dpToPx
 import com.example.mattatoyomng.utils.timeFormatter
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.Timestamp
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 import java.io.IOException
 import java.util.Calendar
 
 
 class EventCreateUpdateActivity : BaseActivity(), View.OnClickListener,
     FirestoreClass.UpdateEventCallback, FirestoreClass.CreateEventCallback,
-    FirestoreClass.GetUserDataCallback {
+    FirestoreClass.GetUserDataCallback, FirebaseStorageClass.UploadImageCallback {
 
     val TAG: String = "CreateEventActivity"
 
@@ -60,9 +59,6 @@ class EventCreateUpdateActivity : BaseActivity(), View.OnClickListener,
     // Toolbar
     private lateinit var toolbar: Toolbar
     private var toolbarTitle: String = ""
-
-    // Firebase
-    private var storageReference = FirebaseStorage.getInstance().reference
 
     // Global variable for URI of a selected image from phone storage.
     private var eventImageUri: Uri? = null
@@ -175,6 +171,9 @@ class EventCreateUpdateActivity : BaseActivity(), View.OnClickListener,
                 val reminderMap = eventDetails!!.userReminderMap
                 addReminderInView(reminderMap)
                 saveEventBTN.text = resources.getString(R.string.update)
+                if (eventDetails!!.eventImgURL.isNotEmpty()) {
+                    addEventImageTV.text = resources.getString(R.string.update_event_image)
+                }
                 try {
                     Glide
                         .with(this@EventCreateUpdateActivity)
@@ -392,34 +391,11 @@ class EventCreateUpdateActivity : BaseActivity(), View.OnClickListener,
     private fun uploadEventImage() {
         // show progress bar
         binding.createEventPB.visibility = View.VISIBLE
-
         val imageFilename =
             "event_" + System.currentTimeMillis() + "." + getFileExtension(eventImageUri)
-
         if (eventImageUri != null) {
-            // save image to Firebase Storage "events_images" folder
-            val sRef: StorageReference = storageReference
-                .child("events_images")
-                .child(imageFilename)
-            sRef.putFile(eventImageUri!!)
-                .addOnSuccessListener { taskSnapshot ->
-                    // hide progress bar
-                    binding.createEventPB.visibility = View.INVISIBLE
-                    // Get the downloadable url from the task snapshot
-                    // assign value to image URL global variable
-                    taskSnapshot.metadata!!.reference!!.downloadUrl
-                        .addOnSuccessListener { uri ->
-                            eventImageUrl = uri.toString()
-                            Log.i("Downloadable Image URL", eventImageUrl)
-                            saveEvent()
-                        }
-                }
-                .addOnFailureListener { exception ->
-                    // if operation fails show snackbar with error
-                    val msg = "ERROR: ${exception.message}"
-                    Log.e(TAG, msg)
-                    showErrorSnackBar(msg)
-                }
+            // save image to Firebase Storage
+            FirebaseStorageClass().uploadImage(this, imageFilename, eventImageUri!!)
         }
     }
 
@@ -613,6 +589,11 @@ class EventCreateUpdateActivity : BaseActivity(), View.OnClickListener,
         showErrorSnackBar(e.message!!)
     }
 
+    private fun imageUploadFail(e: Exception) {
+        binding.createEventPB.visibility = View.INVISIBLE
+        showErrorSnackBar(e.message!!)
+    }
+
     override fun onUpdateEventSuccess() {
         eventUpdateSuccess()
     }
@@ -635,6 +616,15 @@ class EventCreateUpdateActivity : BaseActivity(), View.OnClickListener,
 
     override fun onGetUserDataFail(e: Exception) {
         getUserDataFail(e)
+    }
+
+    override fun onUploadImageSuccess(url: String) {
+        eventImageUrl = url
+        saveEvent()
+    }
+
+    override fun onUploadImageFail(e: Exception) {
+        imageUploadFail(e)
     }
 
 }

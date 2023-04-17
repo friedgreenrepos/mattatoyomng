@@ -9,8 +9,11 @@ object Constants {
     const val EVENTS: String = "events"
     // collection for todos
     const val TODOS: String = "todos"
-    // storage folder name
+    // storage folder name for user profile pictures
     const val USER_PICS_FOLDER: String = "user_profile_pics"
+    // storage folder name for event images
+    const val EVENT_IMAGES: String = "events_images"
+
 
     // Firestore db field names
     // User class
