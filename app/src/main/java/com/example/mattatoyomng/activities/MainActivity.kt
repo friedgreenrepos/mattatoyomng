@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -88,6 +89,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             R.id.eventsItem -> {
                 replaceFragment(EventsFragment(), item.title.toString())
             }
+
             R.id.todoItem -> {
                 replaceFragment(TodoListFragment(), item.title.toString())
             }
@@ -124,9 +126,14 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         // Set user username in nav header
         val navUsername = headerView.findViewById<TextView>(R.id.usernameTV)
         navUsername.text = user.username
+        // set star icon if user is admin
+        if (user.admin) {
+            val navStar = headerView.findViewById<ImageView>(R.id.userStarAdmin)
+            navStar.visibility = View.VISIBLE
+        }
     }
 
-    private fun getUserDataFail(e: Exception){
+    private fun getUserDataFail(e: Exception) {
         showErrorSnackBar(e.message!!)
     }
 

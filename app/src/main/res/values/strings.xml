@@ -104,5 +104,6 @@
 	<string name="add_new_todo">Add new todo</string>
 	<string name="todo_create_success">Todo item successfully added</string>
 	<string name="todo_create_fail">Couldn\'t add todo</string>
+	<string name="user_is_admin">User is admin</string>
 
 </resources>

@@ -20,30 +20,6 @@ class FirestoreClass {
 
     val dbFirestore = FirebaseFirestore.getInstance()
 
-    interface IsUserAdminCallback {
-        fun isUserAdminSuccess(isAdmin: Boolean)
-        fun isUserAdminFail(e: Exception)
-    }
-    fun isCurrentUserAdmin(callback: IsUserAdminCallback) {
-        CoroutineScopes.IO.launch {
-            dbFirestore.collection(Constants.USERS)
-                .document(FirebaseAuthClass().getCurrentUserID())
-                .get()
-                .addOnSuccessListener { document ->
-                    // Convert document to User object.
-                    val loggedInUser = document.toObject(User::class.java)!!
-                    val isAdmin = loggedInUser.admin
-
-                    Log.d(TAG, "is user ${loggedInUser.username} admin?? $isAdmin")
-                    callback.isUserAdminSuccess(isAdmin)
-                }
-                .addOnFailureListener { e ->
-                    callback.isUserAdminFail(e)
-                }
-        }
-    }
-
-
     interface RegisterUserCallback {
         fun onRegisterUserSuccess()
         fun onRegisterUserError(e: Exception)

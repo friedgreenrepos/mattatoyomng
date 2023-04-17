@@ -23,12 +23,13 @@ import com.example.mattatoyomng.adapters.EventRecyclerAdapter
 import com.example.mattatoyomng.databinding.FragmentEventsBinding
 import com.example.mattatoyomng.firebase.FirestoreClass
 import com.example.mattatoyomng.models.Event
+import com.example.mattatoyomng.models.User
 import com.example.mattatoyomng.utils.SwipeToDeleteCallback
 import com.example.mattatoyomng.utils.SwipeToEditCallback
 import com.example.mattatoyomng.utils.getTodayTimestamp
 
 class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback,
-    FirestoreClass.IsUserAdminCallback {
+    FirestoreClass.GetUserDataCallback {
 
     private val TAG = "EventsFragment"
 
@@ -45,15 +46,6 @@ class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback,
         // Inflate the layout for this fragment
         binding = FragmentEventsBinding.inflate(inflater, container, false)
 
-        if (savedInstanceState == null) {
-            FirestoreClass().isCurrentUserAdmin(this)
-        }
-
-        binding.addEventBTN.setOnClickListener {
-            val intent = Intent(this.context, EventCreateUpdateActivity::class.java)
-            startActivity(intent)
-        }
-
         // initialize recycler view
         eventRecyclerView = binding.eventRV
 
@@ -62,6 +54,10 @@ class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback,
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // check if user is admin
+        FirestoreClass().getUserData(this)
+
         // setup search view in menu
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(object : MenuProvider {
@@ -167,11 +163,27 @@ class EventsFragment : BaseFragment(), FirestoreClass.GetEventListCallback,
         private const val EDIT_EVENT_REQUEST_CODE = 1
     }
 
-    override fun isUserAdminSuccess(isAdmin: Boolean) {
-        isUserAdmin = isAdmin
+    private fun updateAdminUI(user: User) {
+        if (user.admin) {
+            binding.addEventBTN.visibility = View.VISIBLE
+            binding.addEventBTN.setOnClickListener {
+                val intent = Intent(this.context, EventCreateUpdateActivity::class.java)
+                startActivity(intent)
+            }
+            // setting global variable
+            isUserAdmin = true
+        } else {
+            binding.addEventBTN.visibility = View.INVISIBLE
+            // setting global variable
+            isUserAdmin = false
+        }
     }
 
-    override fun isUserAdminFail(e: Exception) {
+    override fun onGetUserDataSuccess(user: User) {
+        updateAdminUI(user)
+    }
+
+    override fun onGetUserDataFail(e: Exception) {
         Log.d(TAG, e.message!!)
     }
 }
