@@ -236,7 +236,7 @@ class UpdateProfileFragment : BaseFragment(), FirestoreClass.GetUserDataCallback
 
         binding.profileNameET.setText(user.name)
         binding.profileUsernameET.setText(user.username)
-        binding.profileEmailET.setText(user.email)
+        binding.profileEmailTV.text = user.email
     }
 
     private fun getUserDataFail(e: Exception) {
