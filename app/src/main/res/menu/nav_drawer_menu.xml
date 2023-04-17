@@ -13,7 +13,8 @@
 					<item
 						android:id="@+id/todoItem"
 						android:title="@string/todo"
-						android:icon="@drawable/todo"/>
+						android:icon="@drawable/todo"
+						android:visible="false"/>
 				</group>
 			</menu>
 		</item>

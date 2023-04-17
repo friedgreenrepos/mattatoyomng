@@ -133,12 +133,23 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
     }
 
+    private fun updateMenuItems(user: User) {
+        if (user.admin) {
+            val navMenu = binding.navView.menu
+            val todoItem = navMenu.findItem(R.id.todoItem)
+            if (todoItem != null) {
+                todoItem.isVisible = true
+            }
+        }
+    }
+
     private fun getUserDataFail(e: Exception) {
         showErrorSnackBar(e.message!!)
     }
 
     override fun onGetUserDataSuccess(user: User) {
         updateNavigationUserDetails(user)
+        updateMenuItems(user)
     }
 
     override fun onGetUserDataFail(e: Exception) {
