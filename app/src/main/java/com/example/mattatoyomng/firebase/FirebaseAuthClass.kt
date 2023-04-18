@@ -51,7 +51,8 @@ class FirebaseAuthClass {
                     val user = User(
                         firebaseUser.uid,
                         name,
-                        username
+                        username,
+                        email
                     )
                     callback.onCreateUserSuccess(user)
                 }
